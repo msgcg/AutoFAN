@@ -64,14 +64,14 @@ namespace FanCtrl
             {
                 if (PawnIo.Version < new Version(2, 0, 0, 0))
                 {
-                    DialogResult result = MessageBox.Show(StringLib.PawnIO_update, "FanCtrl", MessageBoxButtons.OKCancel);
+                    DialogResult result = MessageBox.Show(StringLib.PawnIO_update, "AutoFAN", MessageBoxButtons.OKCancel);
                     if (result == DialogResult.OK)
                         Util.InstallPawnIO();
                 }
             }
             else
             {
-                DialogResult result = MessageBox.Show(StringLib.PawnIO_install, "FanCtrl", MessageBoxButtons.OKCancel);
+                DialogResult result = MessageBox.Show(StringLib.PawnIO_install, "AutoFAN", MessageBoxButtons.OKCancel);
                 if (result == DialogResult.OK)
                     Util.InstallPawnIO();
             }

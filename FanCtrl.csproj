@@ -338,16 +338,21 @@
     <EmbeddedResource Include="Resources\StringLib.de.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>StringLib.de.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\StringLib.ru.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>StringLib.ru.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\StringLib.es.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>StringLib.es.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\StringLib.zh.resx" />
+    <EmbeddedResource Include="Resources\StringLib.zh.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="src\UI\ControlForm.resx">
       <DependentUpon>ControlForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -394,14 +399,17 @@
     <EmbeddedResource Include="Resources\StringLib.fr.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>StringLib.fr.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\StringLib.ja.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>StringLib.ja.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\StringLib.ko.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>StringLib.ko.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\StringLib.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

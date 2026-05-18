@@ -259,10 +259,10 @@
     <value>Localisation</value>
   </data>
   <data name="Made1" xml:space="preserve">
-    <value>Fait par Lich</value>
+    <value>Fait par msgcg</value>
   </data>
   <data name="Made2" xml:space="preserve">
-    <value>(lich426@gmail.com)</value>
+    <value>(msgcg426@gmail.com)</value>
   </data>
   <data name="Mode" xml:space="preserve">
     <value>Mode</value>
@@ -385,7 +385,7 @@
     <value>système</value>
   </data>
   <data name="Title" xml:space="preserve">
-    <value>FanCtrl</value>
+    <value>AutoFAN</value>
   </data>
   <data name="Tray_Icon_animation" xml:space="preserve">
     <value>Animation de l'icône</value>

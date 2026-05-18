@@ -265,7 +265,7 @@ namespace FanCtrl
             this.mMadeLabel1.Name = "mMadeLabel1";
             this.mMadeLabel1.Size = new System.Drawing.Size(83, 12);
             this.mMadeLabel1.TabIndex = 7;
-            this.mMadeLabel1.Text = "Made by AutoFAN";
+            this.mMadeLabel1.Text = "Made by msgcg";
             // 
             // mMadeLabel2
             // 
@@ -361,11 +361,10 @@ namespace FanCtrl
             this.Controls.Add(this.mReloadButton);
             this.Controls.Add(this.mOSDButton);
             this.Controls.Add(this.mOptionButton);
-            this.Controls.Add(this.mIntelligentButton);
-            this.Controls.Add(this.mDonatePictureBox);
             this.Controls.Add(this.mMadeLabel2);
             this.Controls.Add(this.mMadeLabel1);
             this.Controls.Add(this.mFanControlButton);
+            this.Controls.Add(this.mIntelligentButton);
             this.Controls.Add(this.mControlGroupBox);
             this.Controls.Add(this.mFanGroupBox);
             this.Controls.Add(this.mTempGroupBox);
