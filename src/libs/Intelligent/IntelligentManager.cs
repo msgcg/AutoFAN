@@ -9,7 +9,9 @@ namespace FanCtrl
     public class MappingResult
     {
         public string TempID { get; set; }
+        public string TempName { get; set; }
         public string ControlID { get; set; }
+        public string ControlName { get; set; }
         public double Delta { get; set; }
         public double Confidence { get; set; } // percent: 0-100
     }
@@ -30,8 +32,8 @@ namespace FanCtrl
         // Configuration constants
         private const int MAX_PWM_DURING_TEST = 70;  // Safety limit for test: max 70%
         private const int TEST_PWM_DELTA = 25;       // Increment PWM by 25% for test
-        private const int STABILIZATION_SAMPLES = 10; // Number of samples to average
-        private const int SAMPLE_INTERVAL_MS = 300;   // Wait between samples (300ms)
+        private const int STABILIZATION_SAMPLES = 20; // Number of samples to average (increased for better accuracy)
+        private const int SAMPLE_INTERVAL_MS = 500;   // Wait between samples (500ms)
         private const double CONFIDENCE_THRESHOLD = 1.0; // Minimum delta to consider valid
 
         // Start mapping asynchronously
@@ -116,28 +118,31 @@ namespace FanCtrl
                                 {
                                     string tempID = kvp.Key;
                                     double delta = kvp.Value;
+                                    var t = tempList.Find(x => x.ID == tempID);
 
                                     if (delta >= CONFIDENCE_THRESHOLD)
                                     {
                                         results.Add(new MappingResult()
                                         {
                                             TempID = tempID,
+                                            TempName = t != null ? t.Name : tempID,
                                             ControlID = control.ID,
+                                            ControlName = control.Name,
                                             Delta = delta,
                                             Confidence = 0 // Will be calculated after aggregation
                                         });
-                                        onLog?.Invoke($"    sensor {tempID}: avg delta={delta:F2}°C");
+                                        onLog?.Invoke($"    sensor {t?.Name ?? tempID}: avg delta={delta:F2}°C");
                                     }
                                 }
 
-                                Thread.Sleep(1000); // Cool-down between levels
+                                Thread.Sleep(2000); // Cool-down between levels
                             }
 
                             // Restore original control value
                             try { control.setSpeedWithTimer(original); }
                             catch { try { control.setSpeed(original); } catch { } }
 
-                            Thread.Sleep(2000); // Wait for temps to return to baseline before next control test
+                            Thread.Sleep(5000); // Wait for temps to return to baseline before next control test
                         }
                         catch (Exception ex)
                         {
@@ -245,7 +250,9 @@ namespace FanCtrl
                 grouped.Add(new MappingResult()
                 {
                     TempID = best.TempID,
+                    TempName = best.TempName,
                     ControlID = best.ControlID,
+                    ControlName = best.ControlName,
                     Delta = best.Delta,
                     Confidence = confidence
                 });

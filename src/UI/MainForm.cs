@@ -407,6 +407,7 @@ namespace FanCtrl
             mHotKeyButton.Top = buttonPoint;
             mPluginButton.Top = buttonPoint;
             mOSDButton.Top = buttonPoint;
+            mIntelligentButton.Top = buttonPoint;
             mOptionButton.Top = buttonPoint;
             mFanControlButton.Top = buttonPoint;
 

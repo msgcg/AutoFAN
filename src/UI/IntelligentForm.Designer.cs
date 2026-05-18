@@ -23,6 +23,7 @@ namespace FanCtrl
         private System.Windows.Forms.DataGridView mMappingDataGridView;
         private System.Windows.Forms.Button mAcceptButton;
         private System.Windows.Forms.Button mCreateProfileButton;
+        private System.Windows.Forms.Button mOptimizeAIButton;
         private System.Windows.Forms.Button mCancelButton;
 
         private void InitializeComponent()
@@ -37,6 +38,7 @@ namespace FanCtrl
             this.mMappingDataGridView = new System.Windows.Forms.DataGridView();
             this.mAcceptButton = new System.Windows.Forms.Button();
             this.mCreateProfileButton = new System.Windows.Forms.Button();
+            this.mOptimizeAIButton = new System.Windows.Forms.Button();
             this.mCancelButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.mMappingDataGridView)).BeginInit();
             this.SuspendLayout();
@@ -127,6 +129,16 @@ namespace FanCtrl
             this.mCreateProfileButton.UseVisualStyleBackColor = true;
             this.mCreateProfileButton.Enabled = false;
             // 
+            // mOptimizeAIButton
+            // 
+            this.mOptimizeAIButton.Location = new System.Drawing.Point(290, 377);
+            this.mOptimizeAIButton.Name = "mOptimizeAIButton";
+            this.mOptimizeAIButton.Size = new System.Drawing.Size(150, 30);
+            this.mOptimizeAIButton.TabIndex = 8;
+            this.mOptimizeAIButton.Text = "AI Optimize";
+            this.mOptimizeAIButton.UseVisualStyleBackColor = true;
+            this.mOptimizeAIButton.Enabled = false;
+            // 
             // mCancelButton
             // 
             this.mCancelButton.Location = new System.Drawing.Point(468, 377);
@@ -141,6 +153,7 @@ namespace FanCtrl
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(580, 420);
             this.Controls.Add(this.mCancelButton);
+            this.Controls.Add(this.mOptimizeAIButton);
             this.Controls.Add(this.mCreateProfileButton);
             this.Controls.Add(this.mAcceptButton);
             this.Controls.Add(this.mMappingDataGridView);

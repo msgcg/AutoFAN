@@ -2,3 +2,5 @@
 obj/
 bin/
 docks/
+src/models/*
+!/src/models/.gitkeep
