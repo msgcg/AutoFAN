@@ -154,6 +154,11 @@ namespace FanCtrl
                     // Aggregate results: for each temp find the control with max delta
                     var grouped = AggregateResults(results);
 
+                    if (grouped.Count == 0)
+                    {
+                        onLog?.Invoke("Warning: No significant temperature deltas detected. Check hardware connectivity.");
+                    }
+
                     onLog?.Invoke($"Mapping complete. Found {grouped.Count} sensor-control associations.");
                     onFinished?.Invoke(grouped);
                 }
