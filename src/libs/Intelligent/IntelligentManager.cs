@@ -16,6 +16,12 @@ namespace FanCtrl
         public double Confidence { get; set; } // percent: 0-100
     }
 
+    public class BaselineData
+    {
+        public double Average { get; set; }
+        public double StdDev { get; set; }
+    }
+
     public class IntelligentManager
     {
         private static IntelligentManager sInstance = new IntelligentManager();
@@ -30,11 +36,11 @@ namespace FanCtrl
         public bool IsRunning { get; private set; } = false;
 
         // Configuration constants
-        private const int MAX_PWM_DURING_TEST = 100; // Increased to 100% for better deltas
-        private const int TEST_PWM_DELTA = 30;       // Increment PWM by 30% for test
-        private const int STABILIZATION_SAMPLES = 30; // Increased samples for better averaging
-        private const int SAMPLE_INTERVAL_MS = 1000;  // Wait 1s between samples
-        private const double CONFIDENCE_THRESHOLD = 1.5; // Increased threshold for validity
+        private const int MAX_PWM_DURING_TEST = 100; 
+        private const int STABILIZATION_WAIT_SEC = 30; // More time for SSDs to react
+        private const int SAMPLE_COUNT = 10;
+        private const int SAMPLE_INTERVAL_MS = 1000;
+        private const double CONFIDENCE_THRESHOLD = 0.3; // High sensitivity for SSDs
 
         // Start mapping asynchronously
         public async Task StartMappingAsync()
@@ -53,46 +59,63 @@ namespace FanCtrl
                     var hw = HardwareManager.getInstance();
 
                     // Snapshot controls and sensors
-                    var tempList = hw.TempBaseList.ToList();
+                    var allTemps = hw.TempBaseList.ToList();
                     var allFans = hw.FanBaseList.ToList();
                     var allControls = hw.ControlBaseList.ToList();
 
-                    // Filter controls: only those that have a corresponding fan with RPM > 0
+                    // Filter sensors: pick only ONE main sensor per hardware device
+                    var tempList = new List<BaseSensor>();
+                    foreach (var hwTypeGroup in hw.TempList)
+                    {
+                        foreach (var hwDevice in hwTypeGroup)
+                        {
+                            var sensors = hwDevice.DeviceList.Cast<BaseSensor>().ToList();
+                            if (sensors.Count == 0) continue;
+
+                            onLog?.Invoke($"Found sensors on {hwDevice.Name}: {string.Join(", ", sensors.Select(s => s.Name))}");
+
+                            // Priority names for "Main" sensor
+                            var priorityNames = new[] { "Package", "Core Max", "CPU Core", "GPU Core", "HotSpot", "Junction", "Drive", "Temperature", "CPU", "Core" };
+                            BaseSensor mainSensor = null;
+                            
+                            foreach (var pName in priorityNames)
+                            {
+                                mainSensor = sensors.FirstOrDefault(s => s.Name.IndexOf(pName, StringComparison.OrdinalIgnoreCase) >= 0);
+                                if (mainSensor != null) break;
+                            }
+                            
+                            if (mainSensor == null) mainSensor = sensors.OrderByDescending(s => s.Value).First();
+                            
+                            tempList.Add(mainSensor);
+                            onLog?.Invoke($"  -> Selected as main sensor for {hwDevice.Name}: {mainSensor.Name}");
+                        }
+                    }
+
+                    // Filter controls: STRICT RPM CHECK
                     var activeControls = new List<BaseControl>();
                     foreach (var control in allControls)
                     {
                         string controlDeviceName = GetHardwareDeviceName(control, hw.ControlList);
                         var deviceFans = allFans.Where(f => GetHardwareDeviceName(f, hw.FanList) == controlDeviceName).ToList();
                         
-                        // Try to find if THIS specific control has a spinning fan
-                        // We check if there's any fan on the same device that is actually spinning
-                        // For GPUs, usually one control affects all fans. 
-                        // For motherboards, we try to be more specific if the names match (e.g. "Fan #1" and "Control #1")
                         bool isActuallyActive = false;
                         
-                        if (deviceFans.Count > 0)
+                        // Strict match by name or index
+                        var matchingFan = deviceFans.FirstOrDefault(f => 
+                            f.Name.Equals(control.Name, StringComparison.OrdinalIgnoreCase) || 
+                            (ExtractIndex(f.Name) == ExtractIndex(control.Name) && !string.IsNullOrEmpty(ExtractIndex(f.Name)))
+                        );
+
+                        if (matchingFan != null)
                         {
-                            // If it's a GPU or Kraken, usually any spinning fan on the device is enough
-                            if (controlDeviceName.Contains("NVIDIA") || controlDeviceName.Contains("Kraken"))
-                            {
-                                isActuallyActive = deviceFans.Any(f => f.Value > 0);
-                            }
-                            else
-                            {
-                                // For Motherboards/SuperIO, try to find a fan with a matching index or name
-                                // If names are like "Fan #1" and "Control #1", match them.
-                                // Otherwise, fallback to any spinning fan on the device to be safe but skip if all are 0.
-                                var matchingFan = deviceFans.FirstOrDefault(f => ExtractIndex(f.Name) == ExtractIndex(control.Name));
-                                if (matchingFan != null)
-                                {
-                                    isActuallyActive = (matchingFan.Value > 0);
-                                }
-                                else
-                                {
-                                    isActuallyActive = deviceFans.Any(f => f.Value > 0);
-                                }
-                            }
+                            isActuallyActive = (matchingFan.Value > 0);
                         }
+                        else if (controlDeviceName.Contains("NVIDIA") || controlDeviceName.Contains("Kraken"))
+                        {
+                            // For complex devices, fallback to any spinning fan
+                            isActuallyActive = deviceFans.Any(f => f.Value > 0);
+                        }
+                        // If motherboard header has no matching fan with RPM, we skip it (e.g. Pump Fan = 0)
 
                         if (isActuallyActive)
                         {
@@ -101,7 +124,7 @@ namespace FanCtrl
                         }
                         else
                         {
-                            onLog?.Invoke($"Skipping control: {control.Name} (No RPM detected on {controlDeviceName})");
+                            onLog?.Invoke($"Skipping control: {control.Name} (No associated RPM found on {controlDeviceName})");
                         }
                     }
 
@@ -111,116 +134,128 @@ namespace FanCtrl
                         return;
                     }
 
-                    onLog?.Invoke($"Starting test for {activeControls.Count} active controls and {tempList.Count} sensors.");
+                    // NEW: Reset all active controls to AUTO before starting baseline
+                    onLog?.Invoke("Forcing controls to AUTO mode (bypassing safety guards)...");
+                    foreach (var control in activeControls)
+                    {
+                        try 
+                        { 
+                            control.IsSetSpeed = true; // Force it to attempt a reset
+                            control.setAuto(); 
+                        } 
+                        catch { }
+                    }
+                    Thread.Sleep(5000); // Wait for fans to settle
+
+                    onLog?.Invoke($"Starting hyper-accurate test: {activeControls.Count} fans vs {tempList.Count} sensors.");
 
                     // Store original control values
                     var originalValues = new Dictionary<string, int>();
-                    foreach (var control in activeControls)
-                    {
-                        originalValues[control.ID] = control.Value;
-                    }
+                    foreach (var control in activeControls) originalValues[control.ID] = control.Value;
 
-                    // Establish baseline: sample temps multiple times with controls at original speed
-                    onLog?.Invoke("Establishing baseline temperatures...");
-                    var baselineTemps = EstablishBaseline(tempList, 5);
-                    if (baselineTemps == null)
-                    {
-                        onLog?.Invoke("Failed to establish baseline.");
-                        return;
-                    }
-
+                    int targetRPM = 0;
                     int total = activeControls.Count;
                     for (int i = 0; i < activeControls.Count; i++)
                     {
-                        if (token.IsCancellationRequested) 
-                        {
-                            onLog?.Invoke("Test cancelled by user. Aggregating partial results...");
-                            break;
-                        }
+                        if (token.IsCancellationRequested) break;
 
                         var control = activeControls[i];
-                        // ... (rest of the testing logic remains the same)
+                        int originalValue = originalValues[control.ID];
+                        var associatedFan = GetAssociatedFan(control, hw);
+                        int currentPWM = MAX_PWM_DURING_TEST;
+
                         try
                         {
-                            onLog?.Invoke($"Testing control: {control.ID} ({i+1}/{total})");
+                            onLog?.Invoke($"[{i + 1}/{total}] Testing: {control.Name}");
+                            
+                            // 1. MEASURE LOCAL BASELINE AND NOISE
+                            onLog?.Invoke("  Measuring thermal noise profile...");
+                            var localBaseline = MeasureBaseline(tempList, 15);
 
-                            int original = originalValues[control.ID];
-                            int max = control.getMaxSpeed();
-                            int min = Math.Max(0, max / 4); // minimum 25% to avoid stalling
-
-                            // Multi-level testing: test at different PWM levels
-                            for (int level = 0; level < 2; level++) // Test at 2 levels
+                            // 2. APPLY TEST SPEED WITH DYNAMIC RPM NORMALIZATION
+                            control.setSpeed(currentPWM);
+                            onLog?.Invoke($"  Stabilizing... (Target RPM: {(targetRPM > 0 ? targetRPM.ToString() : "Max")})");
+                            
+                            int checkSteps = STABILIZATION_WAIT_SEC * 5; // 5 checks per second (0.2s interval)
+                            for (int s = 0; s < checkSteps; s++)
                             {
                                 if (token.IsCancellationRequested) break;
-
-                                int testValue = original + (TEST_PWM_DELTA * (level + 1));
-                                testValue = Math.Min(MAX_PWM_DURING_TEST, Math.Max(min, testValue));
-
-                                if (testValue == original)
-                                    continue; // Skip if test value is same as original
-
-                                onLog?.Invoke($"  Level {level + 1}: setting PWM to {testValue}");
-
-                                // Apply test value
-                                try { control.setSpeedWithTimer(testValue); }
-                                catch { try { control.setSpeed(testValue); } catch { } }
-
-                                // Wait for system to stabilize and sample temps
-                                var deltaData = SampleTempDeltas(tempList, baselineTemps, STABILIZATION_SAMPLES, SAMPLE_INTERVAL_MS);
-
-                                foreach (var kvp in deltaData)
+                                
+                                // Active RPM correction every 200ms after 5 seconds of initial spin-up
+                                if (targetRPM > 0 && associatedFan != null && s > 25)
                                 {
-                                    string tempID = kvp.Key;
-                                    double delta = kvp.Value;
-                                    var t = tempList.Find(x => x.ID == tempID);
+                                    // Ensure we have the latest reading
+                                    try { associatedFan.update(); } catch { }
+                                    
+                                    int currentRPM = associatedFan.Value;
+                                    int minPWM = control.getMinSpeed();
 
-                                    if (delta >= CONFIDENCE_THRESHOLD)
+                                    // Adjustment logic: faster but smaller steps (1-2%) for 0.2s frequency
+                                    if (currentRPM > targetRPM + 30 && currentPWM > minPWM)
                                     {
-                                        string tempFullName = GetFullDeviceName(t, hw.TempList);
-                                        string controlFullName = GetFullDeviceName(control, hw.ControlList);
-                                        results.Add(new MappingResult()
-                                        {
-                                            TempID = tempID,
-                                            TempName = tempFullName,
-                                            ControlID = control.ID,
-                                            ControlName = controlFullName,
-                                            Delta = delta,
-                                            Confidence = 0 // Will be calculated after aggregation
-                                        });
-                                        onLog?.Invoke($"    sensor {tempFullName}: avg delta={delta:F2}°C");
+                                        currentPWM -= (currentRPM > targetRPM + 200) ? 3 : 1;
+                                        control.setSpeed(Math.Max(minPWM, currentPWM));
+                                    }
+                                    else if (currentRPM < targetRPM - 30 && currentPWM < 100)
+                                    {
+                                        currentPWM += (currentRPM < targetRPM - 200) ? 3 : 1;
+                                        control.setSpeed(Math.Min(100, currentPWM));
                                     }
                                 }
-
-                                Thread.Sleep(2000); // Cool-down between levels
+                                Thread.Sleep(200);
                             }
 
-                            // Restore original control value
-                            try { control.setSpeedWithTimer(original); }
-                            catch { try { control.setSpeed(original); } catch { } }
+                            // If this is the first fan, record its RPM as target
+                            if (i == 0 && associatedFan != null)
+                            {
+                                targetRPM = associatedFan.Value;
+                                onLog?.Invoke($"  Global Target RPM set to {targetRPM}");
+                            }
 
-                            Thread.Sleep(5000); // Wait for temps to return to baseline before next control test
+                            // 3. MEASURE TEST DATA
+                            var testData = MeasureBaseline(tempList, 10);
+
+                            // 4. CALCULATE DELTAS
+                            foreach (var sensor in tempList)
+                            {
+                                var baseline = localBaseline[sensor.ID];
+                                double testAvg = testData[sensor.ID].Average;
+                                double delta = baseline.Average - testAvg;
+                                
+                                // MANDATORY STORE: every sensor gets every result
+                                results.Add(new MappingResult()
+                                {
+                                    TempID = sensor.ID,
+                                    TempName = GetFullDeviceName(sensor, hw.TempList),
+                                    ControlID = control.ID,
+                                    ControlName = GetFullDeviceName(control, hw.ControlList),
+                                    Delta = delta,
+                                    Confidence = 0 
+                                });
+
+                                double noiseThreshold = Math.Max(CONFIDENCE_THRESHOLD, baseline.StdDev * 2);
+                                if (delta >= noiseThreshold)
+                                {
+                                    onLog?.Invoke($"    -> {sensor.Name}: cooling detected ({delta:F2}°C)");
+                                }
+                            }
+
+                            // 5. RESTORE AND COOL DOWN
+                            control.setSpeed(originalValue);
+                            onLog?.Invoke("  Restoring and cooling down (15s)...");
+                            Thread.Sleep(15000);
                         }
                         catch (Exception ex)
                         {
-                            onLog?.Invoke($"Error testing control {control.ID}: {ex.Message}");
-                            // Restore on error
-                            try { control.setSpeedWithTimer(originalValues[control.ID]); }
-                            catch { try { control.setSpeed(originalValues[control.ID]); } catch { } }
+                            onLog?.Invoke($"Error: {ex.Message}");
+                            control.setSpeed(originalValue);
                         }
 
-                        int percent = (int)((i + 1) * 100 / total);
-                        onProgress?.Invoke(percent);
+                        onProgress?.Invoke((int)((i + 1) * 100 / total));
                     }
 
-                    // Aggregate results: for each temp find the control with max delta
                     var grouped = AggregateResults(results);
-
-                    if (grouped.Count == 0)
-                    {
-                        onLog?.Invoke("Warning: No significant temperature deltas detected. Check hardware connectivity.");
-                    }
-
-                    onLog?.Invoke($"Mapping complete. Found {grouped.Count} sensor-control associations.");
+                    onLog?.Invoke($"Mapping complete. Found {grouped.Count} associations.");
                     onFinished?.Invoke(grouped);
                 }
                 finally
@@ -230,78 +265,58 @@ namespace FanCtrl
             }, token);
         }
 
-        private Dictionary<string, double> EstablishBaseline(List<BaseSensor> tempList, int samples)
+        private void WaitForStability(List<BaseSensor> sensors, CancellationToken token)
         {
-            var baseline = new Dictionary<string, List<int>>();
-            foreach (var t in tempList)
-            {
-                baseline[t.ID] = new List<int>();
-            }
+            // Method removed as requested
+        }
 
-            for (int i = 0; i < samples; i++)
+        private Dictionary<string, BaselineData> MeasureBaseline(List<BaseSensor> sensors, int count)
+        {
+            var data = new Dictionary<string, List<double>>();
+            foreach (var s in sensors) data[s.ID] = new List<double>();
+
+            for (int i = 0; i < count; i++)
             {
-                foreach (var t in tempList)
-                {
-                    baseline[t.ID].Add(t.Value);
-                }
+                foreach (var s in sensors) data[s.ID].Add(s.Value);
                 Thread.Sleep(SAMPLE_INTERVAL_MS);
             }
 
-            // Average samples
-            var result = new Dictionary<string, double>();
-            foreach (var kvp in baseline)
+            var result = new Dictionary<string, BaselineData>();
+            foreach (var kvp in data)
             {
-                result[kvp.Key] = kvp.Value.Average();
-            }
-            return result;
-        }
-
-        private Dictionary<string, double> SampleTempDeltas(List<BaseSensor> tempList, Dictionary<string, double> baseline, int samples, int intervalMs)
-        {
-            var deltas = new Dictionary<string, List<double>>();
-            foreach (var t in tempList)
-            {
-                deltas[t.ID] = new List<double>();
-            }
-
-            for (int i = 0; i < samples; i++)
-            {
-                foreach (var t in tempList)
-                {
-                    double current = t.Value;
-                    double baselineTemp = baseline.ContainsKey(t.ID) ? baseline[t.ID] : current;
-                    double delta = baselineTemp - current; // positive if temp dropped
-                    deltas[t.ID].Add(delta);
-                }
-                Thread.Sleep(intervalMs);
-            }
-
-            // Average deltas
-            var result = new Dictionary<string, double>();
-            foreach (var kvp in deltas)
-            {
-                result[kvp.Key] = kvp.Value.Average();
+                double avg = kvp.Value.Average();
+                double sumOfSquares = kvp.Value.Sum(v => Math.Pow(v - avg, 2));
+                double stdDev = Math.Sqrt(sumOfSquares / count);
+                
+                result[kvp.Key] = new BaselineData { Average = avg, StdDev = stdDev };
             }
             return result;
         }
 
         private List<MappingResult> AggregateResults(List<MappingResult> allResults)
         {
-            if (allResults.Count == 0)
-                return new List<MappingResult>();
+            // (Previous AggregateResults logic with Hero Logic)
+            if (allResults.Count == 0) return new List<MappingResult>();
 
-            // Group by TempID and select control with maximum delta
             var grouped = new List<MappingResult>();
             var byTemp = allResults.GroupBy(r => r.TempID);
 
-            double maxDelta = allResults.Max(r => r.Delta);
-
             foreach (var group in byTemp)
             {
-                var best = group.OrderByDescending(x => x.Delta).First();
-
-                // Calculate confidence: (this delta / max delta) * 100
-                double confidence = (best.Delta / maxDelta) * 100.0;
+                var sensorResults = group.OrderByDescending(x => x.Delta).ToList();
+                var best = sensorResults.First();
+                double confidence = 100.0;
+                
+                if (sensorResults.Count > 1)
+                {
+                    var secondBest = sensorResults[1];
+                    confidence = ((best.Delta - secondBest.Delta) / best.Delta) * 100.0;
+                    if (best.Delta < 1.0) confidence *= (best.Delta / 1.0); // Penalize very small deltas
+                }
+                else
+                {
+                    confidence = Math.Min(100.0, (best.Delta / CONFIDENCE_THRESHOLD) * 50.0);
+                }
 
                 grouped.Add(new MappingResult()
                 {
@@ -310,10 +325,10 @@ namespace FanCtrl
                     ControlID = best.ControlID,
                     ControlName = best.ControlName,
                     Delta = best.Delta,
-                    Confidence = confidence
+                    Confidence = Math.Max(10, Math.Min(100, confidence))
                 });
+                onLog?.Invoke($"Match: {best.TempName} handled by {best.ControlName} (Confidence: {confidence:F1}%)");
             }
-
             return grouped.OrderBy(r => r.Confidence).Reverse().ToList();
         }
 
@@ -354,6 +369,22 @@ namespace FanCtrl
             if (string.IsNullOrEmpty(name)) return "";
             var digits = name.Where(char.IsDigit).ToArray();
             return new string(digits);
+        }
+
+        private BaseSensor GetAssociatedFan(BaseControl control, HardwareManager hw)
+        {
+            string controlDeviceName = GetHardwareDeviceName(control, hw.ControlList);
+            // In this project, Fan speeds are of type BaseSensor
+            var deviceFans = hw.FanBaseList.Where(f => GetHardwareDeviceName(f, hw.FanList) == controlDeviceName).ToList();
+
+            // Try strict match first by name or index
+            var matchingFan = deviceFans.FirstOrDefault(f =>
+                f.Name.Equals(control.Name, StringComparison.OrdinalIgnoreCase) ||
+                (ExtractIndex(f.Name) == ExtractIndex(control.Name) && !string.IsNullOrEmpty(ExtractIndex(f.Name)))
+            );
+
+            // Fallback to first spinning fan sensor on device
+            return matchingFan ?? deviceFans.FirstOrDefault(f => f.Value > 0);
         }
 
         public void Stop()
