@@ -52,40 +52,94 @@ namespace FanCtrl
                 {
                     var hw = HardwareManager.getInstance();
 
-                    // snapshot controls and sensors
+                    // Snapshot controls and sensors
                     var tempList = hw.TempBaseList.ToList();
-                    var controlList = hw.ControlBaseList.ToList();
+                    var allFans = hw.FanBaseList.ToList();
+                    var allControls = hw.ControlBaseList.ToList();
 
-                    if (tempList.Count == 0 || controlList.Count == 0)
+                    // Filter controls: only those that have a corresponding fan with RPM > 0
+                    var activeControls = new List<BaseControl>();
+                    foreach (var control in allControls)
                     {
-                        onLog?.Invoke("No sensors or controls detected.");
+                        string controlDeviceName = GetHardwareDeviceName(control, hw.ControlList);
+                        var deviceFans = allFans.Where(f => GetHardwareDeviceName(f, hw.FanList) == controlDeviceName).ToList();
+                        
+                        // Try to find if THIS specific control has a spinning fan
+                        // We check if there's any fan on the same device that is actually spinning
+                        // For GPUs, usually one control affects all fans. 
+                        // For motherboards, we try to be more specific if the names match (e.g. "Fan #1" and "Control #1")
+                        bool isActuallyActive = false;
+                        
+                        if (deviceFans.Count > 0)
+                        {
+                            // If it's a GPU or Kraken, usually any spinning fan on the device is enough
+                            if (controlDeviceName.Contains("NVIDIA") || controlDeviceName.Contains("Kraken"))
+                            {
+                                isActuallyActive = deviceFans.Any(f => f.Value > 0);
+                            }
+                            else
+                            {
+                                // For Motherboards/SuperIO, try to find a fan with a matching index or name
+                                // If names are like "Fan #1" and "Control #1", match them.
+                                // Otherwise, fallback to any spinning fan on the device to be safe but skip if all are 0.
+                                var matchingFan = deviceFans.FirstOrDefault(f => ExtractIndex(f.Name) == ExtractIndex(control.Name));
+                                if (matchingFan != null)
+                                {
+                                    isActuallyActive = (matchingFan.Value > 0);
+                                }
+                                else
+                                {
+                                    isActuallyActive = deviceFans.Any(f => f.Value > 0);
+                                }
+                            }
+                        }
+
+                        if (isActuallyActive)
+                        {
+                            activeControls.Add(control);
+                            onLog?.Invoke($"Including control: {control.Name} ({controlDeviceName})");
+                        }
+                        else
+                        {
+                            onLog?.Invoke($"Skipping control: {control.Name} (No RPM detected on {controlDeviceName})");
+                        }
+                    }
+
+                    if (tempList.Count == 0 || activeControls.Count == 0)
+                    {
+                        onLog?.Invoke("No sensors or active controls detected.");
                         return;
                     }
 
-                    onLog?.Invoke($"Found {controlList.Count} controls and {tempList.Count} temperature sensors.");
+                    onLog?.Invoke($"Starting test for {activeControls.Count} active controls and {tempList.Count} sensors.");
 
                     // Store original control values
                     var originalValues = new Dictionary<string, int>();
-                    foreach (var control in controlList)
+                    foreach (var control in activeControls)
                     {
                         originalValues[control.ID] = control.Value;
                     }
 
                     // Establish baseline: sample temps multiple times with controls at original speed
                     onLog?.Invoke("Establishing baseline temperatures...");
-                    var baselineTemps = EstablishBaseline(tempList, 5); // 5 samples
+                    var baselineTemps = EstablishBaseline(tempList, 5);
                     if (baselineTemps == null)
                     {
                         onLog?.Invoke("Failed to establish baseline.");
                         return;
                     }
 
-                    int total = controlList.Count;
-                    for (int i = 0; i < controlList.Count; i++)
+                    int total = activeControls.Count;
+                    for (int i = 0; i < activeControls.Count; i++)
                     {
-                        if (token.IsCancellationRequested) break;
+                        if (token.IsCancellationRequested) 
+                        {
+                            onLog?.Invoke("Test cancelled by user. Aggregating partial results...");
+                            break;
+                        }
 
-                        var control = controlList[i];
+                        var control = activeControls[i];
+                        // ... (rest of the testing logic remains the same)
                         try
                         {
                             onLog?.Invoke($"Testing control: {control.ID} ({i+1}/{total})");
@@ -277,6 +331,29 @@ namespace FanCtrl
                 }
             }
             return device.Name;
+        }
+
+        private string GetHardwareDeviceName(BaseDevice device, List<List<HardwareDevice>> hwList)
+        {
+            if (device == null) return "Unknown";
+            foreach (var hwTypeGroup in hwList)
+            {
+                foreach (var hwDevice in hwTypeGroup)
+                {
+                    if (hwDevice.DeviceList.Contains(device))
+                    {
+                        return hwDevice.Name;
+                    }
+                }
+            }
+            return "Unknown";
+        }
+
+        private string ExtractIndex(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return "";
+            var digits = name.Where(char.IsDigit).ToArray();
+            return new string(digits);
         }
 
         public void Stop()
