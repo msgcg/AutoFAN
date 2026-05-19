@@ -9,6 +9,7 @@
     <RootNamespace>FanCtrl</RootNamespace>
     <AssemblyName>FanCtrl</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <LangVersion>8.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -428,7 +429,12 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Content Include="src\models\gemma-4-E2B-it-Q4_K_M.gguf" />
+    <Content Include="src\models\gemma-4-E2B-it-Q4_K_M.gguf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="src\models\json.gbnf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="src\models\.gitkeep" />
     <None Include="Task.md" />
   </ItemGroup>
@@ -460,9 +466,16 @@
     <None Include="Resources\1.ico" />
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <PackageReference Include="LLamaSharp" Version="0.10.0" />
+    <PackageReference Include="LLamaSharp.Backend.Cpu" Version="0.10.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.0" />
+    <PackageReference Include="System.Memory" Version="4.5.5" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(SolutionDir)dll\*.*" "$(TargetDir)"
+    <PostBuildEvent>powershell -Command "Get-ChildItem '$(SolutionDir)dll\*.*' -Exclude mscorlib.dll,System.Text.Json.dll,System.Memory.dll,System.Runtime.CompilerServices.Unsafe.dll,System.Buffers.dll,System.Numerics.Vectors.dll,Microsoft.Bcl.AsyncInterfaces.dll,Microsoft.Bcl.HashCode.dll,System.Threading.Tasks.Extensions.dll,System.ValueTuple.dll | Copy-Item -Destination '$(TargetDir)' -Force"
 mkdir "$(TargetDir)\plugin"
 copy /Y "$(SolutionDir)plugin\*.*" "$(TargetDir)plugin"
 mkdir "$(TargetDir)\preset"

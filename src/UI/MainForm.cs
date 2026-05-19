@@ -41,10 +41,10 @@ namespace FanCtrl
 
         private bool mIsWindowUpdate = false;
 
-        private int mOriginWidth = 899;
-        private int mOriginHeight = 169;
-        private int mWidth = 899;
-        private int mHeight = 169;
+        private int mOriginWidth = 988;
+        private int mOriginHeight = 167;
+        private int mWidth = 988;
+        private int mHeight = 167;
 
         private int mTempTop = 0;
         private int mTempLeft = 0;
@@ -433,8 +433,9 @@ namespace FanCtrl
             mReloadButton.Left = 435 + gapWidth;
             mHotKeyButton.Left = 524 + gapWidth;
             mOSDButton.Left = 613 + gapWidth;
-            mOptionButton.Left = 702 + gapWidth;
-            mFanControlButton.Left = 791 + gapWidth;
+            mIntelligentButton.Left = 702 + gapWidth;
+            mOptionButton.Left = 791 + gapWidth;
+            mFanControlButton.Left = 880 + gapWidth;
 
             for (int i = 0; i < mTempNameTextBoxList.Count; i++)
             {

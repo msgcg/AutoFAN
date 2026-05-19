@@ -30,11 +30,11 @@ namespace FanCtrl
         public bool IsRunning { get; private set; } = false;
 
         // Configuration constants
-        private const int MAX_PWM_DURING_TEST = 70;  // Safety limit for test: max 70%
-        private const int TEST_PWM_DELTA = 25;       // Increment PWM by 25% for test
-        private const int STABILIZATION_SAMPLES = 20; // Number of samples to average (increased for better accuracy)
-        private const int SAMPLE_INTERVAL_MS = 500;   // Wait between samples (500ms)
-        private const double CONFIDENCE_THRESHOLD = 1.0; // Minimum delta to consider valid
+        private const int MAX_PWM_DURING_TEST = 100; // Increased to 100% for better deltas
+        private const int TEST_PWM_DELTA = 30;       // Increment PWM by 30% for test
+        private const int STABILIZATION_SAMPLES = 30; // Increased samples for better averaging
+        private const int SAMPLE_INTERVAL_MS = 1000;  // Wait 1s between samples
+        private const double CONFIDENCE_THRESHOLD = 1.5; // Increased threshold for validity
 
         // Start mapping asynchronously
         public async Task StartMappingAsync()
@@ -122,16 +122,18 @@ namespace FanCtrl
 
                                     if (delta >= CONFIDENCE_THRESHOLD)
                                     {
+                                        string tempFullName = GetFullDeviceName(t, hw.TempList);
+                                        string controlFullName = GetFullDeviceName(control, hw.ControlList);
                                         results.Add(new MappingResult()
                                         {
                                             TempID = tempID,
-                                            TempName = t != null ? t.Name : tempID,
+                                            TempName = tempFullName,
                                             ControlID = control.ID,
-                                            ControlName = control.Name,
+                                            ControlName = controlFullName,
                                             Delta = delta,
                                             Confidence = 0 // Will be calculated after aggregation
                                         });
-                                        onLog?.Invoke($"    sensor {t?.Name ?? tempID}: avg delta={delta:F2}°C");
+                                        onLog?.Invoke($"    sensor {tempFullName}: avg delta={delta:F2}°C");
                                     }
                                 }
 
@@ -259,6 +261,22 @@ namespace FanCtrl
             }
 
             return grouped.OrderBy(r => r.Confidence).Reverse().ToList();
+        }
+
+        private string GetFullDeviceName(BaseDevice device, List<List<HardwareDevice>> hwList)
+        {
+            if (device == null) return "Unknown";
+            foreach (var hwTypeGroup in hwList)
+            {
+                foreach (var hwDevice in hwTypeGroup)
+                {
+                    if (hwDevice.DeviceList.Contains(device))
+                    {
+                        return $"{hwDevice.Name} - {device.Name}";
+                    }
+                }
+            }
+            return device.Name;
         }
 
         public void Stop()

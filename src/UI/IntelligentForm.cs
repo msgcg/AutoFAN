@@ -1,7 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FanCtrl.Resources;
 using System.Windows.Forms;
+using LLama;
+using LLama.Common;
+using LLama.Grammars;
+using System.Text.Json;
 
 namespace FanCtrl
 {
@@ -35,7 +40,7 @@ namespace FanCtrl
             this.mStopButton.Text = "Stop";
             this.mAcceptButton.Text = "Accept";
             this.mCreateProfileButton.Text = "Create Profile";
-            this.mOptimizeAIButton.Text = "AI Optimize";
+            this.mOptimizeAIButton.Text = "AI Remap";
             this.mCancelButton.Text = "Cancel";
         }
 
@@ -133,57 +138,124 @@ namespace FanCtrl
         {
             if (mCurrentResults.Count == 0) return;
             mOptimizeAIButton.Enabled = false;
-            AddLog("Starting AI optimization via llama.cpp (gemma-2b-it)...");
+            AddLog("Starting AI optimization via LLamaSharp...");
             
             try
             {
-                // In a real integration, we would serialize mCurrentResults to JSON,
-                // start a process to run llama.cpp, pass the prompt, and parse the JSON output.
-                // For this implementation, we simulate the async delay of local inference.
-                await System.Threading.Tasks.Task.Delay(3000);
-
-                bool changed = false;
-                foreach (var result in mCurrentResults)
+                await System.Threading.Tasks.Task.Run(() =>
                 {
-                    string tempNameLower = (result.TempName ?? result.TempID).ToLower();
-                    string currentControlLower = (result.ControlName ?? result.ControlID).ToLower();
-
-                    // If AI detects a mismatch (e.g. GPU sensor tied to non-GPU fan)
-                    if (tempNameLower.Contains("gpu") && !currentControlLower.Contains("gpu"))
+                    string modelPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"src\models\gemma-4-E2B-it-Q4_K_M.gguf");
+                    
+                    if (!System.IO.File.Exists(modelPath))
                     {
+                        // Fallback to relative path if not in output dir
+                        modelPath = @"src\models\gemma-4-E2B-it-Q4_K_M.gguf";
+                    }
+
+                    if (!System.IO.File.Exists(modelPath))
+                    {
+                        this.BeginInvoke(new Action(() => AddLog("Model file not found: " + modelPath)));
+                        return;
+                    }
+
+                    var parameters = new LLama.Common.ModelParams(modelPath)
+                    {
+                        ContextSize = 1024,
+                        GpuLayerCount = 20
+                    };
+
+                    using (var weights = LLama.LLamaWeights.LoadFromFile(parameters))
+                    {
+                        var executor = new LLama.StatelessExecutor(weights, parameters);
+                        
                         var hw = HardwareManager.getInstance();
-                        var gpuControl = hw.ControlBaseList.Find(c => c.Name.ToLower().Contains("gpu"));
-                        if (gpuControl != null)
+                        var allControls = hw.ControlBaseList.Select(c => new { ID = c.ID, Name = c.Name }).ToList();
+                        
+                        string controlsJson = System.Text.Json.JsonSerializer.Serialize(allControls);
+                        string currentMappingsJson = System.Text.Json.JsonSerializer.Serialize(mCurrentResults.Select(r => new { SensorName = r.TempName ?? r.TempID, CurrentControlID = r.ControlID }));
+                        
+                        string prompt = $"You are an AI that optimizes fan to sensor mappings in a PC. Here are the available controls:\n{controlsJson}\n\nHere are the current mappings based on a simple stress test which might be inaccurate:\n{currentMappingsJson}\n\nPlease fix any obvious mismatches (e.g., GPU sensors mapped to case fans instead of GPU fans). Return the corrected JSON array of mappings in the format: [{{ \"SensorName\": \"...\", \"CorrectedControlID\": \"...\" }}]";
+
+                        string gbnfPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"src\models\json.gbnf");
+                        if (!System.IO.File.Exists(gbnfPath)) gbnfPath = @"src\models\json.gbnf";
+
+                        Grammar grammar = null;
+                        if (System.IO.File.Exists(gbnfPath))
                         {
-                            AddLog($"AI Suggestion: Re-mapping '{result.TempName ?? result.TempID}' to '{gpuControl.Name}'");
-                            result.ControlID = gpuControl.ID;
-                            result.ControlName = gpuControl.Name;
-                            changed = true;
+                            var gbnf = System.IO.File.ReadAllText(gbnfPath).Trim();
+                            grammar = Grammar.Parse(gbnf, "root");
+                        }
+
+                        using (var grammarInstance = grammar?.CreateInstance())
+                        {
+                            var inferenceParams = new LLama.Common.InferenceParams()
+                            {
+                                MaxTokens = 512,
+                                AntiPrompts = new List<string> { "User:", "Question:" },
+                                Temperature = 0.1f,
+                                Grammar = grammarInstance
+                            };
+
+                            string response = "";
+                            // Use async local function to handle inference stream
+                            async System.Threading.Tasks.Task RunInferenceAsync()
+                            {
+                                await foreach (var text in executor.InferAsync(prompt, inferenceParams))
+                                {
+                                    response += text;
+                                }
+                            }
+                            
+                            var inferenceTask = RunInferenceAsync();
+                            inferenceTask.Wait();
+
+                            // parse json from response
+                            int startIdx = response.IndexOf('[');
+                            int endIdx = response.LastIndexOf(']');
+                            if (startIdx >= 0 && endIdx >= startIdx)
+                            {
+                                string json = response.Substring(startIdx, endIdx - startIdx + 1);
+                                var doc = System.Text.Json.JsonDocument.Parse(json);
+                                bool changed = false;
+                                
+                                foreach (var item in doc.RootElement.EnumerateArray())
+                                {
+                                    string sensorName = item.GetProperty("SensorName").GetString();
+                                    string newControlId = item.GetProperty("CorrectedControlID").GetString();
+                                    
+                                    var mapping = mCurrentResults.Find(m => (m.TempName ?? m.TempID) == sensorName);
+                                    if (mapping != null && mapping.ControlID != newControlId)
+                                    {
+                                        var control = hw.ControlBaseList.Find(c => c.ID == newControlId);
+                                        if (control != null)
+                                        {
+                                            this.BeginInvoke(new Action(() => AddLog($"AI Suggestion: Re-mapping '{sensorName}' to '{control.Name}'")));
+                                            mapping.ControlID = control.ID;
+                                            mapping.ControlName = control.Name;
+                                            changed = true;
+                                        }
+                                    }
+                                }
+                                
+                                if (changed)
+                                {
+                                    this.BeginInvoke(new Action(() => {
+                                        ShowResults(mCurrentResults);
+                                        AddLog("AI Optimization completed and applied suggestions.");
+                                    }));
+                                }
+                                else
+                                {
+                                    this.BeginInvoke(new Action(() => AddLog("AI Optimization completed. No changes suggested.")));
+                                }
+                            }
+                            else
+                            {
+                                this.BeginInvoke(new Action(() => AddLog("AI Optimization failed to return valid JSON.")));
+                            }
                         }
                     }
-                    else if (tempNameLower.Contains("cpu") && !currentControlLower.Contains("cpu"))
-                    {
-                        var hw = HardwareManager.getInstance();
-                        var cpuControl = hw.ControlBaseList.Find(c => c.Name.ToLower().Contains("cpu"));
-                        if (cpuControl != null)
-                        {
-                            AddLog($"AI Suggestion: Re-mapping '{result.TempName ?? result.TempID}' to '{cpuControl.Name}'");
-                            result.ControlID = cpuControl.ID;
-                            result.ControlName = cpuControl.Name;
-                            changed = true;
-                        }
-                    }
-                }
-
-                if (changed)
-                {
-                    ShowResults(mCurrentResults);
-                    AddLog("AI Optimization completed and applied suggestions.");
-                }
-                else
-                {
-                    AddLog("AI Optimization completed. No changes suggested.");
-                }
+                });
             }
             catch (Exception ex)
             {
