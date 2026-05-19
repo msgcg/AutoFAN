@@ -16,4 +16,60 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Update="src\libs\Util\NumericUpDownEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="src\UI\ControlForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="src\UI\HotkeyForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="src\UI\IntelligentForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="src\UI\LightingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="src\UI\LiquidctlCommandForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="src\UI\LiquidctlFanControlForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="src\UI\LiquidctlForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="src\UI\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="src\UI\OptionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="src\UI\OSDForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="src\UI\PluginAddForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="src\UI\PluginForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="src\UI\Theme\ThemeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="src\UI\Theme\ThemeHardwareLabel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="src\UI\Theme\ThemeLibLabel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="src\UI\Theme\ThemeListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="src\UI\Theme\ThemePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
 </Project>

@@ -147,6 +147,8 @@ namespace FanCtrl
             mShowToolStripMenuItem.Text = StringLib.Show;
             mExitToolStripMenuItem.Text = StringLib.Exit;
 
+            UpdateModeButtons();
+
             FontFamily fontFamily = null;
             try
             {
@@ -166,6 +168,15 @@ namespace FanCtrl
             {
                 mFanControlButton.Font = new Font(fontFamily, 9.0f);
             }
+        }
+
+        private void UpdateModeButtons()
+        {
+            var cm = ControlManager.getInstance();
+            mNormalToolStripMenuItem.Checked = (cm.ModeType == MODE_TYPE.NORMAL);
+            mSilenceToolStripMenuItem.Checked = (cm.ModeType == MODE_TYPE.SILENCE);
+            mPerformanceToolStripMenuItem.Checked = (cm.ModeType == MODE_TYPE.PERFORMANCE);
+            mGameToolStripMenuItem.Checked = (cm.ModeType == MODE_TYPE.GAME);
         }
 
         protected void setTheme()
@@ -328,12 +339,40 @@ namespace FanCtrl
             this.createComponent();
             this.ActiveControl = mFanControlButton;
 
+            // Dynamically add Mode Selection Buttons
+            int btnWidth = 83;
+            int btnHeight = 25;
+            int startX = mFanControlButton.Left - (btnWidth + 5);
+            int startY = mFanControlButton.Top;
+
+            var modes = new[] { 
+                new { Mode = MODE_TYPE.SILENCE, Text = StringLib.Silence, Color = Color.FromArgb(40, 60, 100) },
+                new { Mode = MODE_TYPE.NORMAL, Text = StringLib.Normal, Color = Color.FromArgb(40, 80, 40) },
+                new { Mode = MODE_TYPE.PERFORMANCE, Text = StringLib.Performance, Color = Color.FromArgb(100, 60, 40) },
+                new { Mode = MODE_TYPE.GAME, Text = StringLib.Game, Color = Color.FromArgb(80, 40, 80) }
+            };
+
+            for (int i = 0; i < modes.Length; i++)
+            {
+                var modeInfo = modes[i];
+                var btn = new DarkButton {
+                    Text = modeInfo.Text,
+                    Size = new Size(btnWidth, btnHeight),
+                    Location = new Point(startX, startY + (i * (btnHeight + 3))),
+                    Tag = modeInfo.Mode
+                };
+                btn.Click += (s, e) => {
+                    ControlManager.getInstance().ModeType = (MODE_TYPE)((Control)s).Tag;
+                    ControlManager.getInstance().write();
+                    UpdateModeButtons();
+                };
+                this.Controls.Add(btn);
+                btn.BringToFront();
+            }
+
             mEnableToolStripMenuItem.Checked = ControlManager.getInstance().IsEnable;
             mEnableOSDToolStripMenuItem.Checked = OSDManager.getInstance().IsEnable;
-            mNormalToolStripMenuItem.Checked = (ControlManager.getInstance().ModeType == MODE_TYPE.NORMAL);
-            mSilenceToolStripMenuItem.Checked = (ControlManager.getInstance().ModeType == MODE_TYPE.SILENCE);
-            mPerformanceToolStripMenuItem.Checked = (ControlManager.getInstance().ModeType == MODE_TYPE.PERFORMANCE);
-            mGameToolStripMenuItem.Checked = (ControlManager.getInstance().ModeType == MODE_TYPE.GAME);
+            UpdateModeButtons();
 
             // startUpdate
             HardwareManager.getInstance().startUpdate();

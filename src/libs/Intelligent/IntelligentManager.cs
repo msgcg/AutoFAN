@@ -12,7 +12,10 @@ namespace FanCtrl
         public string TempName { get; set; }
         public string ControlID { get; set; }
         public string ControlName { get; set; }
+        public double BaseTemp { get; set; }
+        public double TestTemp { get; set; }
         public double Delta { get; set; }
+        public int RPM { get; set; }
         public double Confidence { get; set; } // percent: 0-100
     }
 
@@ -229,7 +232,10 @@ namespace FanCtrl
                                     TempName = GetFullDeviceName(sensor, hw.TempList),
                                     ControlID = control.ID,
                                     ControlName = GetFullDeviceName(control, hw.ControlList),
+                                    BaseTemp = baseline.Average,
+                                    TestTemp = testAvg,
                                     Delta = delta,
+                                    RPM = associatedFan?.Value ?? 0,
                                     Confidence = 0 
                                 });
 
@@ -324,7 +330,10 @@ namespace FanCtrl
                     TempName = best.TempName,
                     ControlID = best.ControlID,
                     ControlName = best.ControlName,
+                    BaseTemp = best.BaseTemp,
+                    TestTemp = best.TestTemp,
                     Delta = best.Delta,
+                    RPM = best.RPM,
                     Confidence = Math.Max(10, Math.Min(100, confidence))
                 });
                 onLog?.Invoke($"Match: {best.TempName} handled by {best.ControlName} (Confidence: {confidence:F1}%)");

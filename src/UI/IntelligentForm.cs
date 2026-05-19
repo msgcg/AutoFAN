@@ -5,6 +5,7 @@ using FanCtrl.Resources;
 using System.Windows.Forms;
 using LLama;
 using LLama.Common;
+using LLama.Native;
 using LLama.Grammars;
 using System.Text.Json;
 
@@ -13,11 +14,29 @@ namespace FanCtrl
     public partial class IntelligentForm : ThemeForm
     {
         private List<MappingResult> mCurrentResults = new List<MappingResult>();
+        private ComboBox mModeComboBox;
 
         public IntelligentForm()
         {
             InitializeComponent();
             this.localizeComponent();
+
+            // Dynamically add Mode selection UI
+            var label = new DarkUI.Controls.DarkLabel { 
+                Text = "Target Mode:", 
+                Location = new System.Drawing.Point(mCreateProfileButton.Left - 100, mCreateProfileButton.Top + 15), 
+                AutoSize = true 
+            };
+            mModeComboBox = new ComboBox { 
+                Location = new System.Drawing.Point(label.Right + 5, label.Top - 3), 
+                Width = 100, 
+                DropDownStyle = ComboBoxStyle.DropDownList 
+            };
+            mModeComboBox.Items.AddRange(new object[] { MODE_TYPE.NORMAL, MODE_TYPE.SILENCE, MODE_TYPE.PERFORMANCE, MODE_TYPE.GAME });
+            mModeComboBox.SelectedItem = ControlManager.getInstance().ModeType;
+            
+            this.Controls.Add(label);
+            this.Controls.Add(mModeComboBox);
 
             mStartButton.Click += (s, e) => { Start(); };
             mStopButton.Click += (s, e) => { Stop(); };
@@ -48,7 +67,7 @@ namespace FanCtrl
         {
             mMappingDataGridView.Columns.Clear();
 
-            // Sensor Name (read-only text)
+            // Sensor Name
             var colSensor = new DataGridViewTextBoxColumn();
             colSensor.Name = "SensorName";
             colSensor.HeaderText = "Temperature Sensor";
@@ -56,12 +75,43 @@ namespace FanCtrl
             colSensor.ReadOnly = true;
             mMappingDataGridView.Columns.Add(colSensor);
 
-            // Detected Control (dropdown list, editable)
+            // Base Temp
+            var colBase = new DataGridViewTextBoxColumn();
+            colBase.Name = "BaseTemp";
+            colBase.HeaderText = "Base °C";
+            colBase.Width = 60;
+            colBase.ReadOnly = true;
+            mMappingDataGridView.Columns.Add(colBase);
+
+            // Test Temp
+            var colTest = new DataGridViewTextBoxColumn();
+            colTest.Name = "TestTemp";
+            colTest.HeaderText = "Test °C";
+            colTest.Width = 60;
+            colTest.ReadOnly = true;
+            mMappingDataGridView.Columns.Add(colTest);
+
+            // Delta
+            var colDelta = new DataGridViewTextBoxColumn();
+            colDelta.Name = "Delta";
+            colDelta.HeaderText = "Delta °C";
+            colDelta.Width = 60;
+            colDelta.ReadOnly = true;
+            mMappingDataGridView.Columns.Add(colDelta);
+
+            // RPM
+            var colRPM = new DataGridViewTextBoxColumn();
+            colRPM.Name = "RPM";
+            colRPM.HeaderText = "Max RPM";
+            colRPM.Width = 70;
+            colRPM.ReadOnly = true;
+            mMappingDataGridView.Columns.Add(colRPM);
+
+            // Detected Control
             var colDetectedControl = new DataGridViewComboBoxColumn();
             colDetectedControl.Name = "DetectedControl";
-            colDetectedControl.HeaderText = "Detected Control";
+            colDetectedControl.HeaderText = "Assigned Fan";
             colDetectedControl.Width = 150;
-            // Populate with available controls
             var hw = HardwareManager.getInstance();
             foreach (var control in hw.ControlBaseList)
             {
@@ -69,10 +119,10 @@ namespace FanCtrl
             }
             mMappingDataGridView.Columns.Add(colDetectedControl);
 
-            // Confidence (read-only percentage)
+            // Confidence
             var colConfidence = new DataGridViewTextBoxColumn();
             colConfidence.Name = "Confidence";
-            colConfidence.HeaderText = "Confidence %";
+            colConfidence.HeaderText = "Conf %";
             colConfidence.Width = 100;
             colConfidence.ReadOnly = true;
             mMappingDataGridView.Columns.Add(colConfidence);
@@ -102,7 +152,6 @@ namespace FanCtrl
 
         private void AddLog(string msg)
         {
-            // append to listview as log entry
             var lvi = new System.Windows.Forms.ListViewItem(msg);
             mResultListView.Items.Add(lvi);
             mResultListView.EnsureVisible(mResultListView.Items.Count - 1);
@@ -117,14 +166,19 @@ namespace FanCtrl
             foreach (var r in list)
             {
                 // Add to log
-                var lvi = new System.Windows.Forms.ListViewItem($"{r.TempName ?? r.TempID} -> {r.ControlName ?? r.ControlID} (Delta: {r.Delta:F2}°C, Confidence: {r.Confidence:F1}%)");
+                var lvi = new System.Windows.Forms.ListViewItem($"{r.TempName ?? r.TempID} -> {r.ControlName ?? r.ControlID} (Δ:{r.Delta:F1}°C, RPM:{r.RPM}, Conf:{r.Confidence:F0}%)");
                 mResultListView.Items.Add(lvi);
 
-                // Add to DataGridView for editing
+                // Add to DataGridView
                 int rowIndex = mMappingDataGridView.Rows.Add();
-                mMappingDataGridView.Rows[rowIndex].Cells["SensorName"].Value = r.TempName ?? r.TempID;
-                mMappingDataGridView.Rows[rowIndex].Cells["DetectedControl"].Value = r.ControlID;
-                mMappingDataGridView.Rows[rowIndex].Cells["Confidence"].Value = $"{r.Confidence:F1}%";
+                var row = mMappingDataGridView.Rows[rowIndex];
+                row.Cells["SensorName"].Value = r.TempName ?? r.TempID;
+                row.Cells["BaseTemp"].Value = $"{r.BaseTemp:F1}";
+                row.Cells["TestTemp"].Value = $"{r.TestTemp:F1}";
+                row.Cells["Delta"].Value = $"{r.Delta:F1}";
+                row.Cells["RPM"].Value = r.RPM;
+                row.Cells["DetectedControl"].Value = r.ControlID;
+                row.Cells["Confidence"].Value = $"{r.Confidence:F0}%";
             }
 
             mStartButton.Enabled = true;
@@ -138,258 +192,177 @@ namespace FanCtrl
         {
             if (mCurrentResults.Count == 0) return;
             mOptimizeAIButton.Enabled = false;
-            AddLog("Starting AI optimization via LLamaSharp...");
+            AddLog("Starting AI analysis (CUDA)...");
             
             try
             {
-                await System.Threading.Tasks.Task.Run(() =>
+                // Run in a separate thread to keep UI responsive
+                await System.Threading.Tasks.Task.Run(async () =>
                 {
-                    string modelPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"src\models\gemma-4-E2B-it-Q4_K_M.gguf");
+                    string appDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
                     
-                    if (!System.IO.File.Exists(modelPath))
+                    try
                     {
-                        // Fallback to relative path if not in output dir
-                        modelPath = @"src\models\gemma-4-E2B-it-Q4_K_M.gguf";
+                        // The user confirmed NativeLibraryConfig exists but NOT in LLama.Native
+                        // Try accessing it via LLama.NativeLibraryConfig (root namespace)
+                        var config = NativeLibraryConfig.Instance;
+                        
+                        string llamaPath = System.IO.Path.Combine(appDir, "libllama.dll");
+                        if (!System.IO.File.Exists(llamaPath)) 
+                            llamaPath = System.IO.Path.Combine(appDir, @"runtimes\win-x64\native\libllama.dll");
+
+                        if (System.IO.File.Exists(llamaPath)) {
+                            config.WithLibrary(llamaPath, "");
+                        }
+
+                        config.WithCuda(true);
+                        config.WithLogCallback((level, message) => {  // ← сначала level, потом message!
+                            if (level >= LLamaLogLevel.Info)  // ✅ Теперь level — это enum LLamaLogLevel
+                            {
+                                // Безопасный вызов из фонового потока
+                                this.BeginInvoke(new Action(() => AddLog($"[LLama] {message}")));
+                            }
+                        });
                     }
+                    catch { /* Might already be initialized */ }
+
+                    string modelPath = System.IO.Path.Combine(appDir, @"src\models\gemma-4-E2B-it-Q4_K_M.gguf");
+                    if (!System.IO.File.Exists(modelPath)) modelPath = @"src\models\gemma-4-E2B-it-Q4_K_M.gguf";
 
                     if (!System.IO.File.Exists(modelPath))
                     {
-                        this.BeginInvoke(new Action(() => AddLog("Model file not found: " + modelPath)));
+                        this.BeginInvoke(new Action(() => AddLog("Model file not found.")));
                         return;
                     }
 
-                    var parameters = new LLama.Common.ModelParams(modelPath)
-                    {
-                        ContextSize = 1024,
-                        GpuLayerCount = 20
+                    var parameters = new LLama.Common.ModelParams(modelPath) 
+                    { 
+                        ContextSize = 2048, 
+                        GpuLayerCount = 99 // Offload all layers to GPU
                     };
 
                     using (var weights = LLama.LLamaWeights.LoadFromFile(parameters))
                     {
                         var executor = new LLama.StatelessExecutor(weights, parameters);
-                        
                         var hw = HardwareManager.getInstance();
                         var allControls = hw.ControlBaseList.Select(c => new { ID = c.ID, Name = c.Name }).ToList();
                         
-                        string controlsJson = System.Text.Json.JsonSerializer.Serialize(allControls);
-                        string currentMappingsJson = System.Text.Json.JsonSerializer.Serialize(mCurrentResults.Select(r => new { SensorName = r.TempName ?? r.TempID, CurrentControlID = r.ControlID }));
+                        var diagnosticData = mCurrentResults.Select(r => new { 
+                            Sensor = r.TempName,
+                            AssignedFan = r.ControlName,
+                            AssignedFanID = r.ControlID,
+                            Delta = r.Delta,
+                            RPM = r.RPM,
+                            Confidence = r.Confidence
+                        }).ToList();
                         
-                        string prompt = $"You are an AI that optimizes fan to sensor mappings in a PC. Here are the available controls:\n{controlsJson}\n\nHere are the current mappings based on a simple stress test which might be inaccurate:\n{currentMappingsJson}\n\nPlease fix any obvious mismatches (e.g., GPU sensors mapped to case fans instead of GPU fans). Return the corrected JSON array of mappings in the format: [{{ \"SensorName\": \"...\", \"CorrectedControlID\": \"...\" }}]";
+                        string prompt = "You are a PC hardware diagnostic AI. I performed a stress test by ramping up fans to see which sensor cools down.\n" +
+                                        $"Available Fans: {System.Text.Json.JsonSerializer.Serialize(allControls)}\n" +
+                                        $"Test Results: {System.Text.Json.JsonSerializer.Serialize(diagnosticData)}\n\n" +
+                                        "Correct any obvious mistakes. Trust high Delta values (> 4.0) above all else. " +
+                                        "Return ONLY a JSON array: [{\"SensorName\": \"...\", \"CorrectedFanID\": \"...\"}]";
 
-                        string gbnfPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), @"src\models\json.gbnf");
-                        if (!System.IO.File.Exists(gbnfPath)) gbnfPath = @"src\models\json.gbnf";
+                        string response = "";
+                        var inferenceParams = new LLama.Common.InferenceParams() { MaxTokens = 1024, Temperature = 0.1f };
 
-                        Grammar grammar = null;
+                        string gbnfPath = System.IO.Path.Combine(appDir, @"src\models\json.gbnf");
                         if (System.IO.File.Exists(gbnfPath))
                         {
                             var gbnf = System.IO.File.ReadAllText(gbnfPath).Trim();
-                            grammar = Grammar.Parse(gbnf, "root");
+                            // Grammar class is in LLama.Grammars namespace in 0.10.0
+                            inferenceParams.Grammar = LLama.Grammars.Grammar.Parse(gbnf, "root").CreateInstance();
                         }
 
-                        using (var grammarInstance = grammar?.CreateInstance())
+                        // Use InferAsync with await foreach for LLamaSharp 0.10.0
+                        await foreach (var text in executor.InferAsync(prompt, inferenceParams)) 
                         {
-                            var inferenceParams = new LLama.Common.InferenceParams()
-                            {
-                                MaxTokens = 512,
-                                AntiPrompts = new List<string> { "User:", "Question:" },
-                                Temperature = 0.1f,
-                                Grammar = grammarInstance
-                            };
+                            response += text;
+                        }
 
-                            string response = "";
-                            // Use async local function to handle inference stream
-                            async System.Threading.Tasks.Task RunInferenceAsync()
+                        if (!string.IsNullOrEmpty(response))
+                        {
+                            try
                             {
-                                await foreach (var text in executor.InferAsync(prompt, inferenceParams))
+                                int startIdx = response.IndexOf('[');
+                                int endIdx = response.LastIndexOf(']');
+                                if (startIdx >= 0 && endIdx >= startIdx)
                                 {
-                                    response += text;
-                                }
-                            }
-                            
-                            var inferenceTask = RunInferenceAsync();
-                            inferenceTask.Wait();
-
-                            // parse json from response
-                            int startIdx = response.IndexOf('[');
-                            int endIdx = response.LastIndexOf(']');
-                            if (startIdx >= 0 && endIdx >= startIdx)
-                            {
-                                string json = response.Substring(startIdx, endIdx - startIdx + 1);
-                                var doc = System.Text.Json.JsonDocument.Parse(json);
-                                bool changed = false;
-                                
-                                foreach (var item in doc.RootElement.EnumerateArray())
-                                {
-                                    string sensorName = item.GetProperty("SensorName").GetString();
-                                    string newControlId = item.GetProperty("CorrectedControlID").GetString();
-                                    
-                                    var mapping = mCurrentResults.Find(m => (m.TempName ?? m.TempID) == sensorName);
-                                    if (mapping != null && mapping.ControlID != newControlId)
-                                    {
-                                        var control = hw.ControlBaseList.Find(c => c.ID == newControlId);
-                                        if (control != null)
-                                        {
-                                            this.BeginInvoke(new Action(() => AddLog($"AI Suggestion: Re-mapping '{sensorName}' to '{control.Name}'")));
-                                            mapping.ControlID = control.ID;
-                                            mapping.ControlName = control.Name;
-                                            changed = true;
-                                        }
-                                    }
-                                }
-                                
-                                if (changed)
-                                {
+                                    var corrected = System.Text.Json.JsonSerializer.Deserialize<List<JsonElement>>(response.Substring(startIdx, endIdx - startIdx + 1));
                                     this.BeginInvoke(new Action(() => {
+                                        foreach (var item in corrected)
+                                        {
+                                            string sName = item.GetProperty("SensorName").GetString();
+                                            string fID = item.GetProperty("CorrectedFanID").GetString();
+                                            var res = mCurrentResults.FirstOrDefault(r => r.TempName == sName);
+                                            if (res != null) res.ControlID = fID;
+                                        }
                                         ShowResults(mCurrentResults);
-                                        AddLog("AI Optimization completed and applied suggestions.");
+                                        AddLog("AI Analysis applied (CUDA).");
                                     }));
                                 }
-                                else
-                                {
-                                    this.BeginInvoke(new Action(() => AddLog("AI Optimization completed. No changes suggested.")));
-                                }
                             }
-                            else
-                            {
-                                this.BeginInvoke(new Action(() => AddLog("AI Optimization failed to return valid JSON.")));
-                            }
+                            catch (Exception ex) { this.BeginInvoke(new Action(() => AddLog("AI Parse Error: " + ex.Message))); }
                         }
                     }
                 });
             }
-            catch (Exception ex)
-            {
-                AddLog("AI Error: " + ex.Message);
-            }
-            finally
-            {
-                mOptimizeAIButton.Enabled = true;
-            }
+            catch (Exception ex) { this.BeginInvoke(new Action(() => AddLog("AI Error: " + ex.Message))); }
+            finally { this.BeginInvoke(new Action(() => mOptimizeAIButton.Enabled = true)); }
         }
 
         private void AcceptMapping()
         {
-            try
+            if (mMappingDataGridView.Rows.Count == 0) return;
+            for (int i = 0; i < mMappingDataGridView.Rows.Count && i < mCurrentResults.Count; i++)
             {
-                if (mMappingDataGridView.Rows.Count == 0)
-                {
-                    MessageBox.Show("No mapping data to accept. Please run a scan first.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                // Update current results with edited values from DataGridView
-                for (int i = 0; i < mMappingDataGridView.Rows.Count && i < mCurrentResults.Count; i++)
-                {
-                    string detectedControl = mMappingDataGridView.Rows[i].Cells["DetectedControl"].Value?.ToString() ?? "";
-                    if (!string.IsNullOrEmpty(detectedControl))
-                    {
-                        mCurrentResults[i].ControlID = detectedControl;
-                    }
-                    else
-                    {
-                        MessageBox.Show($"Row {i+1}: Please select a control for the mapping.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-                }
-
-                MessageBox.Show("Mapping accepted. You can now create a profile.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                string sName = mMappingDataGridView.Rows[i].Cells["SensorName"].Value?.ToString();
+                string fID = mMappingDataGridView.Rows[i].Cells["DetectedControl"].Value?.ToString();
+                var res = mCurrentResults.FirstOrDefault(r => r.TempName == sName);
+                if (res != null) res.ControlID = fID;
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error accepting mapping: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            MessageBox.Show("Mapping accepted. Choose a mode and click 'Create Profile'.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void CreateProfile()
         {
-            try
-            {
-                if (mCurrentResults.Count == 0)
-                {
-                    MessageBox.Show("No mapping results available. Please run the scan first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
+            if (mCurrentResults.Count == 0) return;
+            
+            MODE_TYPE targetMode = (MODE_TYPE)mModeComboBox.SelectedItem; 
+            
+            var cm = ControlManager.getInstance();
+            var bySensor = mCurrentResults.GroupBy(r => r.TempID);
+            var profileList = new List<ControlData>();
 
-                // Check for empty or duplicate controls
-                var seenControls = new HashSet<string>();
-                for (int i = 0; i < mCurrentResults.Count; i++)
+            foreach (var sensorGroup in bySensor)
+            {
+                var controlData = new ControlData(sensorGroup.Key);
+                foreach (var mapping in sensorGroup)
                 {
-                    if (string.IsNullOrWhiteSpace(mCurrentResults[i].ControlID))
+                    var fan = new FanData(mapping.ControlID, FanValueUnit.Size_5, false, 3, 0, 2);
+                    for (int i = 0; i < fan.getMaxFanValue(); i++)
                     {
-                        MessageBox.Show($"Result {i+1}: Control cannot be empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
+                        int temp = i * 5;
+                        int minPwm, maxPwm, targetTemp;
+                        switch(targetMode) {
+                            case MODE_TYPE.SILENCE: minPwm = 20; maxPwm = 80; targetTemp = 90; break;
+                            case MODE_TYPE.PERFORMANCE: minPwm = 40; maxPwm = 100; targetTemp = 75; break;
+                            case MODE_TYPE.GAME: minPwm = 35; maxPwm = 100; targetTemp = 80; break;
+                            default: minPwm = 30; maxPwm = 100; targetTemp = 85; break;
+                        }
+                        
+                        if (temp < 40) fan.ValueList[i] = minPwm;
+                        else if (temp > targetTemp) fan.ValueList[i] = maxPwm;
+                        else fan.ValueList[i] = minPwm + (int)((temp - 40) * (maxPwm - minPwm) / (double)(targetTemp - 40));
                     }
-                    // Warn about duplicate control assignments
-                    if (seenControls.Contains(mCurrentResults[i].ControlID))
-                    {
-                        var result = MessageBox.Show(
-                            $"Warning: Multiple sensors are assigned to control '{mCurrentResults[i].ControlID}'.\n\nThis may cause unexpected behavior.\n\nDo you want to continue?",
-                            "Duplicate Assignment Warning",
-                            MessageBoxButtons.YesNo,
-                            MessageBoxIcon.Question);
-                        if (result != DialogResult.Yes)
-                            return;
-                    }
-                    seenControls.Add(mCurrentResults[i].ControlID);
+                    controlData.FanDataList.Add(fan);
                 }
-
-                // Create a new automatic profile based on mapping
-                var cm = ControlManager.getInstance();
-                var newProfile = CreateAutomaticProfile(mCurrentResults);
-
-                if (newProfile != null)
-                {
-                    var profileList = new List<ControlData> { newProfile };
-                    cm.setControlDataList(MODE_TYPE.NORMAL, profileList);
-                    cm.write();
-                    MessageBox.Show("Auto profile 'AutoFAN' created and saved to NORMAL mode!\n\nYou can now apply this profile using the mode menu.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error creating profile: {ex.Message}\n\n{ex.StackTrace}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private ControlData CreateAutomaticProfile(List<MappingResult> results)
-        {
-            // Create a new control profile with auto-generated curves based on mapping
-            var profile = new ControlData("AutoFAN");
-
-            foreach (var result in results)
-            {
-                // Create a FanData for this control, mapped to the detected sensor
-                var fan = new FanData(
-                    id: result.ControlID,
-                    unit: FanValueUnit.Size_5,
-                    isStep: false,
-                    hysteresis: 3,
-                    auto: 0,
-                    delayTime: 2
-                );
-
-                // Fill in the curve values (ValueList)
-                // Simple linear curve: 30% at 50°C, 100% at 80°C
-                // Using Size_5 (21 points for 0-100°C in 5° increments)
-                for (int i = 0; i < fan.getMaxFanValue(); i++)
-                {
-                    int temp = i * 5;
-                    int pwm;
-                    if (temp < 50)
-                        pwm = 30;
-                    else if (temp > 80)
-                        pwm = 100;
-                    else
-                        pwm = 30 + (int)((temp - 50) * 70.0 / 30.0);
-
-                    fan.ValueList[i] = Math.Min(100, Math.Max(30, pwm));
-                }
-
-                profile.FanDataList.Add(fan);
+                profileList.Add(controlData);
             }
 
-            return profile;
+            cm.setControlDataList(targetMode, profileList);
+            cm.write();
+            AddLog($"Profile successfully saved to {targetMode} in Control.json");
+            MessageBox.Show($"Profile created and applied to {targetMode} mode!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }
-

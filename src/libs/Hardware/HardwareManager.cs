@@ -769,18 +769,24 @@ namespace FanCtrl
         {
             try
             {
-                //mutex permissions set to everyone to allow other software to access the hardware
-                //otherwise other monitoring software cant access
-                var allowEveryoneRule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), MutexRights.FullControl, AccessControlType.Allow);
-                var securitySettings = new MutexSecurity();
-                securitySettings.AddAccessRule(allowEveryoneRule);
-                mutex = new Mutex(false, mutexName, out _, securitySettings);
+                // ✅ Простой конструктор для .NET 8
+                mutex = new Mutex(false, mutexName, out _);
             }
             catch (UnauthorizedAccessException)
             {
                 try
                 {
-                    mutex = Mutex.OpenExisting(mutexName, MutexRights.Synchronize);
+                    // ✅ OpenExisting с одним аргументом
+                    mutex = Mutex.OpenExisting(mutexName);
+                }
+                catch { }
+            }
+            catch (WaitHandleCannotBeOpenedException)
+            {
+                // Мьютекс ещё не создан — это нормально при первом запуске
+                try
+                {
+                    mutex = new Mutex(false, mutexName, out _);
                 }
                 catch { }
             }

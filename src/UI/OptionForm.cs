@@ -314,16 +314,18 @@ namespace FanCtrl
             }
             else
             {
-                var menu = new ContextMenu();
+                // ✅ Современный подход:
+                var menu = new ContextMenuStrip();
                 for (int i = 0; i < deviceList.Count; i++)
                 {
                     int index = i;
-                    var item = new MenuItem(string.Format("{0}", i + 1), (sender2, e2) =>
+                    var item = new ToolStripMenuItem(string.Format("{0}", i + 1));
+                    item.Click += (sender2, e2) =>
                     {
                         var form = new LightingForm(deviceList[index], index + 1);
                         form.ShowDialog();
-                    });
-                    menu.MenuItems.Add(item);
+                    };
+                    menu.Items.Add(item);  // ← Items, а не MenuItems
                 }
 
                 var point = mKrakenButton.PointToClient(Control.MousePosition);
@@ -341,16 +343,18 @@ namespace FanCtrl
             }
             else
             {
-                var menu = new ContextMenu();
+                // ✅ Современный подход:
+                var menu = new ContextMenuStrip();
                 for (int i = 0; i < deviceList.Count; i++)
                 {
                     int index = i;
-                    var item = new MenuItem(string.Format("{0}", i + 1), (sender2, e2) =>
+                    var item = new ToolStripMenuItem(string.Format("{0}", i + 1));
+                    item.Click += (sender2, e2) =>
                     {
                         var form = new LightingForm(deviceList[index], index + 1);
                         form.ShowDialog();
-                    });
-                    menu.MenuItems.Add(item);
+                    };
+                    menu.Items.Add(item);  // ← Items, а не MenuItems
                 }
 
                 var point = mCLCButton.PointToClient(Control.MousePosition);
@@ -368,16 +372,18 @@ namespace FanCtrl
             }
             else
             {
-                var menu = new ContextMenu();
+                // ✅ Современный подход:
+                var menu = new ContextMenuStrip();
                 for (int i = 0; i < deviceList.Count; i++)
                 {
                     int index = i;
-                    var item = new MenuItem(string.Format("{0}", i + 1), (sender2, e2) =>
+                    var item = new ToolStripMenuItem(string.Format("{0}", i + 1));
+                    item.Click += (sender2, e2) =>
                     {
                         var form = new LightingForm(deviceList[index], index + 1);
                         form.ShowDialog();
-                    });
-                    menu.MenuItems.Add(item);
+                    };
+                    menu.Items.Add(item);  // ← Items, а не MenuItems
                 }
 
                 var point = mRGBnFCButton.PointToClient(Control.MousePosition);
