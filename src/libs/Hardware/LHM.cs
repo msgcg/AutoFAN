@@ -64,6 +64,20 @@ namespace FanCtrl
 
         public void createTemp(ref List<HardwareDevice> deviceList)
         {
+            // 🔍 ОТЛАДКА: вывести в консоль/лог
+            System.Diagnostics.Debug.WriteLine($"[LHM] Hardware count: {mComputer.Hardware.Count}");
+
+            foreach (var hw in mComputer.Hardware)
+            {
+                System.Diagnostics.Debug.WriteLine($"[LHM] Device: {hw.Name}, Type: {hw.HardwareType}");
+                foreach (var sensor in hw.Sensors)
+                {
+                    if (sensor.SensorType == SensorType.Temperature)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[LHM]   Temp: {sensor.Name} = {sensor.Value?.ToString() ?? "null"}°C");
+                    }
+                }
+            }
             var tempMap = new Dictionary<string, HardwareDevice>();
             var hardwareArray = mComputer.Hardware;
             for (int i = 0; i < hardwareArray.Count; i++)
@@ -324,7 +338,11 @@ namespace FanCtrl
         {
             hardware.Update();
             foreach (IHardware subHardware in hardware.SubHardware)
-                subHardware.Accept(this);
+            { 
+              subHardware.Update();
+              subHardware.Accept(this);
+            }
+            
         }
 
         public void VisitSensor(ISensor sensor) { }
