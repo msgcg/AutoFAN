@@ -12,6 +12,7 @@
 		<ApplicationIcon>Resources\icon.ico</ApplicationIcon>
 		<Platforms>AnyCPU;x64</Platforms>
 		<StartupObject>FanCtrl.Program</StartupObject>
+		<ApplicationManifest>Properties\app.manifest</ApplicationManifest>
 
 		<!-- Метаданные сборки -->
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
