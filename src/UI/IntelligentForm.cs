@@ -222,20 +222,23 @@ namespace FanCtrl
                     }
                     catch { /* Might already be initialized */ }
 
-                    string modelPath = System.IO.Path.Combine(appDir, @"src\models\gemma-4-E2B-it-Q4_K_M.gguf");
-                    if (!System.IO.File.Exists(modelPath)) modelPath = @"src\models\gemma-4-E2B-it-Q4_K_M.gguf";
+                    string modelRelPath = @"src\models\gemma-4-E2B-it-Q4_K_M.gguf";
+                    string absPath = System.IO.Path.Combine(appDir, modelRelPath);
 
-                    if (!System.IO.File.Exists(modelPath))
+                    if (!System.IO.File.Exists(absPath) && !System.IO.File.Exists(modelRelPath))
                     {
                         this.BeginInvoke(new Action(() => AddLog("Model file not found.")));
                         return;
                     }
 
+                    // Workaround for Cyrillic paths: pass a relative ASCII path to llama.cpp
+                    System.Environment.CurrentDirectory = appDir;
+                    string modelPath = modelRelPath;
+
                     var parameters = new LLama.Common.ModelParams(modelPath) 
                     { 
                         ContextSize = 2048, 
-                        GpuLayerCount = 0, // CPU backend used
-                        UseMemorymap = false
+                        GpuLayerCount = 0 // CPU backend used
                     };
 
                     using (var weights = LLama.LLamaWeights.LoadFromFile(parameters))
