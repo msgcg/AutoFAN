@@ -16,10 +16,7 @@ namespace FanCtrl
         private System.Windows.Forms.Button mStartButton;
         private System.Windows.Forms.Button mStopButton;
         private System.Windows.Forms.ProgressBar mProgressBar;
-        private System.Windows.Forms.ListView mResultListView;
-        private System.Windows.Forms.ColumnHeader chTemp;
-        private System.Windows.Forms.ColumnHeader chControl;
-        private System.Windows.Forms.ColumnHeader chDelta;
+        private System.Windows.Forms.ListBox mResultListBox;
         private System.Windows.Forms.DataGridView mMappingDataGridView;
         private System.Windows.Forms.Button mAcceptButton;
         private System.Windows.Forms.Button mCreateProfileButton;
@@ -31,10 +28,7 @@ namespace FanCtrl
             this.mStartButton = new System.Windows.Forms.Button();
             this.mStopButton = new System.Windows.Forms.Button();
             this.mProgressBar = new System.Windows.Forms.ProgressBar();
-            this.mResultListView = new System.Windows.Forms.ListView();
-            this.chTemp = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.chControl = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.chDelta = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.mResultListBox = new System.Windows.Forms.ListBox();
             this.mMappingDataGridView = new System.Windows.Forms.DataGridView();
             this.mAcceptButton = new System.Windows.Forms.Button();
             this.mCreateProfileButton = new System.Windows.Forms.Button();
@@ -68,35 +62,12 @@ namespace FanCtrl
             this.mProgressBar.Size = new System.Drawing.Size(328, 30);
             this.mProgressBar.TabIndex = 2;
             // 
-            // mResultListView
+            // mResultListBox
             // 
-            this.mResultListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.chTemp,
-            this.chControl,
-            this.chDelta});
-            this.mResultListView.FullRowSelect = true;
-            this.mResultListView.GridLines = true;
-            this.mResultListView.Location = new System.Drawing.Point(16, 64);
-            this.mResultListView.Name = "mResultListView";
-            this.mResultListView.Size = new System.Drawing.Size(552, 150);
-            this.mResultListView.TabIndex = 3;
-            this.mResultListView.UseCompatibleStateImageBehavior = false;
-            this.mResultListView.View = System.Windows.Forms.View.Details;
-            // 
-            // chTemp
-            // 
-            this.chTemp.Text = "Temperature Sensor";
-            this.chTemp.Width = 300;
-            // 
-            // chControl
-            // 
-            this.chControl.Text = "Control";
-            this.chControl.Width = 180;
-            // 
-            // chDelta
-            // 
-            this.chDelta.Text = "Delta";
-            this.chDelta.Width = 70;
+            this.mResultListBox.Location = new System.Drawing.Point(16, 64);
+            this.mResultListBox.Name = "mResultListBox";
+            this.mResultListBox.Size = new System.Drawing.Size(552, 147);
+            this.mResultListBox.TabIndex = 3;
             // 
             // mMappingDataGridView
             // 
@@ -157,7 +128,7 @@ namespace FanCtrl
             this.Controls.Add(this.mCreateProfileButton);
             this.Controls.Add(this.mAcceptButton);
             this.Controls.Add(this.mMappingDataGridView);
-            this.Controls.Add(this.mResultListView);
+            this.Controls.Add(this.mResultListBox);
             this.Controls.Add(this.mProgressBar);
             this.Controls.Add(this.mStopButton);
             this.Controls.Add(this.mStartButton);

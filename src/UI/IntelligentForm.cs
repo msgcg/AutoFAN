@@ -148,7 +148,7 @@ namespace FanCtrl
         {
             mStartButton.Enabled = false;
             mStopButton.Enabled = true;
-            mResultListView.Items.Clear();
+            mResultListBox.Items.Clear();
             mMappingDataGridView.Rows.Clear();
             mProgressBar.Value = 0;
             mAcceptButton.Enabled = false;
@@ -166,25 +166,18 @@ namespace FanCtrl
 
         private void AddLog(string msg)
         {
-            var lvi = new System.Windows.Forms.ListViewItem(msg);
-            mResultListView.Items.Add(lvi);
-            mResultListView.EnsureVisible(mResultListView.Items.Count - 1);
+            mResultListBox.Items.Add(msg);
+            mResultListBox.TopIndex = mResultListBox.Items.Count - 1;
         }
 
         private void ShowResults(List<MappingResult> list)
         {
             mCurrentResults = new List<MappingResult>(list);
-            mResultListView.Items.Clear();
+            mResultListBox.Items.Clear();
             mMappingDataGridView.Rows.Clear();
 
             foreach (var r in list)
             {
-                // Add to log
-                var lvi = new System.Windows.Forms.ListViewItem(r.TempName ?? r.TempID);
-                lvi.SubItems.Add(r.ControlName ?? r.ControlID);
-                lvi.SubItems.Add($"{r.Delta:F1}°C");
-                mResultListView.Items.Add(lvi);
-
                 // Add to DataGridView
                 int rowIndex = mMappingDataGridView.Rows.Add();
                 var row = mMappingDataGridView.Rows[rowIndex];
@@ -219,23 +212,10 @@ namespace FanCtrl
                     
                     try
                     {
-                        // The user confirmed NativeLibraryConfig exists but NOT in LLama.Native
-                        // Try accessing it via LLama.NativeLibraryConfig (root namespace)
                         var config = NativeLibraryConfig.Instance;
-                        
-                        string llamaPath = System.IO.Path.Combine(appDir, "libllama.dll");
-                        if (!System.IO.File.Exists(llamaPath)) 
-                            llamaPath = System.IO.Path.Combine(appDir, @"runtimes\win-x64\native\libllama.dll");
-
-                        if (System.IO.File.Exists(llamaPath)) {
-                            config.WithLibrary(llamaPath, "");
-                        }
-
-                        config.WithCuda(true);
-                        config.WithLogCallback((level, message) => {  // ← сначала level, потом message!
-                            if (level >= LLamaLogLevel.Info)  // ✅ Теперь level — это enum LLamaLogLevel
+                        config.WithLogCallback((level, message) => {  
+                            if (level >= LLamaLogLevel.Info)  
                             {
-                                // Безопасный вызов из фонового потока
                                 this.BeginInvoke(new Action(() => AddLog($"[LLama] {message}")));
                             }
                         });
@@ -254,7 +234,8 @@ namespace FanCtrl
                     var parameters = new LLama.Common.ModelParams(modelPath) 
                     { 
                         ContextSize = 2048, 
-                        GpuLayerCount = 99 // Offload all layers to GPU
+                        GpuLayerCount = 0, // CPU backend used
+                        UseMemorymap = false
                     };
 
                     using (var weights = LLama.LLamaWeights.LoadFromFile(parameters))

@@ -40,6 +40,18 @@
 		<EmbeddedResource Remove="docks\**\*" />
 		<None Remove="docks\**\*" />
 	</ItemGroup>
+	<ItemGroup>
+	  <None Remove="src\models\gemma-4-E2B-it-Q4_K_M.gguf" />
+	  <None Remove="src\models\json.gbnf" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Include="src\models\gemma-4-E2B-it-Q4_K_M.gguf">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="src\models\json.gbnf">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
 
 	<!-- ===== ЗАМЕНИМЫЕ ЗАВИСИМОСТИ (через NuGet) ===== -->
 	<ItemGroup>
@@ -82,9 +94,9 @@
 		<PackageReference Include="HardwareInformation" Version="4.4.0" />
 		<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
 
-		<!-- LLamaSharp + CUDA -->
+		<!-- LLamaSharp + CPU fallback -->
 		<PackageReference Include="LLamaSharp" Version="0.12.0" />
-		<PackageReference Include="LLamaSharp.Backend.Cuda12" Version="0.12.0" />
+		<PackageReference Include="LLamaSharp.Backend.Cpu" Version="0.12.0" />
 	</ItemGroup>
 
 	<!-- ===== НЕЗАМЕНИМЫЕ ЗАВИСИМОСТИ (локальные DLL) ===== -->
@@ -131,15 +143,6 @@
 			<Generator>PublicResXFileCodeGenerator</Generator>
 			<LastGenOutput>StringLib.Designer.cs</LastGenOutput>
 		</EmbeddedResource>
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Update="src\models\gemma-4-E2B-it-Q4_K_M.gguf">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="src\models\json.gbnf">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
 	</ItemGroup>
 
 	<!-- ===== СОБЫТИЯ СБОРКИ ===== -->
