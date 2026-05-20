@@ -1,4 +1,4 @@
-﻿using DarkUI.Config;
+using DarkUI.Config;
 using DarkUI.Controls;
 using FanCtrl.Resources;
 using LibreHardwareMonitor.PawnIo;
@@ -27,6 +27,7 @@ namespace FanCtrl
         private List<NumericUpDownEx> mControlNumericUpDownList = new List<NumericUpDownEx>();
         private List<Label> mControlLabelList = new List<Label>();
         private List<TextBox> mControlNameTextBoxList = new List<TextBox>();
+        private List<DarkButton> mModeButtonList = new List<DarkButton>();
 
         private ControlForm mControlForm = null;
 
@@ -123,8 +124,8 @@ namespace FanCtrl
 
         private void localizeComponent()
         {
-            this.Text = StringLib.Title + " v" + Application.ProductVersion;
-            mTrayIcon.Text = StringLib.Title + " v" + Application.ProductVersion;
+            this.Text = "AutoFAN v" + Application.ProductVersion;
+            mTrayIcon.Text = "AutoFAN v" + Application.ProductVersion;
             mTempGroupBox.Text = StringLib.Temperature;
             mFanGroupBox.Text = StringLib.Fan_speed;
             mControlGroupBox.Text = StringLib.Fan_control;
@@ -340,9 +341,9 @@ namespace FanCtrl
             this.ActiveControl = mFanControlButton;
 
             // Dynamically add Mode Selection Buttons
-            int btnWidth = 83;
-            int btnHeight = 25;
-            int startX = mFanControlButton.Left - (btnWidth + 5);
+            int btnWidth = 70;
+            int btnHeight = 50;
+            int startX = 15;
             int startY = mFanControlButton.Top;
 
             var modes = new[] { 
@@ -358,7 +359,7 @@ namespace FanCtrl
                 var btn = new DarkButton {
                     Text = modeInfo.Text,
                     Size = new Size(btnWidth, btnHeight),
-                    Location = new Point(startX, startY + (i * (btnHeight + 3))),
+                    Location = new Point(startX + (i * (btnWidth + 5)), startY),
                     Tag = modeInfo.Mode
                 };
                 btn.Click += (s, e) => {
@@ -368,6 +369,7 @@ namespace FanCtrl
                 };
                 this.Controls.Add(btn);
                 btn.BringToFront();
+                mModeButtonList.Add(btn);
             }
 
             mEnableToolStripMenuItem.Checked = ControlManager.getInstance().IsEnable;
@@ -449,6 +451,11 @@ namespace FanCtrl
             mIntelligentButton.Top = buttonPoint;
             mOptionButton.Top = buttonPoint;
             mFanControlButton.Top = buttonPoint;
+
+            foreach (var btn in mModeButtonList)
+            {
+                btn.Top = buttonPoint;
+            }
 
             //////////////////////////////////////////////////////////
 

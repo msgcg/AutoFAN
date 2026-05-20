@@ -111,7 +111,7 @@ namespace FanCtrl
             // 
             // mAcceptButton
             // 
-            this.mAcceptButton.Location = new System.Drawing.Point(16, 377);
+            this.mAcceptButton.Location = new System.Drawing.Point(16, 400);
             this.mAcceptButton.Name = "mAcceptButton";
             this.mAcceptButton.Size = new System.Drawing.Size(100, 30);
             this.mAcceptButton.TabIndex = 5;
@@ -121,7 +121,7 @@ namespace FanCtrl
             // 
             // mCreateProfileButton
             // 
-            this.mCreateProfileButton.Location = new System.Drawing.Point(128, 377);
+            this.mCreateProfileButton.Location = new System.Drawing.Point(128, 400);
             this.mCreateProfileButton.Name = "mCreateProfileButton";
             this.mCreateProfileButton.Size = new System.Drawing.Size(150, 30);
             this.mCreateProfileButton.TabIndex = 6;
@@ -131,7 +131,7 @@ namespace FanCtrl
             // 
             // mOptimizeAIButton
             // 
-            this.mOptimizeAIButton.Location = new System.Drawing.Point(290, 377);
+            this.mOptimizeAIButton.Location = new System.Drawing.Point(290, 400);
             this.mOptimizeAIButton.Name = "mOptimizeAIButton";
             this.mOptimizeAIButton.Size = new System.Drawing.Size(150, 30);
             this.mOptimizeAIButton.TabIndex = 8;
@@ -141,7 +141,7 @@ namespace FanCtrl
             // 
             // mCancelButton
             // 
-            this.mCancelButton.Location = new System.Drawing.Point(468, 377);
+            this.mCancelButton.Location = new System.Drawing.Point(468, 400);
             this.mCancelButton.Name = "mCancelButton";
             this.mCancelButton.Size = new System.Drawing.Size(100, 30);
             this.mCancelButton.TabIndex = 7;
@@ -151,7 +151,7 @@ namespace FanCtrl
             // IntelligentForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(580, 420);
+            this.ClientSize = new System.Drawing.Size(580, 440);
             this.Controls.Add(this.mCancelButton);
             this.Controls.Add(this.mOptimizeAIButton);
             this.Controls.Add(this.mCreateProfileButton);

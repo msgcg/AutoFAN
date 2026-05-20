@@ -1,4 +1,4 @@
-﻿using DarkUI.Controls;
+using DarkUI.Controls;
 
 namespace FanCtrl
 {
@@ -266,6 +266,7 @@ namespace FanCtrl
             this.mMadeLabel1.Size = new System.Drawing.Size(83, 12);
             this.mMadeLabel1.TabIndex = 7;
             this.mMadeLabel1.Text = "Made by msgcg";
+            this.mMadeLabel1.Visible = false;
             // 
             // mMadeLabel2
             // 
@@ -275,6 +276,7 @@ namespace FanCtrl
             this.mMadeLabel2.Size = new System.Drawing.Size(125, 12);
             this.mMadeLabel2.TabIndex = 8;
             this.mMadeLabel2.Text = "(support@autofan)";
+            this.mMadeLabel2.Visible = false;
             // 
             // mOSDButton
             // 
@@ -375,7 +377,7 @@ namespace FanCtrl
             this.MaximizeBox = false;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "FanCtrl";
+            this.Text = "AutoFAN";
             this.mTempGroupBox.ResumeLayout(false);
             this.mFanGroupBox.ResumeLayout(false);
             this.mControlGroupBox.ResumeLayout(false);

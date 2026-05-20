@@ -16,6 +16,10 @@ namespace FanCtrl
         private List<MappingResult> mCurrentResults = new List<MappingResult>();
         private ComboBox mModeComboBox;
 
+        private Action<string> mLogAction;
+        private Action<int> mProgressAction;
+        private Action<List<MappingResult>> mFinishedAction;
+
         public IntelligentForm()
         {
             InitializeComponent();
@@ -24,7 +28,7 @@ namespace FanCtrl
             // Dynamically add Mode selection UI
             var label = new DarkUI.Controls.DarkLabel { 
                 Text = "Target Mode:", 
-                Location = new System.Drawing.Point(mCreateProfileButton.Left - 100, mCreateProfileButton.Top + 15), 
+                Location = new System.Drawing.Point(mCreateProfileButton.Left, mCreateProfileButton.Top - 25), 
                 AutoSize = true 
             };
             mModeComboBox = new ComboBox { 
@@ -45,9 +49,19 @@ namespace FanCtrl
             mOptimizeAIButton.Click += (s, e) => { OptimizeWithAI(); };
             mCancelButton.Click += (s, e) => { this.Close(); };
 
-            IntelligentManager.getInstance().onLog += (msg) => { this.BeginInvoke(new Action(() => { AddLog(msg); })); };
-            IntelligentManager.getInstance().onProgress += (p) => { this.BeginInvoke(new Action(() => { mProgressBar.Value = p; })); };
-            IntelligentManager.getInstance().onFinished += (list) => { this.BeginInvoke(new Action(() => { ShowResults(list); })); };
+            mLogAction = (msg) => { if (!this.IsDisposed && this.IsHandleCreated) this.BeginInvoke(new Action(() => { AddLog(msg); })); };
+            mProgressAction = (p) => { if (!this.IsDisposed && this.IsHandleCreated) this.BeginInvoke(new Action(() => { mProgressBar.Value = p; })); };
+            mFinishedAction = (list) => { if (!this.IsDisposed && this.IsHandleCreated) this.BeginInvoke(new Action(() => { ShowResults(list); })); };
+
+            IntelligentManager.getInstance().onLog += mLogAction;
+            IntelligentManager.getInstance().onProgress += mProgressAction;
+            IntelligentManager.getInstance().onFinished += mFinishedAction;
+
+            this.FormClosed += (s, e) => {
+                IntelligentManager.getInstance().onLog -= mLogAction;
+                IntelligentManager.getInstance().onProgress -= mProgressAction;
+                IntelligentManager.getInstance().onFinished -= mFinishedAction;
+            };
 
             SetupDataGridView();
         }
@@ -166,7 +180,9 @@ namespace FanCtrl
             foreach (var r in list)
             {
                 // Add to log
-                var lvi = new System.Windows.Forms.ListViewItem($"{r.TempName ?? r.TempID} -> {r.ControlName ?? r.ControlID} (Δ:{r.Delta:F1}°C, RPM:{r.RPM}, Conf:{r.Confidence:F0}%)");
+                var lvi = new System.Windows.Forms.ListViewItem(r.TempName ?? r.TempID);
+                lvi.SubItems.Add(r.ControlName ?? r.ControlID);
+                lvi.SubItems.Add($"{r.Delta:F1}°C");
                 mResultListView.Items.Add(lvi);
 
                 // Add to DataGridView
@@ -301,12 +317,18 @@ namespace FanCtrl
                                     }));
                                 }
                             }
-                            catch (Exception ex) { this.BeginInvoke(new Action(() => AddLog("AI Parse Error: " + ex.Message))); }
+                            catch (Exception ex) { 
+                                System.Diagnostics.Debug.WriteLine(ex.ToString());
+                                this.BeginInvoke(new Action(() => AddLog("AI Parse Error: " + ex.Message))); 
+                            }
                         }
                     }
                 });
             }
-            catch (Exception ex) { this.BeginInvoke(new Action(() => AddLog("AI Error: " + ex.Message))); }
+            catch (Exception ex) { 
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+                this.BeginInvoke(new Action(() => AddLog("AI Error: " + ex.Message))); 
+            }
             finally { this.BeginInvoke(new Action(() => mOptimizeAIButton.Enabled = true)); }
         }
 

@@ -1,4 +1,4 @@
-﻿using DarkUI.Controls;
+using DarkUI.Controls;
 using System.Windows.Forms;
 
 namespace FanCtrl
@@ -431,7 +431,7 @@ namespace FanCtrl
             this.MinimumSize = new System.Drawing.Size(1219, 796);
             this.Name = "ControlForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "FanCtrl";
+            this.Text = "AutoFAN";
             this.mTempGroupBox.ResumeLayout(false);
             this.mFanGroupBox.ResumeLayout(false);
             this.mGraphGroupBox.ResumeLayout(false);
