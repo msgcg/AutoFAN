@@ -6,7 +6,6 @@ using System.Windows.Forms;
 using LLama;
 using LLama.Common;
 using LLama.Native;
-using LLama.Grammars;
 using System.Text.Json;
 
 namespace FanCtrl
@@ -257,20 +256,22 @@ namespace FanCtrl
                         string prompt = "You are a PC hardware diagnostic AI. I performed a stress test by ramping up fans to see which sensor cools down.\n" +
                                         $"Available Fans: {System.Text.Json.JsonSerializer.Serialize(allControls)}\n" +
                                         $"Test Results: {System.Text.Json.JsonSerializer.Serialize(diagnosticData)}\n\n" +
+                                        "Your task is to map each Sensor to the correct FanID based on the test results. " +
                                         "Correct any obvious mistakes. Trust high Delta values (> 4.0) above all else. " +
-                                        "Return ONLY a JSON array: [{\"SensorName\": \"...\", \"CorrectedFanID\": \"...\"}]";
+                                        "Return ONLY a JSON array of objects: [{\"SensorName\": \"...\", \"CorrectedFanID\": \"...\"}]";
 
                         string response = "";
-                        var inferenceParams = new LLama.Common.InferenceParams() { MaxTokens = 1024, Temperature = 0.1f };
-
+                        var inferenceParams = new LLama.Common.InferenceParams() { MaxTokens = 1024 };
+                        LLama.Sampling.Grammar grammar = null;
                         string gbnfPath = System.IO.Path.Combine(appDir, @"src\models\json.gbnf");
                         if (System.IO.File.Exists(gbnfPath))
                         {
                             var gbnf = System.IO.File.ReadAllText(gbnfPath).Trim();
-                            // Grammar class is in LLama.Grammars namespace in 0.10.0
-                            inferenceParams.Grammar = LLama.Grammars.Grammar.Parse(gbnf, "root").CreateInstance();
+                            grammar = new LLama.Sampling.Grammar(gbnf, "root");
                         }
 
+                        var pipeline = new LLama.Sampling.DefaultSamplingPipeline() { Temperature = 0.1f, Grammar = grammar };
+                        inferenceParams.SamplingPipeline = pipeline;
                         // Use InferAsync with await foreach for LLamaSharp 0.10.0
                         await foreach (var text in executor.InferAsync(prompt, inferenceParams)) 
                         {
