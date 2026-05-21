@@ -279,6 +279,22 @@ namespace FanCtrl
                 }
                 finally
                 {
+                    onLog?.Invoke("Forcing controls to AUTO mode (bypassing safety guards) before exit...");
+                    try
+                    {
+                        var hwFinal = new List<BaseControl>();
+                        foreach (var control in hwFinal)
+                        {
+                            try 
+                            { 
+                                control.IsSetSpeed = true; 
+                                control.setAuto(); 
+                            } 
+                            catch { }
+                        }
+                    }
+                    catch { }
+
                     IsRunning = false;
                 }
             }, token);

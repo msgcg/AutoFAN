@@ -172,7 +172,6 @@ namespace FanCtrl
         private void ShowResults(List<MappingResult> list)
         {
             mCurrentResults = new List<MappingResult>(list);
-            mResultListBox.Items.Clear();
             mMappingDataGridView.Rows.Clear();
 
             foreach (var r in list)
@@ -199,8 +198,18 @@ namespace FanCtrl
         private async void OptimizeWithAI()
         {
             if (mCurrentResults.Count == 0) return;
+            
+            // Sync any manual edits from the DataGridView first
+            for (int i = 0; i < mMappingDataGridView.Rows.Count && i < mCurrentResults.Count; i++)
+            {
+                string sName = mMappingDataGridView.Rows[i].Cells["SensorName"].Value?.ToString();
+                string fID = mMappingDataGridView.Rows[i].Cells["DetectedControl"].Value?.ToString();
+                var res = mCurrentResults.FirstOrDefault(r => r.TempName == sName);
+                if (res != null) res.ControlID = fID;
+            }
+
             mOptimizeAIButton.Enabled = false;
-            AddLog("Starting AI analysis (CUDA)...");
+            AddLog("Starting AI analysis...");
             
             try
             {
@@ -214,7 +223,6 @@ namespace FanCtrl
                         var config = NativeLibraryConfig.Instance;
                         config.WithLogCallback((level, message) => {  
                             System.Diagnostics.Debug.WriteLine($"[LLama {level}] {message}");
-                            System.Console.WriteLine($"[LLama {level}] {message}");
                         });
                     }
                     catch { /* Might already be initialized */ }
@@ -248,17 +256,23 @@ namespace FanCtrl
                             Sensor = r.TempName,
                             AssignedFan = r.ControlName,
                             AssignedFanID = r.ControlID,
-                            Delta = r.Delta,
+                            Delta = double.IsInfinity(r.Delta) || double.IsNaN(r.Delta) ? 0 : r.Delta,
                             RPM = r.RPM,
-                            Confidence = r.Confidence
+                            Confidence = double.IsInfinity(r.Confidence) || double.IsNaN(r.Confidence) ? 0 : r.Confidence
                         }).ToList();
                         
+                        var jsonOptions = new System.Text.Json.JsonSerializerOptions {
+                            NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals
+                        };
+
                         string prompt = "You are a PC hardware diagnostic AI. I performed a stress test by ramping up fans to see which sensor cools down.\n" +
-                                        $"Available Fans: {System.Text.Json.JsonSerializer.Serialize(allControls)}\n" +
-                                        $"Test Results: {System.Text.Json.JsonSerializer.Serialize(diagnosticData)}\n\n" +
-                                        "Your task is to map each Sensor to the correct FanID based on the test results. " +
+                                        $"Available Fans: {System.Text.Json.JsonSerializer.Serialize(allControls, jsonOptions)}\n" +
+                                        $"Test Results: {System.Text.Json.JsonSerializer.Serialize(diagnosticData, jsonOptions)}\n\n" +
+                                        "Your task is to map EACH and EVERY Sensor from the Test Results to the correct FanID. " +
+                                        "Even if the AssignedFan is already correct, you MUST include it in the output. " +
                                         "Correct any obvious mistakes. Trust high Delta values (> 4.0) above all else. " +
-                                        "Return ONLY a JSON array of objects: [{\"SensorName\": \"...\", \"CorrectedFanID\": \"...\"}]";
+                                        "Return ONLY a JSON array of objects with ALL sensors included. DO NOT return an empty array and DO NOT use placeholders.\n" +
+                                        "Correct Output Example: [{\"SensorName\": \"CPU Package\", \"CorrectedFanID\": \"2\"}, {\"SensorName\": \"GPU Core\", \"CorrectedFanID\": \"3\"}]";
 
                         string response = "";
                         var inferenceParams = new LLama.Common.InferenceParams() { MaxTokens = 1024 };
@@ -278,6 +292,8 @@ namespace FanCtrl
                             response += text;
                         }
 
+                        System.Console.WriteLine("\n[AI RAW RESPONSE START]\n" + response + "\n[AI RAW RESPONSE END]\n");
+
                         if (!string.IsNullOrEmpty(response))
                         {
                             try
@@ -286,22 +302,41 @@ namespace FanCtrl
                                 int endIdx = response.LastIndexOf(']');
                                 if (startIdx >= 0 && endIdx >= startIdx)
                                 {
-                                    var corrected = System.Text.Json.JsonSerializer.Deserialize<List<JsonElement>>(response.Substring(startIdx, endIdx - startIdx + 1));
+                                    var corrected = System.Text.Json.JsonSerializer.Deserialize<List<System.Text.Json.JsonElement>>(response.Substring(startIdx, endIdx - startIdx + 1));
                                     this.BeginInvoke(new Action(() => {
+                                        var changes = new List<string>();
                                         foreach (var item in corrected)
                                         {
-                                            string sName = item.GetProperty("SensorName").GetString();
-                                            string fID = item.GetProperty("CorrectedFanID").GetString();
+                                            if (item.ValueKind != System.Text.Json.JsonValueKind.Object) continue;
+                                            
+                                            string sName = null;
+                                            string fID = null;
+                                            
+                                            if (item.TryGetProperty("SensorName", out var sNameProp)) sName = sNameProp.GetString();
+                                            if (item.TryGetProperty("CorrectedFanID", out var fIDProp)) fID = fIDProp.GetString();
+                                            
+                                            if (sName == null || fID == null) continue;
+
                                             var res = mCurrentResults.FirstOrDefault(r => r.TempName == sName);
-                                            if (res != null) res.ControlID = fID;
+                                            if (res != null) 
+                                            {
+                                                if (res.ControlID != fID)
+                                                {
+                                                    changes.Add($"{sName}: {res.ControlID} -> {fID}");
+                                                    res.ControlID = fID;
+                                                }
+                                            }
                                         }
                                         ShowResults(mCurrentResults);
-                                        AddLog("AI Analysis applied (CUDA).");
+                                        AddLog("AI Analysis applied.");
+                                        foreach (var c in changes) AddLog(" > " + c);
+                                        if (changes.Count == 0) AddLog(" > No changes were necessary.");
                                     }));
                                 }
                             }
                             catch (Exception ex) { 
                                 System.Diagnostics.Debug.WriteLine(ex.ToString());
+                                System.Console.WriteLine("AI Parse Error: " + ex.ToString());
                                 this.BeginInvoke(new Action(() => AddLog("AI Parse Error: " + ex.Message))); 
                             }
                         }
@@ -310,6 +345,7 @@ namespace FanCtrl
             }
             catch (Exception ex) { 
                 System.Diagnostics.Debug.WriteLine(ex.ToString());
+                System.Console.WriteLine("AI Error: " + ex.ToString());
                 this.BeginInvoke(new Action(() => AddLog("AI Error: " + ex.Message))); 
             }
             finally { this.BeginInvoke(new Action(() => mOptimizeAIButton.Enabled = true)); }
