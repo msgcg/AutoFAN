@@ -271,8 +271,7 @@ namespace FanCtrl
                                         "Your task is to map EACH and EVERY Sensor from the Test Results to the correct FanID. " +
                                         "Even if the AssignedFan is already correct, you MUST include it in the output. " +
                                         "Correct any obvious mistakes. Trust high Delta values (> 4.0) above all else. " +
-                                        "Return ONLY a JSON array of objects with ALL sensors included. DO NOT return an empty array and DO NOT use placeholders.\n" +
-                                        "Correct Output Example: [{\"SensorName\": \"CPU Package\", \"CorrectedFanID\": \"2\"}, {\"SensorName\": \"GPU Core\", \"CorrectedFanID\": \"3\"}]";
+                                        "Do not ignore any sensor. You must output the entire mapping list.";
 
                         string response = "";
                         var inferenceParams = new LLama.Common.InferenceParams() { MaxTokens = 1024 };
