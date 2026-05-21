@@ -1208,6 +1208,7 @@ namespace FanCtrl
         {
             var form = new IntelligentForm();
             form.ShowDialog();
+            reload();
         }
 
         private void onPluginButtonClick(object sender, EventArgs e)

@@ -214,10 +214,8 @@ namespace FanCtrl
                     {
                         var config = NativeLibraryConfig.Instance;
                         config.WithLogCallback((level, message) => {  
-                            if (level >= LLamaLogLevel.Info)  
-                            {
-                                this.BeginInvoke(new Action(() => AddLog($"[LLama] {message}")));
-                            }
+                            System.Diagnostics.Debug.WriteLine($"[LLama {level}] {message}");
+                            System.Console.WriteLine($"[LLama {level}] {message}");
                         });
                     }
                     catch { /* Might already be initialized */ }

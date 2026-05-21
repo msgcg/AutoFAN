@@ -94,6 +94,20 @@ namespace FanCtrl
                         }
                     }
 
+                    // NEW: Spin up all controls to 100% to detect connected fans
+                    onLog?.Invoke("Spinning up all controls to detect connected fans...");
+                    foreach (var control in allControls)
+                    {
+                        try { control.setSpeed(100); } catch { }
+                    }
+
+                    // Wait 6 seconds for fans to spin up and RPM to register
+                    for (int w = 0; w < 6; w++)
+                    {
+                        if (token.IsCancellationRequested) return;
+                        Thread.Sleep(1000);
+                    }
+
                     // Filter controls: STRICT RPM CHECK
                     var activeControls = new List<BaseControl>();
                     foreach (var control in allControls)
@@ -118,7 +132,6 @@ namespace FanCtrl
                             // For complex devices, fallback to any spinning fan
                             isActuallyActive = deviceFans.Any(f => f.Value > 0);
                         }
-                        // If motherboard header has no matching fan with RPM, we skip it (e.g. Pump Fan = 0)
 
                         if (isActuallyActive)
                         {
