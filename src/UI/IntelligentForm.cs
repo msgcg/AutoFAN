@@ -217,12 +217,16 @@ namespace FanCtrl
                 await System.Threading.Tasks.Task.Run(async () =>
                 {
                     string appDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                    
+                    bool isCudaLoaded = false;
                     try
                     {
                         var config = NativeLibraryConfig.Instance;
+                        config.WithCuda(); // Automatically falls back to Vulkan if CUDA is unavailable
+                        config.WithVulkan(); // Falls back to CPU if Vulkan is unavailable
                         config.WithLogCallback((level, message) => {  
                             System.Diagnostics.Debug.WriteLine($"[LLama {level}] {message}");
+                            if (message.Contains("ggml_cuda") || message.Contains("ggml_vulkan") || message.Contains("CUDA") || message.Contains("Vulkan")) 
+                                isCudaLoaded = true;
                         });
                     }
                     catch { /* Might already be initialized */ }
@@ -243,12 +247,20 @@ namespace FanCtrl
                     var parameters = new LLama.Common.ModelParams(modelPath) 
                     { 
                         ContextSize = 4096, 
-                        GpuLayerCount = 0 // CPU backend used
+                        GpuLayerCount = 99 // Offloads to GPU if CUDA is active, ignored otherwise
                     };
 
                     using (var weights = LLama.LLamaWeights.LoadFromFile(parameters))
                     {
                         var executor = new LLama.StatelessExecutor(weights, parameters);
+                        
+                        this.BeginInvoke(new Action(() => {
+                            if (isCudaLoaded)
+                                AddLog("AI Info: Running with Hardware Acceleration (CUDA).");
+                            else
+                                AddLog("AI Info: Hardware Acceleration unavailable. Falling back to CPU.");
+                        }));
+                        
                         var hw = HardwareManager.getInstance();
                         var allControls = hw.ControlBaseList.Select(c => new { ID = c.ID, Name = c.Name }).ToList();
                         
