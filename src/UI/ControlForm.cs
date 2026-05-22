@@ -1,4 +1,4 @@
-﻿using DarkUI.Config;
+using DarkUI.Config;
 using DarkUI.Forms;
 using FanCtrl.Resources;
 using Newtonsoft.Json.Linq;
@@ -9,6 +9,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using ZedGraph;
+using System.Linq;
 
 namespace FanCtrl
 {
@@ -1010,6 +1011,64 @@ namespace FanCtrl
             }
 
             setUseFanTextToAddFanListView();
+        }
+
+        private void onImportIntelligentButtonClick(object sender, EventArgs e)
+        {
+            try
+            {
+                string appDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                string mappingPath = System.IO.Path.Combine(appDir, "IntelligentMapping.json");
+                if (!System.IO.File.Exists(mappingPath))
+                {
+                    MessageBox.Show("Intelligent mapping not found. Please run the Intelligent mode first and click 'Accept' to save the mapping.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                string json = System.IO.File.ReadAllText(mappingPath);
+                var jsonOptions = new System.Text.Json.JsonSerializerOptions { NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals };
+                var mappingResults = System.Text.Json.JsonSerializer.Deserialize<List<MappingResult>>(json, jsonOptions);
+
+                if (mappingResults == null || mappingResults.Count == 0) return;
+
+                // Group mapping by TempID (sensor)
+                var bySensor = mappingResults.GroupBy(r => r.TempID);
+                var newProfileList = new List<ControlData>();
+
+                foreach (var sensorGroup in bySensor)
+                {
+                    var controlData = new ControlData(sensorGroup.Key);
+                    foreach (var mapping in sensorGroup)
+                    {
+                        // Provide default curve settings for each assigned fan
+                        var fan = new FanData(mapping.ControlID, FanValueUnit.Size_5, false, 3, 0, 2);
+                        // Default normal curve
+                        for (int i = 0; i < fan.getMaxFanValue(); i++)
+                        {
+                            int temp = i * 5;
+                            int minPwm = 30, maxPwm = 100, targetTemp = 85;
+                            if (temp < 40) fan.ValueList[i] = minPwm;
+                            else if (temp > targetTemp) fan.ValueList[i] = maxPwm;
+                            else fan.ValueList[i] = minPwm + (int)((temp - 40) * (maxPwm - minPwm) / (double)(targetTemp - 40));
+                        }
+                        controlData.FanDataList.Add(fan);
+                    }
+                    newProfileList.Add(controlData);
+                }
+
+                // Apply the new profile list to the current mode
+                mControlDataList[(int)mModeType] = newProfileList;
+                
+                // Refresh UI list
+                mSelectedFanData = null;
+                this.onAddTempListViewIndexChanged(null, EventArgs.Empty);
+
+                MessageBox.Show("Mapping imported successfully! You can now configure individual fan curves and save.", "Imported", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to import mapping: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void onPresetLoadButtonClick(object sender, EventArgs e)

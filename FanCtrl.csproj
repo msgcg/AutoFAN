@@ -5,6 +5,8 @@
 		<TargetFramework>net8.0-windows</TargetFramework>
 		<Nullable>disable</Nullable>
 		<UseWindowsForms>true</UseWindowsForms>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<RootNamespace>FanCtrl</RootNamespace>
 		<AssemblyName>FanCtrl</AssemblyName>

@@ -352,15 +352,29 @@ namespace FanCtrl
 
         private void AcceptMapping()
         {
-            if (mMappingDataGridView.Rows.Count == 0) return;
-            for (int i = 0; i < mMappingDataGridView.Rows.Count && i < mCurrentResults.Count; i++)
+            // Sync any manual edits from DataGridView back to mCurrentResults
+            foreach (DataGridViewRow row in mMappingDataGridView.Rows)
             {
-                string sName = mMappingDataGridView.Rows[i].Cells["SensorName"].Value?.ToString();
-                string fID = mMappingDataGridView.Rows[i].Cells["DetectedControl"].Value?.ToString();
+                if (row.IsNewRow) continue;
+                string sName = row.Cells[0].Value?.ToString();
+                string fID = row.Cells[1].Value?.ToString();
+                
                 var res = mCurrentResults.FirstOrDefault(r => r.TempName == sName);
                 if (res != null) res.ControlID = fID;
             }
-            MessageBox.Show("Mapping accepted. Choose a mode and click 'Create Profile'.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            
+            try 
+            {
+                string appDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                string mappingPath = System.IO.Path.Combine(appDir, "IntelligentMapping.json");
+                var jsonOptions = new System.Text.Json.JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals };
+                System.IO.File.WriteAllText(mappingPath, System.Text.Json.JsonSerializer.Serialize(mCurrentResults, jsonOptions));
+                MessageBox.Show("Mapping accepted and saved! You can now import it in the Automatic Control menu, or click Create Profile to apply a standard curve.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to save mapping: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void CreateProfile()

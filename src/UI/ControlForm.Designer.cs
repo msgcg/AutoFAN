@@ -347,6 +347,16 @@ namespace FanCtrl
             this.mPresetSaveButton.Text = "Save";
             this.mPresetSaveButton.Click += new System.EventHandler(this.onPresetSaveButtonClick);
             // 
+            // mImportIntelligentButton
+            // 
+            this.mImportIntelligentButton.Location = new System.Drawing.Point(638, 56);
+            this.mImportIntelligentButton.Name = "mImportIntelligentButton";
+            this.mImportIntelligentButton.Padding = new System.Windows.Forms.Padding(1);
+            this.mImportIntelligentButton.Size = new System.Drawing.Size(120, 23);
+            this.mImportIntelligentButton.TabIndex = 11;
+            this.mImportIntelligentButton.Text = "Import Intelligent";
+            this.mImportIntelligentButton.Click += new System.EventHandler(this.onImportIntelligentButtonClick);
+            // 
             // mAutoNumericUpDown
             // 
             this.mAutoNumericUpDown.AutoSize = true;
@@ -416,6 +426,7 @@ namespace FanCtrl
             this.Controls.Add(this.mAutoNumericUpDown);
             this.Controls.Add(this.mPresetSaveButton);
             this.Controls.Add(this.mPresetLoadButton);
+            this.Controls.Add(this.mImportIntelligentButton);
             this.Controls.Add(this.mUnitComboBox);
             this.Controls.Add(this.mModeGroupBox);
             this.Controls.Add(this.mHysNumericUpDown);
@@ -470,6 +481,7 @@ namespace FanCtrl
         private DarkLabel mPresetLabel;
         private DarkButton mPresetLoadButton;
         private DarkButton mPresetSaveButton;
+        private DarkButton mImportIntelligentButton;
         private DarkNumericUpDown mAutoNumericUpDown;
         private DarkLabel mAutoLabel;
         private DarkLabel mDelayLabel;
