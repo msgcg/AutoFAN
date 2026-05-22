@@ -227,7 +227,7 @@ namespace FanCtrl
                     }
                     catch { /* Might already be initialized */ }
 
-                    string modelRelPath = @"src\models\gemma-4-E2B-it-Q4_K_M.gguf";
+                    string modelRelPath = @"src\models\phi-3.5-mini-instruct-q4.gguf";
                     string absPath = System.IO.Path.Combine(appDir, modelRelPath);
 
                     if (!System.IO.File.Exists(absPath) && !System.IO.File.Exists(modelRelPath))
@@ -242,7 +242,7 @@ namespace FanCtrl
 
                     var parameters = new LLama.Common.ModelParams(modelPath) 
                     { 
-                        ContextSize = 2048, 
+                        ContextSize = 4096, 
                         GpuLayerCount = 0 // CPU backend used
                     };
 
@@ -265,13 +265,16 @@ namespace FanCtrl
                             NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals
                         };
 
-                        string prompt = "You are a PC hardware diagnostic AI. I performed a stress test by ramping up fans to see which sensor cools down.\n" +
+                        string prompt = "You are an expert PC hardware AI. The user ran a fan-control stress test.\n" +
                                         $"Available Fans: {System.Text.Json.JsonSerializer.Serialize(allControls, jsonOptions)}\n" +
-                                        $"Test Results: {System.Text.Json.JsonSerializer.Serialize(diagnosticData, jsonOptions)}\n\n" +
-                                        "Your task is to map EACH and EVERY Sensor from the Test Results to the correct FanID. " +
-                                        "Even if the AssignedFan is already correct, you MUST include it in the output. " +
-                                        "Correct any obvious mistakes. Trust high Delta values (> 4.0) above all else. " +
-                                        "Do not ignore any sensor. You must output the entire mapping list.";
+                                        $"Heuristic Results: {System.Text.Json.JsonSerializer.Serialize(diagnosticData, jsonOptions)}\n\n" +
+                                        "TASK: Map EACH Sensor from the Heuristic Results to the correct FanID from the Available Fans list.\n" +
+                                        "CRITICAL RULES:\n" +
+                                        "1. The 'AssignedFanID' in the Heuristic Results is often WRONG. You MUST use semantic matching based on the sensor and fan names.\n" +
+                                        "2. If a Sensor is a GPU (e.g. NVIDIA), its CorrectedFanID MUST be the GPU fan (e.g. gpu-nvidia), NOT a motherboard chassis fan (lpc/nct...), regardless of the heuristic Delta.\n" +
+                                        "3. If a Sensor is a CPU, its CorrectedFanID should ideally be a CPU fan.\n" +
+                                        "4. Output a JSON array containing EVERY sensor with its 'SensorName' and 'CorrectedFanID'.\n" +
+                                        "5. CorrectedFanID MUST EXACTLY match the literal 'ID' field from the Available Fans list (e.g. 'LHM/Control/...'). DO NOT use the 'Name' field as the ID!";
 
                         string response = "";
                         var inferenceParams = new LLama.Common.InferenceParams() { MaxTokens = 1024 };
@@ -319,10 +322,16 @@ namespace FanCtrl
                                             var res = mCurrentResults.FirstOrDefault(r => r.TempName == sName);
                                             if (res != null) 
                                             {
-                                                if (res.ControlID != fID)
+                                                var hw = HardwareManager.getInstance();
+                                                bool isValidId = hw.ControlBaseList.Any(c => c.ID == fID);
+                                                if (isValidId && res.ControlID != fID)
                                                 {
                                                     changes.Add($"{sName}: {res.ControlID} -> {fID}");
                                                     res.ControlID = fID;
+                                                }
+                                                else if (!isValidId && res.ControlID != fID)
+                                                {
+                                                    changes.Add($"[Error] AI suggested invalid ID for {sName}: '{fID}'");
                                                 }
                                             }
                                         }
@@ -332,12 +341,20 @@ namespace FanCtrl
                                         if (changes.Count == 0) AddLog(" > No changes were necessary.");
                                     }));
                                 }
+                                else
+                                {
+                                    this.BeginInvoke(new Action(() => AddLog("AI Error: The model did not return a valid JSON array.")));
+                                }
                             }
                             catch (Exception ex) { 
                                 System.Diagnostics.Debug.WriteLine(ex.ToString());
                                 System.Console.WriteLine("AI Parse Error: " + ex.ToString());
                                 this.BeginInvoke(new Action(() => AddLog("AI Parse Error: " + ex.Message))); 
                             }
+                        }
+                        else
+                        {
+                            this.BeginInvoke(new Action(() => AddLog("AI Error: The model returned an empty response.")));
                         }
                     }
                 });

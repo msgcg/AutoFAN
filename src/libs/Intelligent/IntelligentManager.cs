@@ -151,7 +151,7 @@ namespace FanCtrl
                     }
 
                     // NEW: Reset all active controls to AUTO before starting baseline
-                    onLog?.Invoke("Forcing controls to AUTO mode (bypassing safety guards)...");
+                    onLog?.Invoke("Forcing controls to AUTO mode...");
                     foreach (var control in activeControls)
                     {
                         try 
@@ -279,7 +279,7 @@ namespace FanCtrl
                 }
                 finally
                 {
-                    onLog?.Invoke("Forcing controls to AUTO mode (bypassing safety guards) before exit...");
+                    onLog?.Invoke("Forcing controls to AUTO mode before exit...");
                     try
                     {
                         var hwFinal = new List<BaseControl>();

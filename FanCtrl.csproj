@@ -43,14 +43,22 @@
 		<None Remove="docks\**\*" />
 	</ItemGroup>
 	<ItemGroup>
+	  <None Remove="src\models\falcon-mamba-7B-instruct-Q4_K_M.gguf" />
 	  <None Remove="src\models\gemma-4-E2B-it-Q4_K_M.gguf" />
 	  <None Remove="src\models\json.gbnf" />
+	  <None Remove="src\models\phi-3.5-mini-instruct-q4.gguf" />
 	</ItemGroup>
 	<ItemGroup>
+	  <Content Include="src\models\falcon-mamba-7B-instruct-Q4_K_M.gguf">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	  <Content Include="src\models\gemma-4-E2B-it-Q4_K_M.gguf">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	  <Content Include="src\models\json.gbnf">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="src\models\phi-3.5-mini-instruct-q4.gguf">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	</ItemGroup>
