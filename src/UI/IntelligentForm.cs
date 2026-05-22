@@ -13,7 +13,7 @@ namespace FanCtrl
     public partial class IntelligentForm : ThemeForm
     {
         private List<MappingResult> mCurrentResults = new List<MappingResult>();
-        private ComboBox mModeComboBox;
+
 
         private Action<string> mLogAction;
         private Action<int> mProgressAction;
@@ -24,27 +24,12 @@ namespace FanCtrl
             InitializeComponent();
             this.localizeComponent();
 
-            // Dynamically add Mode selection UI
-            var label = new DarkUI.Controls.DarkLabel { 
-                Text = "Target Mode:", 
-                Location = new System.Drawing.Point(mCreateProfileButton.Left, mCreateProfileButton.Top - 25), 
-                AutoSize = true 
-            };
-            mModeComboBox = new ComboBox { 
-                Location = new System.Drawing.Point(label.Right + 5, label.Top - 3), 
-                Width = 100, 
-                DropDownStyle = ComboBoxStyle.DropDownList 
-            };
-            mModeComboBox.Items.AddRange(new object[] { MODE_TYPE.NORMAL, MODE_TYPE.SILENCE, MODE_TYPE.PERFORMANCE, MODE_TYPE.GAME });
-            mModeComboBox.SelectedItem = ControlManager.getInstance().ModeType;
-            
-            this.Controls.Add(label);
-            this.Controls.Add(mModeComboBox);
+
 
             mStartButton.Click += (s, e) => { Start(); };
             mStopButton.Click += (s, e) => { Stop(); };
             mAcceptButton.Click += (s, e) => { AcceptMapping(); };
-            mCreateProfileButton.Click += (s, e) => { CreateProfile(); };
+
             mOptimizeAIButton.Click += (s, e) => { OptimizeWithAI(); };
             mCancelButton.Click += (s, e) => { this.Close(); };
 
@@ -71,7 +56,7 @@ namespace FanCtrl
             this.mStartButton.Text = "Start";
             this.mStopButton.Text = "Stop";
             this.mAcceptButton.Text = "Accept";
-            this.mCreateProfileButton.Text = "Create Profile";
+
             this.mOptimizeAIButton.Text = "AI Remap";
             this.mCancelButton.Text = "Cancel";
         }
@@ -151,7 +136,7 @@ namespace FanCtrl
             mMappingDataGridView.Rows.Clear();
             mProgressBar.Value = 0;
             mAcceptButton.Enabled = false;
-            mCreateProfileButton.Enabled = false;
+
             mOptimizeAIButton.Enabled = false;
             var _ = IntelligentManager.getInstance().StartMappingAsync();
         }
@@ -191,7 +176,7 @@ namespace FanCtrl
             mStartButton.Enabled = true;
             mStopButton.Enabled = false;
             mAcceptButton.Enabled = true;
-            mCreateProfileButton.Enabled = true;
+
             mOptimizeAIButton.Enabled = true;
         }
 
@@ -397,8 +382,8 @@ namespace FanCtrl
             foreach (DataGridViewRow row in mMappingDataGridView.Rows)
             {
                 if (row.IsNewRow) continue;
-                string sName = row.Cells[0].Value?.ToString();
-                string fID = row.Cells[1].Value?.ToString();
+                string sName = row.Cells["SensorName"].Value?.ToString();
+                string fID = row.Cells["DetectedControl"].Value?.ToString();
                 
                 var res = mCurrentResults.FirstOrDefault(r => r.TempName == sName);
                 if (res != null) res.ControlID = fID;
@@ -410,7 +395,7 @@ namespace FanCtrl
                 string mappingPath = System.IO.Path.Combine(appDir, "IntelligentMapping.json");
                 var jsonOptions = new System.Text.Json.JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals };
                 System.IO.File.WriteAllText(mappingPath, System.Text.Json.JsonSerializer.Serialize(mCurrentResults, jsonOptions));
-                MessageBox.Show("Mapping accepted and saved! You can now import it in the Automatic Control menu, or click Create Profile to apply a standard curve.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Mapping accepted and saved!\n\nYou can now go to the 'Automatic Fan Control' menu and click 'Import Intelligent' to configure curves for these fans.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
@@ -418,46 +403,6 @@ namespace FanCtrl
             }
         }
 
-        private void CreateProfile()
-        {
-            if (mCurrentResults.Count == 0) return;
-            
-            MODE_TYPE targetMode = (MODE_TYPE)mModeComboBox.SelectedItem; 
-            
-            var cm = ControlManager.getInstance();
-            var bySensor = mCurrentResults.GroupBy(r => r.TempID);
-            var profileList = new List<ControlData>();
 
-            foreach (var sensorGroup in bySensor)
-            {
-                var controlData = new ControlData(sensorGroup.Key);
-                foreach (var mapping in sensorGroup)
-                {
-                    var fan = new FanData(mapping.ControlID, FanValueUnit.Size_5, false, 3, 0, 2);
-                    for (int i = 0; i < fan.getMaxFanValue(); i++)
-                    {
-                        int temp = i * 5;
-                        int minPwm, maxPwm, targetTemp;
-                        switch(targetMode) {
-                            case MODE_TYPE.SILENCE: minPwm = 20; maxPwm = 80; targetTemp = 90; break;
-                            case MODE_TYPE.PERFORMANCE: minPwm = 40; maxPwm = 100; targetTemp = 75; break;
-                            case MODE_TYPE.GAME: minPwm = 35; maxPwm = 100; targetTemp = 80; break;
-                            default: minPwm = 30; maxPwm = 100; targetTemp = 85; break;
-                        }
-                        
-                        if (temp < 40) fan.ValueList[i] = minPwm;
-                        else if (temp > targetTemp) fan.ValueList[i] = maxPwm;
-                        else fan.ValueList[i] = minPwm + (int)((temp - 40) * (maxPwm - minPwm) / (double)(targetTemp - 40));
-                    }
-                    controlData.FanDataList.Add(fan);
-                }
-                profileList.Add(controlData);
-            }
-
-            cm.setControlDataList(targetMode, profileList);
-            cm.write();
-            AddLog($"Profile successfully saved to {targetMode} in Control.json");
-            MessageBox.Show($"Profile created and applied to {targetMode} mode!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
     }
 }

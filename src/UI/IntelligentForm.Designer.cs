@@ -19,7 +19,7 @@ namespace FanCtrl
         private System.Windows.Forms.ListBox mResultListBox;
         private System.Windows.Forms.DataGridView mMappingDataGridView;
         private System.Windows.Forms.Button mAcceptButton;
-        private System.Windows.Forms.Button mCreateProfileButton;
+
         private System.Windows.Forms.Button mOptimizeAIButton;
         private System.Windows.Forms.Button mCancelButton;
 
@@ -31,7 +31,7 @@ namespace FanCtrl
             this.mResultListBox = new System.Windows.Forms.ListBox();
             this.mMappingDataGridView = new System.Windows.Forms.DataGridView();
             this.mAcceptButton = new System.Windows.Forms.Button();
-            this.mCreateProfileButton = new System.Windows.Forms.Button();
+
             this.mOptimizeAIButton = new System.Windows.Forms.Button();
             this.mCancelButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.mMappingDataGridView)).BeginInit();
@@ -89,16 +89,7 @@ namespace FanCtrl
             this.mAcceptButton.Text = "Accept";
             this.mAcceptButton.UseVisualStyleBackColor = true;
             this.mAcceptButton.Enabled = false;
-            // 
-            // mCreateProfileButton
-            // 
-            this.mCreateProfileButton.Location = new System.Drawing.Point(128, 400);
-            this.mCreateProfileButton.Name = "mCreateProfileButton";
-            this.mCreateProfileButton.Size = new System.Drawing.Size(150, 30);
-            this.mCreateProfileButton.TabIndex = 6;
-            this.mCreateProfileButton.Text = "Create Profile";
-            this.mCreateProfileButton.UseVisualStyleBackColor = true;
-            this.mCreateProfileButton.Enabled = false;
+
             // 
             // mOptimizeAIButton
             // 
@@ -125,7 +116,7 @@ namespace FanCtrl
             this.ClientSize = new System.Drawing.Size(580, 440);
             this.Controls.Add(this.mCancelButton);
             this.Controls.Add(this.mOptimizeAIButton);
-            this.Controls.Add(this.mCreateProfileButton);
+
             this.Controls.Add(this.mAcceptButton);
             this.Controls.Add(this.mMappingDataGridView);
             this.Controls.Add(this.mResultListBox);

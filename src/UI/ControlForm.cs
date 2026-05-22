@@ -1063,6 +1063,13 @@ namespace FanCtrl
                 mSelectedFanData = null;
                 this.onAddTempListViewIndexChanged(null, EventArgs.Empty);
 
+                for (int i = 0; i < mAddTempListView.Items.Count; i++)
+                {
+                    var item = mAddTempListView.Items[i];
+                    var cData = this.getControlData(i);
+                    item.Text = (cData != null && cData.FanDataList.Count > 0) ? "●" : "";
+                }
+
                 MessageBox.Show("Mapping imported successfully! You can now configure individual fan curves and save.", "Imported", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)

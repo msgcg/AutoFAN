@@ -1077,6 +1077,15 @@ namespace FanCtrl
             {
                 var hardwareManager = HardwareManager.getInstance();
 
+                // Prevent ArgumentOutOfRangeException if reload() clears lists while onUpdate runs
+                if (mTempLabelList.Count != hardwareManager.TempBaseList.Count ||
+                    mFanLabelList.Count != hardwareManager.FanBaseList.Count ||
+                    mControlLabelList.Count != hardwareManager.ControlBaseList.Count ||
+                    mControlNumericUpDownList.Count != hardwareManager.ControlBaseList.Count)
+                {
+                    return;
+                }
+
                 for (int i = 0; i < hardwareManager.TempBaseList.Count; i++)
                 {
                     var device = hardwareManager.TempBaseList[i];
