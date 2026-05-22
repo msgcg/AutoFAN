@@ -256,9 +256,21 @@ namespace FanCtrl
                         
                         this.BeginInvoke(new Action(() => {
                             if (isCudaLoaded)
-                                AddLog("AI Info: Running with Hardware Acceleration (CUDA).");
+                            {
+                                AddLog("AI Info: Running with Hardware Acceleration (CUDA/Vulkan).");
+                            }
                             else
+                            {
                                 AddLog("AI Info: Hardware Acceleration unavailable. Falling back to CPU.");
+                                var hwInst = HardwareManager.getInstance();
+                                bool hasGpu = hwInst.TempBaseList.Any(t => t.Name.IndexOf("GPU", StringComparison.OrdinalIgnoreCase) >= 0 || t.ID.IndexOf("GPU", StringComparison.OrdinalIgnoreCase) >= 0) ||
+                                              hwInst.ControlBaseList.Any(c => c.Name.IndexOf("GPU", StringComparison.OrdinalIgnoreCase) >= 0 || c.ID.IndexOf("GPU", StringComparison.OrdinalIgnoreCase) >= 0);
+                                
+                                if (hasGpu)
+                                {
+                                    AddLog("AI Warning: GPU detected, but CUDA/Vulkan failed to load. Please install the CUDA Toolkit or update your drivers to prevent CPU overheating!");
+                                }
+                            }
                         }));
                         
                         var hw = HardwareManager.getInstance();
