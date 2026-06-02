@@ -42,6 +42,7 @@ namespace FanCtrl
             IntelligentManager.getInstance().onFinished += mFinishedAction;
 
             this.FormClosed += (s, e) => {
+                IntelligentManager.getInstance().Stop();
                 IntelligentManager.getInstance().onLog -= mLogAction;
                 IntelligentManager.getInstance().onProgress -= mProgressAction;
                 IntelligentManager.getInstance().onFinished -= mFinishedAction;
