@@ -279,7 +279,10 @@ namespace FanCtrl
                             control.setSpeed(originalValue);
                         }
 
-                        onProgress?.Invoke((int)((i + 1) * 100 / total));
+                        if (!token.IsCancellationRequested)
+                        {
+                            onProgress?.Invoke((int)((i + 1) * 100 / total));
+                        }
                     }
 
                     var grouped = AggregateResults(results);
@@ -291,7 +294,7 @@ namespace FanCtrl
                     onLog?.Invoke("Forcing controls to AUTO mode before exit...");
                     try
                     {
-                        var hwFinal = new List<BaseControl>();
+                        var hwFinal = HardwareManager.getInstance().ControlBaseList.ToList();
                         foreach (var control in hwFinal)
                         {
                             try 

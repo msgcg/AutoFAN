@@ -162,6 +162,7 @@ namespace FanCtrl
             IntelligentManager.getInstance().Stop();
             mStartButton.Enabled = true;
             mStopButton.Enabled = false;
+            mProgressBar.Value = 0;
         }
 
         private void AddLog(string msg)
