@@ -63,6 +63,22 @@ namespace FanCtrl
 
         private void SetupDataGridView()
         {
+            // Setup ListBox styles
+            mResultListBox.BackColor = System.Drawing.Color.FromArgb(60, 63, 65);
+            mResultListBox.ForeColor = System.Drawing.Color.Gainsboro;
+            mResultListBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+
+            // Setup DataGridView styles
+            mMappingDataGridView.BackgroundColor = System.Drawing.Color.FromArgb(60, 63, 65);
+            mMappingDataGridView.ForeColor = System.Drawing.Color.Gainsboro;
+            mMappingDataGridView.GridColor = System.Drawing.Color.FromArgb(81, 81, 81);
+            mMappingDataGridView.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(57, 60, 62);
+            mMappingDataGridView.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.Gainsboro;
+            mMappingDataGridView.EnableHeadersVisualStyles = false;
+            mMappingDataGridView.DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(60, 63, 65);
+            mMappingDataGridView.DefaultCellStyle.ForeColor = System.Drawing.Color.Gainsboro;
+            mMappingDataGridView.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(92, 92, 92);
+
             mMappingDataGridView.Columns.Clear();
 
             // Sensor Name
