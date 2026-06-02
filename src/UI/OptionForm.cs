@@ -1,4 +1,4 @@
-﻿using DarkUI.Forms;
+using DarkUI.Forms;
 using FanCtrl.Resources;
 using System;
 using System.Drawing;
@@ -75,15 +75,7 @@ namespace FanCtrl
 
             mPluginCheckBox.Checked = OptionManager.getInstance().IsPlugin;
 
-            mLanguageComboBox.Items.Add(StringLib.English);
-            mLanguageComboBox.Items.Add(StringLib.Korean);
-            mLanguageComboBox.Items.Add(StringLib.Japanese);
-            mLanguageComboBox.Items.Add(StringLib.French);
-            mLanguageComboBox.Items.Add(StringLib.Spanish);
-            mLanguageComboBox.Items.Add(StringLib.Russian);
-            mLanguageComboBox.Items.Add(StringLib.German);
-            mLanguageComboBox.Items.Add(StringLib.Chinese);
-            mLanguageComboBox.SelectedIndex = OptionManager.getInstance().Language;
+
 
             mThemeComboBox.Items.Add(StringLib.Theme_System);
             mThemeComboBox.Items.Add(StringLib.Theme_Light);
@@ -107,7 +99,7 @@ namespace FanCtrl
             mRGBnFCButton.Text = StringLib.Lighting;
             mPluginCheckBox.Text = StringLib.Plugin;
             mAnimationCheckBox.Text = StringLib.Tray_Icon_animation;
-            mLanguageLabel.Text = StringLib.Language;
+
             mThemeLabel.Text = StringLib.Theme;
             mFahrenheitCheckBox.Text = StringLib.Fahrenheit;
             mMinimizeCheckBox.Text = StringLib.Start_minimized;
@@ -127,32 +119,10 @@ namespace FanCtrl
                 fontFamily = FontFamily.GenericSansSerif;
             }
 
-            // spanish
-            if (OptionManager.getInstance().Language == 4)
-            {
-                mKrakenButton.Font = new Font(fontFamily, 7.5f);
-                mCLCButton.Font = new Font(fontFamily, 7.5f);
-                mRGBnFCButton.Font = new Font(fontFamily, 7.5f);
-                mAnimationCheckBox.Font = new Font(fontFamily, 7.5f);
-                mStartupDelayLabel.Left = mStartupDelayLabel.Left - 25;
-            }
-            // Russian
-            else if (OptionManager.getInstance().Language == 5)
-            {
                 mKrakenButton.Font = new Font(fontFamily, 7.5f);
                 mCLCButton.Font = new Font(fontFamily, 7.5f);
                 mRGBnFCButton.Font = new Font(fontFamily, 7.5f);
                 mStartupDelayLabel.Left = mStartupDelayLabel.Left - 10;
-            }
-            // German
-            else if (OptionManager.getInstance().Language == 6)
-            {
-                mKrakenButton.Font = new Font(fontFamily, 7.0f);
-                mCLCButton.Font = new Font(fontFamily, 7.0f);
-                mRGBnFCButton.Font = new Font(fontFamily, 7.0f);
-                mAnimationCheckBox.Font = new Font(fontFamily, 8.0f);
-                mStartupDelayLabel.Left = mStartupDelayLabel.Left - 25;
-            }
         }
 
         private void onOKButtonClick(object sender, EventArgs e)
@@ -195,7 +165,6 @@ namespace FanCtrl
                 (optionManager.IsHWInfo != mHWInfoCheckBox.Checked) ||
                 (optionManager.IsLiquidctl != mLiquidctlCheckBox.Checked) ||
                 (optionManager.IsPlugin != mPluginCheckBox.Checked) ||
-                (optionManager.Language != mLanguageComboBox.SelectedIndex) ||
                 ((int)optionManager.Theme != mThemeComboBox.SelectedIndex))
             {
                 var result = DarkMessageBox.ShowInformation(StringLib.OptionChange, StringLib.Option, DarkDialogButton.OkCancel);
@@ -229,7 +198,6 @@ namespace FanCtrl
 
             optionManager.IsPlugin = mPluginCheckBox.Checked;
 
-            optionManager.Language = mLanguageComboBox.SelectedIndex;
             optionManager.Theme = (THEME_TYPE)mThemeComboBox.SelectedIndex;
             optionManager.IsFahrenheit = mFahrenheitCheckBox.Checked;
             optionManager.IsAnimation = mAnimationCheckBox.Checked;
@@ -247,8 +215,7 @@ namespace FanCtrl
                 this.DialogResult = DialogResult.OK;
             }
 
-            // Language
-            Util.setLanguage(optionManager.Language);
+            Util.setLanguage();
 
             this.Close();
         }

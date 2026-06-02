@@ -147,7 +147,7 @@ namespace FanCtrl
             this.mIntelligentButton.Padding = new System.Windows.Forms.Padding(1);
             this.mIntelligentButton.Size = new System.Drawing.Size(83, 50);
             this.mIntelligentButton.TabIndex = 7;
-            this.mIntelligentButton.Text = "Intelligent";
+            this.mIntelligentButton.Text = "Умный\r\nрежим";
             this.mIntelligentButton.Click += new System.EventHandler(this.onIntelligentButtonClick);
             // 
             // mToolTip

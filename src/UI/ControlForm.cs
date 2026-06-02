@@ -206,95 +206,24 @@ namespace FanCtrl
                 fontFamily = FontFamily.GenericSansSerif;
             }
 
-            // Korean
-            if (OptionManager.getInstance().Language == 1)
-            {
-                mDelayLabel.Left = mDelayLabel.Left - 15;
-            }
+            mEnableCheckBox.Font = new Font(fontFamily, 7.2f);
+            mSilenceRadioButton.Left = mSilenceRadioButton.Left + 10;
+            mGameRadioButton.Left = mGameRadioButton.Left + 50;
 
-            // Japanese
-            else if (OptionManager.getInstance().Language == 2)
-            {
-                mPresetLabel.Left = mPresetLabel.Left - 20;
-                mUnitLabel.Left = mUnitLabel.Left - 5;
-                mHysLabel.Left = mHysLabel.Left - 10;
-                mStepCheckBox.Left = mStepCheckBox.Left - 2;
-                mDelayLabel.Left = mDelayLabel.Left - 15;
-            }
+            mPresetLabel.Left = mPresetLabel.Left - 170;
+            mPresetLoadButton.Left = mPresetLoadButton.Left - 105;
+            mPresetSaveButton.Left = mPresetSaveButton.Left - 105;
+            mUnitLabel.Left = mUnitLabel.Left - 100;
+            mUnitComboBox.Left = mUnitComboBox.Left - 95;
+            mHysLabel.Left = mHysLabel.Left - 100;
+            mHysNumericUpDown.Left = mHysNumericUpDown.Left - 80;
+            mStepCheckBox.Left = mStepCheckBox.Left - 80;
+            mAutoLabel.Left = mAutoLabel.Left - 25;
+            mAutoNumericUpDown.Left = mAutoNumericUpDown.Left - 15;
+            mDelayLabel.Left = mDelayLabel.Left - 30;
 
-            // French
-            else if (OptionManager.getInstance().Language == 3)
-            {
-                mPresetLabel.Left = mPresetLabel.Left - 20;
-                mUnitLabel.Left = mUnitLabel.Left + 5;
-                mUnitComboBox.Left = mUnitComboBox.Left + 10;
-                mHysLabel.Left = mHysLabel.Left + 23;
-                mPresetSaveButton.Font = new Font(fontFamily, 6.5f);
-            }
-
-            // Spanish
-            else if (OptionManager.getInstance().Language == 4)
-            {
-                mPresetLabel.Left = mPresetLabel.Left - 100;
-                mPresetLoadButton.Left = mPresetLoadButton.Left - 55;
-                mPresetSaveButton.Left = mPresetSaveButton.Left - 55;
-                mUnitLabel.Left = mUnitLabel.Left - 60;
-                mUnitComboBox.Left = mUnitComboBox.Left - 45;
-                mHysLabel.Left = mHysLabel.Left - 60;
-                mHysNumericUpDown.Left = mHysNumericUpDown.Left - 70;
-                mStepCheckBox.Left = mStepCheckBox.Left - 80;
-                mAutoLabel.Left = mAutoLabel.Left - 40;
-                mDelayLabel.Left = mDelayLabel.Left - 10;
-            }
-
-            // Russian
-            else if (OptionManager.getInstance().Language == 5)
-            {
-                mEnableCheckBox.Font = new Font(fontFamily, 7.2f);
-                mSilenceRadioButton.Left = mSilenceRadioButton.Left + 10;
-                mGameRadioButton.Left = mGameRadioButton.Left + 50;
-
-                mPresetLabel.Left = mPresetLabel.Left - 170;
-                mPresetLoadButton.Left = mPresetLoadButton.Left - 105;
-                mPresetSaveButton.Left = mPresetSaveButton.Left - 105;
-                mUnitLabel.Left = mUnitLabel.Left - 100;
-                mUnitComboBox.Left = mUnitComboBox.Left - 95;
-                mHysLabel.Left = mHysLabel.Left - 100;
-                mHysNumericUpDown.Left = mHysNumericUpDown.Left - 80;
-                mStepCheckBox.Left = mStepCheckBox.Left - 80;
-                mAutoLabel.Left = mAutoLabel.Left - 25;
-                mAutoNumericUpDown.Left = mAutoNumericUpDown.Left - 15;
-                mDelayLabel.Left = mDelayLabel.Left - 30;
-
-                mPresetLoadButton.Font = new Font(fontFamily, 7.0f);
-                mPresetSaveButton.Font = new Font(fontFamily, 7.0f);
-            }
-
-            // German
-            else if (OptionManager.getInstance().Language == 6)
-            {
-                mPresetLabel.Left = mPresetLabel.Left - 55;
-                mPresetLoadButton.Left = mPresetLoadButton.Left - 15;
-                mPresetSaveButton.Left = mPresetSaveButton.Left - 15;
-                mUnitLabel.Left = mUnitLabel.Left - 15;
-                mUnitComboBox.Left = mUnitComboBox.Left;
-                mHysLabel.Left = mHysLabel.Left - 10;
-                mHysNumericUpDown.Left = mHysNumericUpDown.Left - 15;
-                mStepCheckBox.Left = mStepCheckBox.Left - 25;
-                mAutoLabel.Left = mAutoLabel.Left - 25;
-                mAutoNumericUpDown.Left = mAutoNumericUpDown.Left - 25;
-                mDelayLabel.Left = mDelayLabel.Left - 40;
-
-                mPresetLoadButton.Font = new Font(fontFamily, 8.0f);
-                mPresetSaveButton.Font = new Font(fontFamily, 8.0f);
-            }
-
-            // Chinese
-            else if (OptionManager.getInstance().Language == 7)
-            {
-                mHysNumericUpDown.Left = mHysNumericUpDown.Left - 30;
-                mStepCheckBox.Left = mStepCheckBox.Left - 15;
-            }
+            mPresetLoadButton.Font = new Font(fontFamily, 7.0f);
+            mPresetSaveButton.Font = new Font(fontFamily, 7.0f);
         }
 
         private void initControl()
@@ -1021,7 +950,7 @@ namespace FanCtrl
                 string mappingPath = System.IO.Path.Combine(appDir, "IntelligentMapping.json");
                 if (!System.IO.File.Exists(mappingPath))
                 {
-                    MessageBox.Show("Intelligent mapping not found. Please run the Intelligent mode first and click 'Accept' to save the mapping.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Данные умного режима не найдены. Пожалуйста, запустите Умный режим и нажмите 'Принять' для сохранения профиля.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -1070,11 +999,11 @@ namespace FanCtrl
                     item.Text = (cData != null && cData.FanDataList.Count > 0) ? "●" : "";
                 }
 
-                MessageBox.Show("Mapping imported successfully! You can now configure individual fan curves and save.", "Imported", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Данные успешно импортированы! Теперь вы можете настроить индивидуальные кривые вентиляторов и нажать Применить.", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to import mapping: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Ошибка при импорте: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

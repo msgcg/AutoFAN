@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -153,58 +153,14 @@ namespace FanCtrl
             catch { }
         }
 
-        public static void setLanguage(int language)
+        public static void setLanguage()
         {
             try
             {
-                // Language
-                switch (language)
-                {
-                    case 1:
-                        Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("ko-KR");
-                        Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("ko-KR");
-                        break;
-
-                    case 2:
-                        Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("ja-JP");
-                        Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("ja-JP");
-                        break;
-
-                    case 3:
-                        Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("fr-FR");
-                        Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("fr-FR");
-                        break;
-
-                    case 4:
-                        Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("es-ES");
-                        Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("es-ES");
-                        break;
-
-                    case 5:
-                        Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("ru-RU");
-                        Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("ru-RU");
-                        break;
-
-                    case 6:
-                        Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("de-DE");
-                        Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("de-DE");
-                        break;
-
-                    case 7:
-                        Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("zh-CN");
-                        Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("zh-CN");
-                        break;
-
-                    default:
-                        Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
-                        Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
-                        break;
-                }
+                Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("ru-RU");
+                Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("ru-RU");
             }
-            catch
-            {
-                Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
-            }
+            catch { }
         }
 
         public static void InstallPawnIO()

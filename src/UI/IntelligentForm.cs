@@ -53,13 +53,13 @@ namespace FanCtrl
 
         private void localizeComponent()
         {
-            this.Text = "Intelligent Mode";
-            this.mStartButton.Text = "Start";
-            this.mStopButton.Text = "Stop";
-            this.mAcceptButton.Text = "Accept";
+            this.Text = "Умный режим";
+            this.mStartButton.Text = "Старт";
+            this.mStopButton.Text = "Стоп";
+            this.mAcceptButton.Text = "Принять";
 
-            this.mOptimizeAIButton.Text = "AI Remap";
-            this.mCancelButton.Text = "Cancel";
+            this.mOptimizeAIButton.Text = "AI Коррекция";
+            this.mCancelButton.Text = "Отмена";
         }
 
         private void SetupDataGridView()
@@ -85,7 +85,7 @@ namespace FanCtrl
             // Sensor Name
             var colSensor = new DataGridViewTextBoxColumn();
             colSensor.Name = "SensorName";
-            colSensor.HeaderText = "Temperature Sensor";
+            colSensor.HeaderText = "Датчик температуры";
             colSensor.Width = 150;
             colSensor.ReadOnly = true;
             mMappingDataGridView.Columns.Add(colSensor);
@@ -93,7 +93,7 @@ namespace FanCtrl
             // Base Temp
             var colBase = new DataGridViewTextBoxColumn();
             colBase.Name = "BaseTemp";
-            colBase.HeaderText = "Base °C";
+            colBase.HeaderText = "База °C";
             colBase.Width = 60;
             colBase.ReadOnly = true;
             mMappingDataGridView.Columns.Add(colBase);
@@ -101,7 +101,7 @@ namespace FanCtrl
             // Test Temp
             var colTest = new DataGridViewTextBoxColumn();
             colTest.Name = "TestTemp";
-            colTest.HeaderText = "Test °C";
+            colTest.HeaderText = "Тест °C";
             colTest.Width = 60;
             colTest.ReadOnly = true;
             mMappingDataGridView.Columns.Add(colTest);
@@ -109,7 +109,7 @@ namespace FanCtrl
             // Delta
             var colDelta = new DataGridViewTextBoxColumn();
             colDelta.Name = "Delta";
-            colDelta.HeaderText = "Delta °C";
+            colDelta.HeaderText = "Дельта °C";
             colDelta.Width = 60;
             colDelta.ReadOnly = true;
             mMappingDataGridView.Columns.Add(colDelta);
@@ -117,7 +117,7 @@ namespace FanCtrl
             // RPM
             var colRPM = new DataGridViewTextBoxColumn();
             colRPM.Name = "RPM";
-            colRPM.HeaderText = "Max RPM";
+            colRPM.HeaderText = "Макс. RPM";
             colRPM.Width = 70;
             colRPM.ReadOnly = true;
             mMappingDataGridView.Columns.Add(colRPM);
@@ -125,7 +125,7 @@ namespace FanCtrl
             // Detected Control
             var colDetectedControl = new DataGridViewComboBoxColumn();
             colDetectedControl.Name = "DetectedControl";
-            colDetectedControl.HeaderText = "Assigned Fan";
+            colDetectedControl.HeaderText = "Вентилятор";
             colDetectedControl.Width = 150;
             var hw = HardwareManager.getInstance();
             foreach (var control in hw.ControlBaseList)
@@ -137,7 +137,7 @@ namespace FanCtrl
             // Confidence
             var colConfidence = new DataGridViewTextBoxColumn();
             colConfidence.Name = "Confidence";
-            colConfidence.HeaderText = "Conf %";
+            colConfidence.HeaderText = "Уверенность %";
             colConfidence.Width = 100;
             colConfidence.ReadOnly = true;
             mMappingDataGridView.Columns.Add(colConfidence);
@@ -212,7 +212,7 @@ namespace FanCtrl
             }
 
             mOptimizeAIButton.Enabled = false;
-            AddLog("Starting AI analysis...");
+            AddLog("Запуск AI анализа...");
             
             try
             {
@@ -239,7 +239,7 @@ namespace FanCtrl
 
                     if (!System.IO.File.Exists(absPath) && !System.IO.File.Exists(modelRelPath))
                     {
-                        this.BeginInvoke(new Action(() => AddLog("Model file not found.")));
+                        this.BeginInvoke(new Action(() => AddLog("Файл модели не найден.")));
                         return;
                     }
 
@@ -260,18 +260,18 @@ namespace FanCtrl
                         this.BeginInvoke(new Action(() => {
                             if (isCudaLoaded)
                             {
-                                AddLog("AI Info: Running with Hardware Acceleration (CUDA/Vulkan).");
+                                AddLog("AI Инфо: Запуск с аппаратным ускорением (CUDA/Vulkan).");
                             }
                             else
                             {
-                                AddLog("AI Info: Hardware Acceleration unavailable. Falling back to CPU.");
+                                AddLog("AI Инфо: Аппаратное ускорение недоступно. Используется процессор (CPU).");
                                 var hwInst = HardwareManager.getInstance();
                                 bool hasGpu = hwInst.TempBaseList.Any(t => t.Name.IndexOf("GPU", StringComparison.OrdinalIgnoreCase) >= 0 || t.ID.IndexOf("GPU", StringComparison.OrdinalIgnoreCase) >= 0) ||
                                               hwInst.ControlBaseList.Any(c => c.Name.IndexOf("GPU", StringComparison.OrdinalIgnoreCase) >= 0 || c.ID.IndexOf("GPU", StringComparison.OrdinalIgnoreCase) >= 0);
                                 
                                 if (hasGpu)
                                 {
-                                    AddLog("AI Warning: GPU detected, but CUDA/Vulkan failed to load. Please install the CUDA Toolkit or update your drivers to prevent CPU overheating!");
+                                    AddLog("AI Внимание: Обнаружена видеокарта, но CUDA/Vulkan не загружен. Установите драйверы для предотвращения перегрева CPU!");
                                 }
                             }
                         }));
@@ -363,25 +363,25 @@ namespace FanCtrl
                                             }
                                         }
                                         ShowResults(mCurrentResults);
-                                        AddLog("AI Analysis applied.");
+                                        AddLog("AI Анализ применен.");
                                         foreach (var c in changes) AddLog(" > " + c);
-                                        if (changes.Count == 0) AddLog(" > No changes were necessary.");
+                                        if (changes.Count == 0) AddLog(" > Изменения не потребовались.");
                                     }));
                                 }
                                 else
                                 {
-                                    this.BeginInvoke(new Action(() => AddLog("AI Error: The model did not return a valid JSON array.")));
+                                    this.BeginInvoke(new Action(() => AddLog("AI Ошибка: Модель не вернула корректный JSON массив.")));
                                 }
                             }
                             catch (Exception ex) { 
                                 System.Diagnostics.Debug.WriteLine(ex.ToString());
                                 System.Console.WriteLine("AI Parse Error: " + ex.ToString());
-                                this.BeginInvoke(new Action(() => AddLog("AI Parse Error: " + ex.Message))); 
+                                this.BeginInvoke(new Action(() => AddLog("AI Ошибка обработки: " + ex.Message)));
                             }
                         }
                         else
                         {
-                            this.BeginInvoke(new Action(() => AddLog("AI Error: The model returned an empty response.")));
+                            this.BeginInvoke(new Action(() => AddLog("AI Ошибка: Модель вернула пустой ответ.")));
                         }
                     }
                 });
@@ -389,7 +389,7 @@ namespace FanCtrl
             catch (Exception ex) { 
                 System.Diagnostics.Debug.WriteLine(ex.ToString());
                 System.Console.WriteLine("AI Error: " + ex.ToString());
-                this.BeginInvoke(new Action(() => AddLog("AI Error: " + ex.Message))); 
+                this.BeginInvoke(new Action(() => AddLog("AI Ошибка: " + ex.Message)));
             }
             finally { this.BeginInvoke(new Action(() => mOptimizeAIButton.Enabled = true)); }
         }
@@ -413,11 +413,11 @@ namespace FanCtrl
                 string mappingPath = System.IO.Path.Combine(appDir, "IntelligentMapping.json");
                 var jsonOptions = new System.Text.Json.JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals };
                 System.IO.File.WriteAllText(mappingPath, System.Text.Json.JsonSerializer.Serialize(mCurrentResults, jsonOptions));
-                MessageBox.Show("Mapping accepted and saved!\n\nYou can now go to the 'Automatic Fan Control' menu and click 'Import Intelligent' to configure curves for these fans.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Маппинг принят и сохранен!\n\nТеперь вы можете перейти в меню 'Автоматическое управление' и нажать 'Импорт из умного режима' для настройки кривых этих вентиляторов.", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to save mapping: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Ошибка при сохранении маппинга: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

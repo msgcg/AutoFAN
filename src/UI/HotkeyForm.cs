@@ -1,4 +1,4 @@
-﻿using FanCtrl.Resources;
+using FanCtrl.Resources;
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -83,12 +83,8 @@ namespace FanCtrl
                 fontFamily = FontFamily.GenericSansSerif;
             }
 
-            // Russian
-            if (OptionManager.getInstance().Language == 5)
-            {
-                mEnableFanControlLabel.Font = new Font(fontFamily, 6.5f);
-                mEnableOSDLabel.Font = new Font(fontFamily, 6.5f);
-            }
+            mEnableFanControlLabel.Font = new Font(fontFamily, 6.5f);
+            mEnableOSDLabel.Font = new Font(fontFamily, 6.5f);
         }
 
         private void setTextBoxText(TextBox textBox, HotkeyData keyData)

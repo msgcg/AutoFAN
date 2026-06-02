@@ -118,115 +118,115 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Add" xml:space="preserve">
-    <value>Add</value>
+    <value>Добавить</value>
   </data>
   <data name="Align_digits" xml:space="preserve">
-    <value>Align digits :</value>
+    <value>Выровнять цифры :</value>
   </data>
   <data name="Apply" xml:space="preserve">
-    <value>Apply</value>
+    <value>Применить</value>
   </data>
   <data name="Auto" xml:space="preserve">
-    <value>Auto :</value>
+    <value>Авто :</value>
   </data>
   <data name="Auto_Fan_Control" xml:space="preserve">
-    <value>Auto Fan Control</value>
+    <value>Автоматическое управление вентилятором</value>
   </data>
   <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
+    <value>Отмена</value>
   </data>
   <data name="Change_the_color" xml:space="preserve">
-    <value>Do you want to change the color?</value>
+    <value>Вы хотите изменить цвет?</value>
   </data>
   <data name="CLC_Lighting" xml:space="preserve">
-    <value>CLC Lighting</value>
+    <value>CLC Подсветка</value>
   </data>
   <data name="Clients" xml:space="preserve">
-    <value>Clients</value>
+    <value>Клиенты</value>
   </data>
   <data name="Color" xml:space="preserve">
-    <value>Color</value>
+    <value>Цвет</value>
   </data>
   <data name="Command" xml:space="preserve">
-    <value>Command</value>
+    <value>Команда</value>
   </data>
   <data name="Control" xml:space="preserve">
-    <value>Control</value>
+    <value>Контроль</value>
   </data>
   <data name="Default_color" xml:space="preserve">
-    <value>Default color</value>
+    <value>По умолчанию</value>
   </data>
   <data name="Delay" xml:space="preserve">
-    <value>Delay :</value>
+    <value>Задержка :</value>
   </data>
   <data name="Delay_Time" xml:space="preserve">
-    <value>Delay(sec) :</value>
+    <value>Задержка(сек)</value>
   </data>
   <data name="Donate" xml:space="preserve">
-    <value>Donate</value>
+    <value>Пожертвовать</value>
   </data>
   <data name="Duplicate_Key" xml:space="preserve">
-    <value>Data cannot be added because there are duplicate key!</value>
+    <value>Данные не могут быть добавлены из-за наличия дубликата ключа!</value>
   </data>
   <data name="Enable_automatic_fan_control" xml:space="preserve">
-    <value>Enable automatic fan control</value>
+    <value>Включить автоматическое управление вентилятором</value>
   </data>
   <data name="Enable_OSD" xml:space="preserve">
-    <value>Enable OSD (RTSS)</value>
+    <value>Включить Оверлейный Экранный Дисплей (RTSS)</value>
   </data>
   <data name="English" xml:space="preserve">
     <value>English</value>
   </data>
   <data name="Error" xml:space="preserve">
-    <value>Error</value>
+    <value>Ошибка</value>
   </data>
   <data name="ETC" xml:space="preserve">
-    <value>ETC</value>
+    <value>и т.д.</value>
   </data>
   <data name="Exit" xml:space="preserve">
-    <value>Exit</value>
+    <value>Выход</value>
   </data>
   <data name="Fahrenheit" xml:space="preserve">
-    <value>Fahrenheit (°F)</value>
+    <value>По Фаренгейту (°F)</value>
   </data>
   <data name="Failed_to_read_preset_file" xml:space="preserve">
-    <value>Failed to read preset file!</value>
+    <value>Не удалось прочитать файл предустановки!</value>
   </data>
   <data name="Fan" xml:space="preserve">
-    <value>Fan</value>
+    <value>Вентилятор</value>
   </data>
   <data name="Fan_control" xml:space="preserve">
-    <value>Fan control</value>
+    <value>Управление вентилятором</value>
   </data>
   <data name="Fan_speed" xml:space="preserve">
-    <value>Fan speed</value>
+    <value>Скорость вентилятора</value>
   </data>
   <data name="French" xml:space="preserve">
     <value>Français</value>
   </data>
   <data name="Game" xml:space="preserve">
-    <value>Game</value>
+    <value>Игровой</value>
   </data>
   <data name="Graph" xml:space="preserve">
-    <value>Graph</value>
+    <value>График</value>
   </data>
   <data name="Groups" xml:space="preserve">
-    <value>Groups</value>
+    <value>Группы</value>
   </data>
   <data name="HotKey" xml:space="preserve">
-    <value>HotKey</value>
+    <value>Горячие  клавиши</value>
   </data>
   <data name="Hysteresis" xml:space="preserve">
-    <value>Hysteresis : </value>
+    <value>Гистерезис :</value>
   </data>
   <data name="Interval" xml:space="preserve">
-    <value>Interval</value>
+    <value>Интервал</value>
   </data>
   <data name="IP_address" xml:space="preserve">
-    <value>IP</value>
+    <value>IP адрес</value>
   </data>
   <data name="Items" xml:space="preserve">
-    <value>Items</value>
+    <value>Элементы</value>
   </data>
   <data name="Japanese" xml:space="preserve">
     <value>日本語</value>
@@ -235,166 +235,166 @@
     <value>한국어</value>
   </data>
   <data name="Kraken_Lighting" xml:space="preserve">
-    <value>Kraken Lighting</value>
+    <value>Kraken Подсветка</value>
   </data>
   <data name="Language" xml:space="preserve">
-    <value>Language :</value>
+    <value>Язык :</value>
   </data>
   <data name="Library" xml:space="preserve">
-    <value>Library</value>
+    <value>Библиотека</value>
   </data>
   <data name="Lighting" xml:space="preserve">
-    <value>Lighting</value>
+    <value>Подсветка</value>
   </data>
   <data name="liquidctl_Setting" xml:space="preserve">
-    <value>liquidctl Setting</value>
+    <value>Liquidctl Настройка</value>
   </data>
   <data name="Load" xml:space="preserve">
-    <value>Load</value>
+    <value>Загрузить</value>
   </data>
   <data name="Localize" xml:space="preserve">
-    <value>en</value>
+    <value>ru</value>
   </data>
   <data name="Location" xml:space="preserve">
-    <value>Location</value>
+    <value>Расположение</value>
   </data>
   <data name="Made1" xml:space="preserve">
-    <value>Made by AutoFAN</value>
+    <value>Made by</value>
   </data>
   <data name="Made2" xml:space="preserve">
-    <value>(support@autofan)</value>
+    <value>msgcg</value>
   </data>
   <data name="Mode" xml:space="preserve">
-    <value>Mode</value>
+    <value>Режим</value>
   </data>
   <data name="Normal" xml:space="preserve">
-    <value>Normal</value>
+    <value>Обычный</value>
   </data>
   <data name="Not_Match" xml:space="preserve">
-    <value>The hardware and Control.json file do not match!</value>
+    <value>Аппаратное обеспечение и файл Control.json не совпадают!</value>
   </data>
   <data name="OK" xml:space="preserve">
-    <value>OK</value>
+    <value>ОК</value>
   </data>
   <data name="Open" xml:space="preserve">
-    <value>Open</value>
+    <value>Открыть</value>
   </data>
   <data name="Option" xml:space="preserve">
-    <value>Option</value>
+    <value>Настройки</value>
   </data>
   <data name="OptionChange" xml:space="preserve">
-    <value>Do you want to change the library?</value>
+    <value>Вы хотите изменить библиотеку?</value>
   </data>
   <data name="OptionReset" xml:space="preserve">
-    <value>Do you want to reset?</value>
+    <value>Вы хотите выполнить сброс настроек?</value>
   </data>
   <data name="Performance" xml:space="preserve">
-    <value>Performance</value>
+    <value>Производительный</value>
   </data>
   <data name="Plugin" xml:space="preserve">
-    <value>Plugin</value>
+    <value>Плагин</value>
   </data>
   <data name="Port" xml:space="preserve">
-    <value>Port :</value>
+    <value>Порт :</value>
   </data>
   <data name="Port_number" xml:space="preserve">
-    <value>Port</value>
+    <value>Порт</value>
   </data>
   <data name="Preset" xml:space="preserve">
-    <value>Preset :</value>
+    <value>Предустановка :</value>
   </data>
   <data name="Reload" xml:space="preserve">
-    <value>Reload</value>
+    <value>Перезагрузка  программы</value>
   </data>
   <data name="Remove" xml:space="preserve">
-    <value>Remove</value>
+    <value>Удалить</value>
   </data>
   <data name="Reset" xml:space="preserve">
-    <value>Reset</value>
+    <value>Сброс</value>
   </data>
   <data name="RGBnFC_Lighting" xml:space="preserve">
-    <value>NZXT RGB＆Fan Controller Lighting</value>
+    <value>NZXT RGB＆Fan Controller Подсветка</value>
   </data>
   <data name="Running" xml:space="preserve">
-    <value>Running</value>
+    <value>Работает</value>
   </data>
   <data name="Russian" xml:space="preserve">
     <value>Русский</value>
   </data>
   <data name="Save" xml:space="preserve">
-    <value>Save</value>
+    <value>Сохранить</value>
   </data>
   <data name="Sensor" xml:space="preserve">
-    <value>Sensor</value>
+    <value>Датчик</value>
   </data>
   <data name="Server" xml:space="preserve">
-    <value>Server</value>
+    <value>Сервер</value>
   </data>
   <data name="Server_Start" xml:space="preserve">
-    <value>Start</value>
+    <value>Старт</value>
   </data>
   <data name="Server_Stop" xml:space="preserve">
-    <value>Stop</value>
+    <value>Стоп</value>
   </data>
   <data name="Setting" xml:space="preserve">
-    <value>Setting</value>
+    <value>Настройки</value>
   </data>
   <data name="Set_color" xml:space="preserve">
-    <value>Set color</value>
+    <value>Задать цвет</value>
   </data>
   <data name="Show" xml:space="preserve">
-    <value>Show</value>
+    <value>Развернуть</value>
   </data>
   <data name="Show_system_time" xml:space="preserve">
-    <value>Show system time</value>
+    <value>Показывать системное время</value>
   </data>
   <data name="Silence" xml:space="preserve">
-    <value>Silence</value>
+    <value>Тихий</value>
   </data>
   <data name="Spanish" xml:space="preserve">
     <value>español</value>
   </data>
   <data name="Start_minimized" xml:space="preserve">
-    <value>Start minimized</value>
+    <value>Запускать свернутым</value>
   </data>
   <data name="Start_with_Windows" xml:space="preserve">
-    <value>Start with Windows</value>
+    <value>Запуск с Windows</value>
   </data>
   <data name="Step" xml:space="preserve">
-    <value>Step</value>
+    <value>Ступенчатый</value>
   </data>
   <data name="Stopped" xml:space="preserve">
-    <value>Stopped</value>
+    <value>Остановлен</value>
   </data>
   <data name="Target_Temp" xml:space="preserve">
-    <value>Target temperature sensor</value>
+    <value>Датчик температуры</value>
   </data>
   <data name="Temperature" xml:space="preserve">
-    <value>Temperature</value>
+    <value>Температура</value>
   </data>
   <data name="Theme" xml:space="preserve">
-    <value>Theme :</value>
+    <value>Тема :</value>
   </data>
   <data name="Theme_Dark" xml:space="preserve">
-    <value>Dark</value>
+    <value>Темная</value>
   </data>
   <data name="Theme_Light" xml:space="preserve">
-    <value>Light</value>
+    <value>Светлая</value>
   </data>
   <data name="Theme_System" xml:space="preserve">
-    <value>System</value>
+    <value>Системная</value>
   </data>
   <data name="Title" xml:space="preserve">
     <value>AutoFAN</value>
   </data>
   <data name="Tray_Icon_animation" xml:space="preserve">
-    <value>Tray Icon animation</value>
+    <value>Анимация значка в трее</value>
   </data>
   <data name="Unable_to_open_socket" xml:space="preserve">
-    <value>Unable to open socket!</value>
+    <value>Не удается открыть сокет!</value>
   </data>
   <data name="Unit" xml:space="preserve">
-    <value>Unit :</value>
+    <value>Шаг :</value>
   </data>
   <data name="German" xml:space="preserve">
     <value>Deutsch</value>
@@ -403,9 +403,9 @@
     <value>中文</value>
   </data>
   <data name="PawnIO_update" xml:space="preserve">
-    <value>PawnIO is outdated, do you want to update it?</value>
+    <value>PawnIO устарел, вы хотите обновить его?</value>
   </data>
   <data name="PawnIO_install" xml:space="preserve">
-    <value>PawnIO is not installed, do you want to install it?</value>
+    <value>PawnIO не установлен, вы хотите его установить?</value>
   </data>
 </root>

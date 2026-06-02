@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Reflection;
 using System.Threading;
@@ -57,7 +57,7 @@ namespace FanCtrl
         public bool IsPlugin { get; set; }
 
         // Other options
-        public int Language { get; set; }
+
 
         public THEME_TYPE Theme { get; set; }
 
@@ -113,7 +113,6 @@ namespace FanCtrl
             IsLiquidctl = false;
             IsPlugin = false;
 
-            Language = getSystemLocale();
             Theme = 0;
             IsAnimation = true;
             IsFahrenheit = false;
@@ -145,7 +144,6 @@ namespace FanCtrl
                 IsLiquidctl = (rootObject.ContainsKey("IsLiquidctl") == true) ? rootObject.Value<bool>("IsLiquidctl") : false;
                 IsPlugin = (rootObject.ContainsKey("IsPlugin") == true) ? rootObject.Value<bool>("IsPlugin") : false;
 
-                Language = (rootObject.ContainsKey("Language") == true) ? rootObject.Value<int>("Language") : this.getSystemLocale();
                 Theme = (rootObject.ContainsKey("Theme") == true) ? (THEME_TYPE)rootObject.Value<int>("Theme") : THEME_TYPE.SYSTEM;
                 IsAnimation = (rootObject.ContainsKey("IsAnimation") == true) ? rootObject.Value<bool>("IsAnimation") : true;
                 IsFahrenheit = (rootObject.ContainsKey("IsFahrenheit") == true) ? rootObject.Value<bool>("IsFahrenheit") : false;
@@ -183,7 +181,6 @@ namespace FanCtrl
                 rootObject["IsLiquidctl"] = IsLiquidctl;
                 rootObject["IsPlugin"] = IsPlugin;
 
-                rootObject["Language"] = Language;
                 rootObject["Theme"] = (int)Theme;
                 rootObject["IsAnimation"] = IsAnimation;
                 rootObject["IsFahrenheit"] = IsFahrenheit;
@@ -196,42 +193,7 @@ namespace FanCtrl
             catch {}
         }
 
-        public int getSystemLocale()
-        {
-            var name = Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName;
-            if (name.CompareTo("ko") == 0)
-            {
-                return 1;
-            }
-            else if (name.CompareTo("ja") == 0)
-            {
-                return 2;
-            }
-            else if (name.CompareTo("fr") == 0)
-            {
-                return 3;
-            }
-            else if (name.CompareTo("es") == 0)
-            {
-                return 4;
-            }
-            else if (name.CompareTo("ru") == 0)
-            {
-                return 5;
-            }
-            else if (name.CompareTo("de") == 0)
-            {
-                return 6;
-            }
-            else if (name.CompareTo("zh") == 0)
-            {
-                return 7;
-            }
-            else
-            {
-                return 0;
-            }
-        }
+
 
         public THEME_TYPE getNowTheme()
         {

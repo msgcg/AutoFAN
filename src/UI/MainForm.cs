@@ -59,7 +59,7 @@ namespace FanCtrl
                 write();
             }
 
-            Util.setLanguage(OptionManager.getInstance().Language);
+            Util.setLanguage();
 
             if (PawnIo.IsInstalled)
             {
@@ -160,15 +160,7 @@ namespace FanCtrl
                 fontFamily = FontFamily.GenericSansSerif;
             }
 
-            // Russian
-            if (OptionManager.getInstance().Language == 5)
-            {
-                mFanControlButton.Font = new Font(fontFamily, 6.5f);
-            }
-            else
-            {
-                mFanControlButton.Font = new Font(fontFamily, 9.0f);
-            }
+            mFanControlButton.Font = new Font(fontFamily, 6.5f);
         }
 
         private void UpdateModeButtons()

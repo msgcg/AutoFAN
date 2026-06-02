@@ -92,7 +92,7 @@ namespace FanCtrl
                             var sensors = hwDevice.DeviceList.Cast<BaseSensor>().ToList();
                             if (sensors.Count == 0) continue;
 
-                            onLog?.Invoke($"Found sensors on {hwDevice.Name}: {string.Join(", ", sensors.Select(s => s.Name))}");
+                            onLog?.Invoke($"Найдены сенсоры на {hwDevice.Name}: {string.Join(", ", sensors.Select(s => s.Name))}");
 
                             // Priority names for "Main" sensor
                             var priorityNames = new[] { "Package", "Core Max", "CPU Core", "GPU Core", "HotSpot", "Junction", "Drive", "Temperature", "CPU", "Core" };
@@ -107,12 +107,12 @@ namespace FanCtrl
                             if (mainSensor == null) mainSensor = sensors.OrderByDescending(s => s.Value).First();
 
                             tempList.Add(mainSensor);
-                            onLog?.Invoke($"  -> Selected as main sensor for {hwDevice.Name}: {mainSensor.Name}");
+                            onLog?.Invoke($"  -> Главный сенсор для {hwDevice.Name}: {mainSensor.Name}");
                         }
                     }
 
                     // Spin up all controls
-                    onLog?.Invoke("Spinning up all controls to 100% to detect active fans...");
+                    onLog?.Invoke("Запуск всех вентиляторов на 100% для определения активных...");
                     foreach (var control in allControls)
                     {
                         try { control.setSpeed(100); } catch { }
@@ -154,22 +154,22 @@ namespace FanCtrl
                         {
                             activeControls.Add(control);
                             activeControlsToRestore.Add(control);
-                            onLog?.Invoke($"Including control: {control.Name} ({controlDeviceName})");
+                            onLog?.Invoke($"Включен контроллер: {control.Name} ({controlDeviceName})");
                         }
                         else
                         {
-                            onLog?.Invoke($"Skipping control: {control.Name} (No associated RPM found on {controlDeviceName})");
+                            onLog?.Invoke($"Пропущен контроллер: {control.Name} (Нет связанного тахометра на {controlDeviceName})");
                         }
                     }
 
                     if (tempList.Count == 0 || activeControls.Count == 0)
                     {
-                        onLog?.Invoke("No sensors or active controls detected.");
+                        onLog?.Invoke("Сенсоры или активные контроллеры не найдены.");
                         return;
                     }
 
                     // NEW: Reset all active controls to AUTO before starting baseline
-                    onLog?.Invoke("Forcing controls to AUTO mode...");
+                    onLog?.Invoke("Перевод контроллеров в режим AUTO...");
                     foreach (var control in activeControls)
                     {
                         try 
@@ -182,7 +182,7 @@ namespace FanCtrl
                     try { Task.Delay(5000, token).Wait(); } catch { }
                     if (token.IsCancellationRequested) return;
 
-                    onLog?.Invoke($"Starting hyper-accurate test: {activeControls.Count} fans vs {tempList.Count} sensors.");
+                    onLog?.Invoke($"Начало теста: {activeControls.Count} вентиляторов и {tempList.Count} сенсоров.");
 
                     // Store original control values
                     var originalValues = new Dictionary<string, int>();
@@ -201,15 +201,15 @@ namespace FanCtrl
 
                         try
                         {
-                            onLog?.Invoke($"[{i + 1}/{total}] Testing: {control.Name}");
+                            onLog?.Invoke($"[{i + 1}/{total}] Тестируем: {control.Name}");
                             
                             // 1. MEASURE LOCAL BASELINE AND NOISE
-                            onLog?.Invoke("  Measuring thermal noise profile...");
+                            onLog?.Invoke("  Измерение температурного фона...");
                             var localBaseline = MeasureBaseline(tempList, 15, token);
 
                             // 2. APPLY TEST SPEED WITH DYNAMIC RPM NORMALIZATION
                             control.setSpeed(currentPWM);
-                            onLog?.Invoke($"  Stabilizing... (Target RPM: {(targetRPM > 0 ? targetRPM.ToString() : "Max")})");
+                            onLog?.Invoke($"  Стабилизация... (Целевой RPM: {(targetRPM > 0 ? targetRPM.ToString() : "Макс")})");
                             
                             int checkSteps = STABILIZATION_WAIT_SEC * 5; // 5 checks per second (0.2s interval)
                             for (int s = 0; s < checkSteps; s++)
@@ -244,7 +244,7 @@ namespace FanCtrl
                             if (i == 0 && associatedFan != null)
                             {
                                 targetRPM = associatedFan.Value;
-                                onLog?.Invoke($"  Global Target RPM set to {targetRPM}");
+                                onLog?.Invoke($"  Глобальный целевой RPM установлен на {targetRPM}");
                             }
 
                             // 3. MEASURE TEST DATA
@@ -274,13 +274,13 @@ namespace FanCtrl
                                 double noiseThreshold = Math.Max(CONFIDENCE_THRESHOLD, baseline.StdDev * 2);
                                 if (delta >= noiseThreshold)
                                 {
-                                    onLog?.Invoke($"    -> {sensor.Name}: cooling detected ({delta:F2}°C)");
+                                    onLog?.Invoke($"    -> {sensor.Name}: зафиксировано охлаждение ({delta:F2}°C)");
                                 }
                             }
 
                             // 5. RESTORE AND COOL DOWN
                             restoreOriginalState?.Invoke(control);
-                            onLog?.Invoke("  Restoring and cooling down (15s)...");
+                            onLog?.Invoke("  Восстановление оборотов (15с)...");
                             try { Task.Delay(15000, token).Wait(); } catch { }
                             token.ThrowIfCancellationRequested();
                         }
@@ -288,11 +288,11 @@ namespace FanCtrl
                         {
                             if (ex is OperationCanceledException || (ex is AggregateException ae && ae.InnerException is TaskCanceledException))
                             {
-                                onLog?.Invoke("Test canceled by user. Restoring control...");
+                                onLog?.Invoke("Тест отменен пользователем. Восстановление...");
                             }
                             else
                             {
-                                onLog?.Invoke($"Error: {ex.Message}");
+                                onLog?.Invoke($"Ошибка: {ex.Message}");
                             }
                             restoreOriginalState?.Invoke(control);
                         }
@@ -304,12 +304,12 @@ namespace FanCtrl
                     }
 
                     var grouped = AggregateResults(results);
-                    onLog?.Invoke($"Mapping complete. Found {grouped.Count} associations.");
+                    onLog?.Invoke($"Маппинг завершен. Найдено {grouped.Count} связей.");
                     onFinished?.Invoke(grouped);
                 }
                 finally
                 {
-                    onLog?.Invoke("Restoring controls to pre-test state before exit...");
+                    onLog?.Invoke("Возврат всех вентиляторов в исходное состояние...");
                     try
                     {
                         foreach (var control in activeControlsToRestore)
@@ -394,7 +394,7 @@ namespace FanCtrl
                     RPM = best.RPM,
                     Confidence = Math.Max(10, Math.Min(100, confidence))
                 });
-                onLog?.Invoke($"Match: {best.TempName} handled by {best.ControlName} (Confidence: {confidence:F1}%)");
+                onLog?.Invoke($"Совпадение: {best.TempName} охлаждается вентилятором {best.ControlName} (Надежность: {confidence:F1}%)");
             }
             return grouped.OrderBy(r => r.Confidence).Reverse().ToList();
         }

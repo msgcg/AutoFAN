@@ -1,4 +1,4 @@
-﻿using FanCtrl.Resources;
+using FanCtrl.Resources;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -104,34 +104,8 @@ namespace FanCtrl
                 fontFamily = FontFamily.GenericSansSerif;
             }
 
-            // japanese
-            if (OptionManager.getInstance().Language == 2)
-            {
-                mDigitLabel.Left = mDigitLabel.Left + 20;
-            }
-            // french
-            else if (OptionManager.getInstance().Language == 3)
-            {
-                mDigitLabel.Left = mDigitLabel.Left - 40;
-            }
-            // spanish
-            else if (OptionManager.getInstance().Language == 4)
-            {
-                mDigitLabel.Left = mDigitLabel.Left - 40;
-            }
-            // Russian
-            else if (OptionManager.getInstance().Language == 5)
-            {
-                mEnableCheckBox.Font = new Font(fontFamily, 7.2f);
-                mDigitLabel.Left = mDigitLabel.Left - 60;
-            }
-            // German
-            else if (OptionManager.getInstance().Language == 6)
-            {
-                mGroupRemoveButton.Font = new Font(fontFamily, 8.5f);
-                mItemRemoveButton.Font = new Font(fontFamily, 8.5f);
-                mDigitLabel.Left = mDigitLabel.Left - 35;
-            }
+            mEnableCheckBox.Font = new Font(fontFamily, 7.2f);
+            mDigitLabel.Left = mDigitLabel.Left - 60;
         }
 
         private void onGroupListViewIndexChanged(object sender, EventArgs e)
