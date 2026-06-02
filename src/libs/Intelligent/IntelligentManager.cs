@@ -161,7 +161,8 @@ namespace FanCtrl
                         } 
                         catch { }
                     }
-                    Thread.Sleep(5000); // Wait for fans to settle
+                    try { Task.Delay(5000, token).Wait(); } catch { }
+                    if (token.IsCancellationRequested) return;
 
                     onLog?.Invoke($"Starting hyper-accurate test: {activeControls.Count} fans vs {tempList.Count} sensors.");
 
@@ -186,7 +187,7 @@ namespace FanCtrl
                             
                             // 1. MEASURE LOCAL BASELINE AND NOISE
                             onLog?.Invoke("  Measuring thermal noise profile...");
-                            var localBaseline = MeasureBaseline(tempList, 15);
+                            var localBaseline = MeasureBaseline(tempList, 15, token);
 
                             // 2. APPLY TEST SPEED WITH DYNAMIC RPM NORMALIZATION
                             control.setSpeed(currentPWM);
@@ -229,7 +230,7 @@ namespace FanCtrl
                             }
 
                             // 3. MEASURE TEST DATA
-                            var testData = MeasureBaseline(tempList, 10);
+                            var testData = MeasureBaseline(tempList, 10, token);
 
                             // 4. CALCULATE DELTAS
                             foreach (var sensor in tempList)
@@ -262,11 +263,19 @@ namespace FanCtrl
                             // 5. RESTORE AND COOL DOWN
                             control.setSpeed(originalValue);
                             onLog?.Invoke("  Restoring and cooling down (15s)...");
-                            Thread.Sleep(15000);
+                            try { Task.Delay(15000, token).Wait(); } catch { }
+                            token.ThrowIfCancellationRequested();
                         }
                         catch (Exception ex)
                         {
-                            onLog?.Invoke($"Error: {ex.Message}");
+                            if (ex is OperationCanceledException || (ex is AggregateException ae && ae.InnerException is TaskCanceledException))
+                            {
+                                onLog?.Invoke("Test canceled by user. Restoring control...");
+                            }
+                            else
+                            {
+                                onLog?.Invoke($"Error: {ex.Message}");
+                            }
                             control.setSpeed(originalValue);
                         }
 
@@ -305,15 +314,16 @@ namespace FanCtrl
             // Method removed as requested
         }
 
-        private Dictionary<string, BaselineData> MeasureBaseline(List<BaseSensor> sensors, int count)
+        private Dictionary<string, BaselineData> MeasureBaseline(List<BaseSensor> sensors, int count, CancellationToken token)
         {
             var data = new Dictionary<string, List<double>>();
             foreach (var s in sensors) data[s.ID] = new List<double>();
 
             for (int i = 0; i < count; i++)
             {
+                token.ThrowIfCancellationRequested();
                 foreach (var s in sensors) data[s.ID].Add(s.Value);
-                Thread.Sleep(SAMPLE_INTERVAL_MS);
+                try { Task.Delay(SAMPLE_INTERVAL_MS, token).Wait(); } catch { }
             }
 
             var result = new Dictionary<string, BaselineData>();
