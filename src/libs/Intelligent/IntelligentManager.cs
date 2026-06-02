@@ -54,6 +54,8 @@ namespace FanCtrl
             var token = mCts.Token;
 
             var results = new List<MappingResult>();
+            var activeControlsToRestore = new List<BaseControl>();
+            Action<BaseControl> restoreOriginalState = null;
 
             await Task.Run(() =>
             {
@@ -65,6 +67,21 @@ namespace FanCtrl
                     var allTemps = hw.TempBaseList.ToList();
                     var allFans = hw.FanBaseList.ToList();
                     var allControls = hw.ControlBaseList.ToList();
+
+                    var originalStatesToRestore = new Dictionary<string, Tuple<bool, int>>();
+                    foreach (var control in allControls)
+                    {
+                        originalStatesToRestore[control.ID] = new Tuple<bool, int>(control.IsSetSpeed, control.Value);
+                    }
+
+                    restoreOriginalState = (c) =>
+                    {
+                        if (c != null && originalStatesToRestore != null && originalStatesToRestore.TryGetValue(c.ID, out var state))
+                        {
+                            if (state.Item1) c.setSpeed(state.Item2);
+                            else { c.IsSetSpeed = true; c.setAuto(); }
+                        }
+                    };
 
                     // Filter sensors: pick only ONE main sensor per hardware device
                     var tempList = new List<BaseSensor>();
@@ -88,14 +105,14 @@ namespace FanCtrl
                             }
                             
                             if (mainSensor == null) mainSensor = sensors.OrderByDescending(s => s.Value).First();
-                            
+
                             tempList.Add(mainSensor);
                             onLog?.Invoke($"  -> Selected as main sensor for {hwDevice.Name}: {mainSensor.Name}");
                         }
                     }
 
-                    // NEW: Spin up all controls to 100% to detect connected fans
-                    onLog?.Invoke("Spinning up all controls to detect connected fans...");
+                    // Spin up all controls
+                    onLog?.Invoke("Spinning up all controls to 100% to detect active fans...");
                     foreach (var control in allControls)
                     {
                         try { control.setSpeed(100); } catch { }
@@ -136,6 +153,7 @@ namespace FanCtrl
                         if (isActuallyActive)
                         {
                             activeControls.Add(control);
+                            activeControlsToRestore.Add(control);
                             onLog?.Invoke($"Including control: {control.Name} ({controlDeviceName})");
                         }
                         else
@@ -261,7 +279,7 @@ namespace FanCtrl
                             }
 
                             // 5. RESTORE AND COOL DOWN
-                            control.setSpeed(originalValue);
+                            restoreOriginalState?.Invoke(control);
                             onLog?.Invoke("  Restoring and cooling down (15s)...");
                             try { Task.Delay(15000, token).Wait(); } catch { }
                             token.ThrowIfCancellationRequested();
@@ -276,7 +294,7 @@ namespace FanCtrl
                             {
                                 onLog?.Invoke($"Error: {ex.Message}");
                             }
-                            control.setSpeed(originalValue);
+                            restoreOriginalState?.Invoke(control);
                         }
 
                         if (!token.IsCancellationRequested)
@@ -291,16 +309,14 @@ namespace FanCtrl
                 }
                 finally
                 {
-                    onLog?.Invoke("Forcing controls to AUTO mode before exit...");
+                    onLog?.Invoke("Restoring controls to pre-test state before exit...");
                     try
                     {
-                        var hwFinal = HardwareManager.getInstance().ControlBaseList.ToList();
-                        foreach (var control in hwFinal)
+                        foreach (var control in activeControlsToRestore)
                         {
                             try 
                             { 
-                                control.IsSetSpeed = true; 
-                                control.setAuto(); 
+                                restoreOriginalState?.Invoke(control);
                             } 
                             catch { }
                         }
