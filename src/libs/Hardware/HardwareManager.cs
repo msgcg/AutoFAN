@@ -1,4 +1,4 @@
-ï»¿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Security.AccessControl;
@@ -35,16 +35,6 @@ namespace FanCtrl
 
         // LibreHardwareMonitor
         private LHM mLHM = null;
-
-        // NZXT Kraken
-        public List<Kraken> KrakenList { get; } = new List<Kraken>();
-
-        // EVGA CLC
-        public List<CLC> CLCList { get; } = new List<CLC>();
-
-        // NZXT RGB & Fan Controller
-        public List<RGBnFC> RGBnFCList { get; } = new List<RGBnFC>();
-
         // Temperature sensor
         public List<List<HardwareDevice>> TempList { get; } = new List<List<HardwareDevice>>();
         public List<BaseSensor> TempBaseList { get; } = new List<BaseSensor>();
@@ -225,347 +215,7 @@ namespace FanCtrl
                 this.unlockBus();
             }
 
-            // NZXT Kraken
-            if (OptionManager.getInstance().IsKraken == true)
-            {                
-                try
-                {
-                    uint num = 1;
-
-                    // X2
-                    var tempDevice = new HardwareDevice("NZXT Kraken X2");
-                    var fanDevice = new HardwareDevice("NZXT Kraken X2");
-                    var controlDevice = new HardwareDevice("NZXT Kraken X2");
-                    uint devCount = HidUSBController.getDeviceCount(USBVendorID.NZXT, USBProductID.KrakenX2);
-                    for (uint i = 0; i < devCount; i++)
-                    {
-                        var kraken = new Kraken();
-                        if (kraken.start(i, USBProductID.KrakenX2) == true)
-                        {
-                            KrakenList.Add(kraken);
-
-                            var id = string.Format("NZXT/KrakenX2/{0}/Temp", i);
-                            var temp = new KrakenLiquidTemp(id, kraken, num);
-                            tempDevice.addDevice(temp);
-
-                            id = string.Format("NZXT/KrakenX2/{0}/Fan", i);
-                            var fan = new KrakenFanSpeed(id, kraken, num);
-                            fanDevice.addDevice(fan);
-
-                            id = string.Format("NZXT/KrakenX2/{0}/Pump", i);
-                            var pump = new KrakenPumpSpeed(id, kraken, num);
-                            fanDevice.addDevice(pump);
-
-                            id = string.Format("NZXT/KrakenX2/{0}/Control/Fan", i);
-                            var fanControl = new KrakenFanControl(id, kraken, num);
-                            controlDevice.addDevice(fanControl);
-                            this.addChangeValue(30, fanControl, false);
-
-                            id = string.Format("NZXT/KrakenX2/{0}/Control/Pump", i);
-                            var pumpControl = new KrakenPumpControl(id, kraken, num);
-                            controlDevice.addDevice(pumpControl);
-                            this.addChangeValue(50, pumpControl, false);
-
-                            num++;
-                        }
-                    }
-
-                    if (tempDevice.DeviceList.Count > 0)
-                    {
-                        var tempList = TempList[(int)LIBRARY_TYPE.NZXT_Kraken];
-                        tempList.Add(tempDevice);
-                    }
-
-                    if (fanDevice.DeviceList.Count > 0)
-                    {
-                        var fanList = FanList[(int)LIBRARY_TYPE.NZXT_Kraken];
-                        fanList.Add(fanDevice);
-                    }
-
-                    if (controlDevice.DeviceList.Count > 0)
-                    {
-                        var controlList = ControlList[(int)LIBRARY_TYPE.NZXT_Kraken];
-                        controlList.Add(controlDevice);
-                    }
-
-                    // X3
-                    for (int n = 0; n < 2; n++)
-                    {
-                        var productID = (n == 0) ? USBProductID.KrakenX3 : USBProductID.KrakenX3_NEW;
-
-                        tempDevice = new HardwareDevice("NZXT Kraken X3");
-                        fanDevice = new HardwareDevice("NZXT Kraken X3");
-                        controlDevice = new HardwareDevice("NZXT Kraken X3");
-                        devCount = HidUSBController.getDeviceCount(USBVendorID.NZXT, productID);
-                        for (uint i = 0; i < devCount; i++)
-                        {
-                            var kraken = new Kraken();
-                            if (kraken.start(i, productID) == true)
-                            {
-                                KrakenList.Add(kraken);
-
-                                var id = string.Format("NZXT/KrakenX3/{0}/Temp", i);
-                                var temp = new KrakenLiquidTemp(id, kraken, num);
-                                tempDevice.addDevice(temp);
-
-                                id = string.Format("NZXT/KrakenX3/{0}/Pump", i);
-                                var pump = new KrakenPumpSpeed(id, kraken, num);
-                                fanDevice.addDevice(pump);
-
-                                id = string.Format("NZXT/KrakenX3/{0}/Control/Pump", i);
-                                var pumpControl = new KrakenPumpControl(id, kraken, num);
-                                controlDevice.addDevice(pumpControl);
-                                this.addChangeValue(50, pumpControl, false);
-
-                                num++;
-                            }
-                        }
-
-                        if (tempDevice.DeviceList.Count > 0)
-                        {
-                            var tempList = TempList[(int)LIBRARY_TYPE.NZXT_Kraken];
-                            tempList.Add(tempDevice);
-                        }
-
-                        if (fanDevice.DeviceList.Count > 0)
-                        {
-                            var fanList = FanList[(int)LIBRARY_TYPE.NZXT_Kraken];
-                            fanList.Add(fanDevice);
-                        }
-
-                        if (controlDevice.DeviceList.Count > 0)
-                        {
-                            var controlList = ControlList[(int)LIBRARY_TYPE.NZXT_Kraken];
-                            controlList.Add(controlDevice);
-                        }
-                    }
-                }
-                catch { }
-            }
-
-            // EVGA CLC
-            if (OptionManager.getInstance().IsCLC == true)
-            {
-                try
-                {
-                    uint num = 1;
-                    uint clcIndex = 0;
-
-                    // SiUSBController
-                    var tempDevice = new HardwareDevice("EVGA CLC");
-                    var fanDevice = new HardwareDevice("EVGA CLC");
-                    var controlDevice = new HardwareDevice("EVGA CLC");
-                    uint devCount = SiUSBController.getDeviceCount(USBVendorID.ASETEK, USBProductID.CLC);
-                    for (uint i = 0; i < devCount; i++)
-                    {
-                        var clc = new CLC();
-                        if (clc.start(true, clcIndex, i) == true)
-                        {
-                            CLCList.Add(clc);
-
-                            var id = string.Format("EVGA/CLC/{0}/Temp", i);
-                            var temp = new CLCLiquidTemp(id, clc, num);
-                            tempDevice.addDevice(temp);
-
-                            id = string.Format("EVGA/CLC/{0}/Fan", i);
-                            var fan = new CLCFanSpeed(id, clc, num);
-                            fanDevice.addDevice(fan);
-
-                            id = string.Format("EVGA/CLC/{0}/Pump", i);
-                            var pump = new CLCPumpSpeed(id, clc, num);
-                            fanDevice.addDevice(pump);
-
-                            id = string.Format("EVGA/CLC/{0}/Control/Fan", i);
-                            var fanControl = new CLCFanControl(id, clc, num);
-                            controlDevice.addDevice(fanControl);
-                            this.addChangeValue(25, fanControl, false);
-
-                            id = string.Format("EVGA/CLC/{0}/Control/Pump", i);
-                            var pumpControl = new CLCPumpControl(id, clc, num);
-                            controlDevice.addDevice(pumpControl);
-                            this.addChangeValue(50, pumpControl, false);
-
-                            clcIndex++;
-                            num++;
-                        }
-                    }
-
-                    if (tempDevice.DeviceList.Count > 0)
-                    {
-                        var tempList = TempList[(int)LIBRARY_TYPE.EVGA_CLC];
-                        tempList.Add(tempDevice);
-                    }
-
-                    if (fanDevice.DeviceList.Count > 0)
-                    {
-                        var fanList = FanList[(int)LIBRARY_TYPE.EVGA_CLC];
-                        fanList.Add(fanDevice);
-                    }
-
-                    if (controlDevice.DeviceList.Count > 0)
-                    {
-                        var controlList = ControlList[(int)LIBRARY_TYPE.EVGA_CLC];
-                        controlList.Add(controlDevice);
-                    }
-
-                    if (WinUSBController.init() == true)
-                    {
-                        tempDevice = new HardwareDevice("EVGA CLC");
-                        fanDevice = new HardwareDevice("EVGA CLC");
-                        controlDevice = new HardwareDevice("EVGA CLC");
-
-                        // WinUSBController
-                        devCount = WinUSBController.getDeviceCount(USBVendorID.ASETEK, USBProductID.CLC);
-                        for (uint i = 0; i < devCount; i++)
-                        {
-                            var clc = new CLC();
-                            if (clc.start(false, clcIndex, i) == true)
-                            {
-                                CLCList.Add(clc);
-
-                                var id = string.Format("EVGA/CLC/{0}/Temp", i);
-                                var temp = new CLCLiquidTemp(id, clc, num);
-                                tempDevice.addDevice(temp);
-
-                                id = string.Format("EVGA/CLC/{0}/Fan", i);
-                                var fan = new CLCFanSpeed(id, clc, num);
-                                fanDevice.addDevice(fan);
-
-                                id = string.Format("EVGA/CLC/{0}/Pump", i);
-                                var pump = new CLCPumpSpeed(id, clc, num);
-                                fanDevice.addDevice(pump);
-
-                                id = string.Format("EVGA/CLC/{0}/Control/Fan", i);
-                                var fanControl = new CLCFanControl(id, clc, num);
-                                controlDevice.addDevice(fanControl);
-                                this.addChangeValue(25, fanControl, false);
-
-                                id = string.Format("EVGA/CLC/{0}/Control/Pump", i);
-                                var pumpControl = new CLCPumpControl(id, clc, num);
-                                controlDevice.addDevice(pumpControl);
-                                this.addChangeValue(50, pumpControl, false);
-
-                                clcIndex++;
-                                num++;
-                            }
-                        }
-
-                        if (tempDevice.DeviceList.Count > 0)
-                        {
-                            var tempList = TempList[(int)LIBRARY_TYPE.EVGA_CLC];
-                            tempList.Add(tempDevice);
-                        }
-
-                        if (fanDevice.DeviceList.Count > 0)
-                        {
-                            var fanList = FanList[(int)LIBRARY_TYPE.EVGA_CLC];
-                            fanList.Add(fanDevice);
-                        }
-
-                        if (controlDevice.DeviceList.Count > 0)
-                        {
-                            var controlList = ControlList[(int)LIBRARY_TYPE.EVGA_CLC];
-                            controlList.Add(controlDevice);
-                        }
-                    }
-                }
-                catch { }
-            }
-
-            if (OptionManager.getInstance().IsRGBnFC == true)
-            {
-                try
-                {
-                    var fanDevice = new HardwareDevice("NZXT RGB & Fan Controller");
-                    var controlDevice = new HardwareDevice("NZXT RGB & Fan Controller");
-                    uint num = 1;
-                    uint devCount = HidUSBController.getDeviceCount(USBVendorID.NZXT, USBProductID.RGBAndFanController);
-                    for (uint i = 0; i < devCount; i++)
-                    {
-                        var rgb = new RGBnFC();
-                        if (rgb.start(i) == true)
-                        {
-                            RGBnFCList.Add(rgb);
-
-                            for (int j = 0; j < RGBnFC.MAX_FAN_COUNT; j++)
-                            {
-                                var id = string.Format("NZXT/RGBnFC/{0}/Fan/{1}", i, j);
-                                var fan = new RGBnFCFanSpeed(id, rgb, j, num);
-                                fanDevice.addDevice(fan);
-
-                                id = string.Format("NZXT/RGBnFC/{0}/Control/{1}", i, j);
-                                var control = new RGBnFCControl(id, rgb, j, num);
-                                controlDevice.addDevice(control);
-                                this.addChangeValue(control.getMinSpeed(), control, false);
-
-                                num++;
-                            }
-                        }
-                    }
-
-                    if (fanDevice.DeviceList.Count > 0)
-                    {
-                        var fanList = FanList[(int)LIBRARY_TYPE.RGBnFC];
-                        fanList.Add(fanDevice);
-                    }
-
-                    if (controlDevice.DeviceList.Count > 0)
-                    {
-                        var controlList = ControlList[(int)LIBRARY_TYPE.RGBnFC];
-                        controlList.Add(controlDevice);
-                    }                    
-                }
-                catch { }
-            }
-
-            if (OptionManager.getInstance().IsHWInfo == true)
-            {
-                try
-                {
-                    HWInfoManager.getInstance().start();
-
-                    var tempList = TempList[(int)LIBRARY_TYPE.HWiNFO];
-                    HWInfoManager.getInstance().createTemp(ref tempList);
-
-                    var fanList = FanList[(int)LIBRARY_TYPE.HWiNFO];
-                    HWInfoManager.getInstance().createFan(ref fanList);
-                }
-                catch { }
-            }
-
-            if (OptionManager.getInstance().IsLiquidctl == true)
-            {
-                LiquidctlManager.getInstance().start();
-
-                var tempList = TempList[(int)LIBRARY_TYPE.Liquidctl];
-                LiquidctlManager.getInstance().createTemp(ref tempList);
-
-                var fanList = FanList[(int)LIBRARY_TYPE.Liquidctl];
-                LiquidctlManager.getInstance().createFan(ref fanList);
-
-                var controlList = ControlList[(int)LIBRARY_TYPE.Liquidctl];
-                LiquidctlManager.getInstance().createControl(ref controlList);
-
-                int count = LiquidctlManager.getInstance().getLiquidctlControlCount();
-                for (int i = 0; i < count; i++)
-                {
-                    var control = LiquidctlManager.getInstance().getLiquidctlControl(i);
-                    this.addChangeValue(control.Value, control, false);
-                }
-            }
-
-            // Plugin
-            if (OptionManager.getInstance().IsPlugin == true)
-            {
-                var tempList = TempList[(int)LIBRARY_TYPE.Plugin];
-                PluginManager.getInstance().createTemp(ref tempList);
-
-                var fanList = FanList[(int)LIBRARY_TYPE.Plugin];
-                PluginManager.getInstance().createFan(ref fanList);
-
-                var controlList = ControlList[(int)LIBRARY_TYPE.Plugin];
-                PluginManager.getInstance().createControl(ref controlList);
-            }
+            // NZXT Kraken            }
 
             for (int i = 0; i < TempList.Count; i++)
             {
@@ -646,37 +296,6 @@ namespace FanCtrl
                 mLHM.stop();
                 mLHM = null;
             }
-
-            for (int i = 0; i < KrakenList.Count; i++)
-            {
-                try
-                {
-                    KrakenList[i].stop();
-                }
-                catch { }
-            }
-            KrakenList.Clear();
-
-            for (int i = 0; i < CLCList.Count; i++)
-            {
-                try
-                {
-                    CLCList[i].stop();
-                }
-                catch { }
-            }
-            CLCList.Clear();
-
-            for (int i = 0; i < RGBnFCList.Count; i++)
-            {
-                try
-                {
-                    RGBnFCList[i].stop();
-                }
-                catch { }
-            }
-            RGBnFCList.Clear();
-
             if (OptionManager.getInstance().IsNvAPIWrapper == true)
             {
                 try
@@ -684,11 +303,7 @@ namespace FanCtrl
                     NVIDIA.Unload();
                 }
                 catch { }
-            }                
-
-            HWInfoManager.getInstance().stop();
-            LiquidctlManager.getInstance().stop();
-
+            }
             mChangeControlList.Clear();
             mChangeValueList.Clear();
 
@@ -769,21 +384,21 @@ namespace FanCtrl
         {
             try
             {
-                // âœ… ÐŸÑ€Ð¾ÑÑ‚Ð¾Ð¹ ÐºÐ¾Ð½ÑÑ‚Ñ€ÑƒÐºÑ‚Ð¾Ñ€ Ð´Ð»Ñ .NET 8
+                // ? Ïðîñòîé êîíñòðóêòîð äëÿ .NET 8
                 mutex = new Mutex(false, mutexName, out _);
             }
             catch (UnauthorizedAccessException)
             {
                 try
                 {
-                    // âœ… OpenExisting Ñ Ð¾Ð´Ð½Ð¸Ð¼ Ð°Ñ€Ð³ÑƒÐ¼ÐµÐ½Ñ‚Ð¾Ð¼
+                    // ? OpenExisting ñ îäíèì àðãóìåíòîì
                     mutex = Mutex.OpenExisting(mutexName);
                 }
                 catch { }
             }
             catch (WaitHandleCannotBeOpenedException)
             {
-                // ÐœÑŒÑŽÑ‚ÐµÐºÑ ÐµÑ‰Ñ‘ Ð½Ðµ ÑÐ¾Ð·Ð´Ð°Ð½ â€” ÑÑ‚Ð¾ Ð½Ð¾Ñ€Ð¼Ð°Ð»ÑŒÐ½Ð¾ Ð¿Ñ€Ð¸ Ð¿ÐµÑ€Ð²Ð¾Ð¼ Ð·Ð°Ð¿ÑƒÑÐºÐµ
+                // Ìüþòåêñ åù¸ íå ñîçäàí — ýòî íîðìàëüíî ïðè ïåðâîì çàïóñêå
                 try
                 {
                     mutex = new Mutex(false, mutexName, out _);
@@ -1003,13 +618,7 @@ namespace FanCtrl
                 }
                 catch { }
                 this.unlockBus();
-            }
-
-            if (OptionManager.getInstance().IsHWInfo == true)
-            {
-                HWInfoManager.getInstance().createOSDSensor(OSDSensorList, OSDSensorMap);
-            }
-        }
+            }        }
 
         private void onUpdateTimer(object sender, EventArgs e)
         {
@@ -1430,3 +1039,11 @@ namespace FanCtrl
         }
     }
 }
+
+
+
+
+
+
+
+

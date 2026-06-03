@@ -63,8 +63,6 @@ namespace FanCtrl
             this.mReloadButton = new DarkUI.Controls.DarkButton();
             this.mHotKeyButton = new DarkUI.Controls.DarkButton();
             this.mDonatePictureBox = new System.Windows.Forms.PictureBox();
-            this.mLiquidctlButton = new DarkUI.Controls.DarkButton();
-            this.mPluginButton = new DarkUI.Controls.DarkButton();
             this.mTempGroupBox.SuspendLayout();
             this.mFanGroupBox.SuspendLayout();
             this.mControlGroupBox.SuspendLayout();
@@ -332,35 +330,12 @@ namespace FanCtrl
             this.mDonatePictureBox.Size = new System.Drawing.Size(92, 26);
             this.mDonatePictureBox.TabIndex = 12;
             this.mDonatePictureBox.TabStop = false;
-            this.mDonatePictureBox.Visible = false;
-            // 
-            // mLiquidctlButton
-            // 
-            this.mLiquidctlButton.Location = new System.Drawing.Point(346, 71);
-            this.mLiquidctlButton.Name = "mLiquidctlButton";
-            this.mLiquidctlButton.Padding = new System.Windows.Forms.Padding(1);
-            this.mLiquidctlButton.Size = new System.Drawing.Size(83, 50);
-            this.mLiquidctlButton.TabIndex = 3;
-            this.mLiquidctlButton.Text = "liquidctl Setting";
-            this.mLiquidctlButton.Click += new System.EventHandler(this.onLiquidctlButtonClick);
-            // 
-            // mPluginButton
-            // 
-            this.mPluginButton.Location = new System.Drawing.Point(257, 71);
-            this.mPluginButton.Name = "mPluginButton";
-            this.mPluginButton.Padding = new System.Windows.Forms.Padding(1);
-            this.mPluginButton.Size = new System.Drawing.Size(83, 50);
-            this.mPluginButton.TabIndex = 2;
-            this.mPluginButton.Text = "Plugin";
-            this.mPluginButton.Click += new System.EventHandler(this.onPluginButtonClick);
-            // 
+            this.mDonatePictureBox.Visible = false;            // 
             // MainForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(972, 128);
-            this.Controls.Add(this.mLoadingPanel);
-            this.Controls.Add(this.mLiquidctlButton);
-            this.Controls.Add(this.mReloadButton);
+            this.Controls.Add(this.mLoadingPanel);            this.Controls.Add(this.mReloadButton);
             this.Controls.Add(this.mOSDButton);
             this.Controls.Add(this.mOptionButton);
             this.Controls.Add(this.mMadeLabel2);
@@ -371,7 +346,6 @@ namespace FanCtrl
             this.Controls.Add(this.mFanGroupBox);
             this.Controls.Add(this.mTempGroupBox);
             this.Controls.Add(this.mHotKeyButton);
-            this.Controls.Add(this.mPluginButton);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Location = new System.Drawing.Point(0, 0);
             this.MaximizeBox = false;
@@ -423,8 +397,10 @@ namespace FanCtrl
         private DarkButton mReloadButton;
         private DarkButton mHotKeyButton;
         private System.Windows.Forms.PictureBox mDonatePictureBox;
-        private DarkButton mLiquidctlButton;
-        private DarkButton mPluginButton;
     }
 }
+
+
+
+
 

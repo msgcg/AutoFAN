@@ -103,14 +103,6 @@ namespace FanCtrl
 
             HardwareManager.getInstance().onUpdateCallback += onUpdate;
 
-            if (OptionManager.getInstance().Interval < 100)
-            {
-                OptionManager.getInstance().Interval = 100;
-            }
-            else if (OptionManager.getInstance().Interval > 5000)
-            {
-                OptionManager.getInstance().Interval = 5000;
-            }
 
             if (OptionManager.getInstance().IsMinimized == true)
             {
@@ -130,10 +122,8 @@ namespace FanCtrl
             mFanGroupBox.Text = StringLib.Fan_speed;
             mControlGroupBox.Text = StringLib.Fan_control;
 
-            mLiquidctlButton.Text = StringLib.liquidctl_Setting;
             mReloadButton.Text = StringLib.Reload;
             mHotKeyButton.Text = StringLib.HotKey;
-            mPluginButton.Text = StringLib.Plugin;
             mOptionButton.Text = StringLib.Option;
             mFanControlButton.Text = StringLib.Auto_Fan_Control;
             mMadeLabel1.Text = StringLib.Made1;
@@ -170,6 +160,26 @@ namespace FanCtrl
             mSilenceToolStripMenuItem.Checked = (cm.ModeType == MODE_TYPE.SILENCE);
             mPerformanceToolStripMenuItem.Checked = (cm.ModeType == MODE_TYPE.PERFORMANCE);
             mGameToolStripMenuItem.Checked = (cm.ModeType == MODE_TYPE.GAME);
+
+            foreach (var btn in mModeButtonList)
+            {
+                var mode = (MODE_TYPE)btn.Tag;
+                if (!cm.IsEnable)
+                {
+                    btn.BackColor = Color.Gray;
+                }
+                else
+                {
+                    if (cm.ModeType == mode)
+                    {
+                        btn.BackColor = Color.FromArgb(70, 130, 180);
+                    }
+                    else
+                    {
+                        btn.BackColor = ThemeProvider.Theme.Colors.GreyBackground;
+                    }
+                }
+            }
         }
 
         protected void setTheme()
@@ -254,17 +264,6 @@ namespace FanCtrl
             mControlLabelList.Clear();
             mControlNameTextBoxList.Clear();
 
-            mLiquidctlButton.Enabled = OptionManager.getInstance().IsLiquidctl;
-            mLiquidctlButton.Visible = OptionManager.getInstance().IsLiquidctl;
-
-            mPluginButton.Enabled = OptionManager.getInstance().IsPlugin;
-            mPluginButton.Visible = OptionManager.getInstance().IsPlugin;
-
-            if (OptionManager.getInstance().IsPlugin == true)
-            {
-                mPluginButton.Left = (OptionManager.getInstance().IsLiquidctl == true) ? 257 : mLiquidctlButton.Left;
-            }
-
             if (mFanIconTimer != null)
             {
                 mFanIconTimer.Stop();
@@ -314,10 +313,6 @@ namespace FanCtrl
                 OSDManager.getInstance().read();
 
                 // plugin start
-                if (OptionManager.getInstance().IsPlugin == true && PluginManager.getInstance().IsStart == true)
-                {
-                    PluginManager.getInstance().start(PluginManager.getInstance().Port);
-                }
 
                 this.BeginInvoke(new Action(delegate ()
                 {
@@ -355,6 +350,10 @@ namespace FanCtrl
                     Tag = modeInfo.Mode
                 };
                 btn.Click += (s, e) => {
+                    if (!ControlManager.getInstance().IsEnable) {
+                        MessageBox.Show("Сначала включите автоматическое управление вентилятором в опциях (значок шестеренки) или галочкой 'Автомат. упр-е' в трее.", "AutoFAN", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
                     ControlManager.getInstance().ModeType = (MODE_TYPE)((Control)s).Tag;
                     ControlManager.getInstance().write();
                     UpdateModeButtons();
@@ -435,10 +434,8 @@ namespace FanCtrl
             mMadeLabel2.Top = madeLabelPoint2;
             mDonatePictureBox.Top = donatePictureBoxPoint;
 
-            mLiquidctlButton.Top = buttonPoint;
             mReloadButton.Top = buttonPoint;
             mHotKeyButton.Top = buttonPoint;
-            mPluginButton.Top = buttonPoint;
             mOSDButton.Top = buttonPoint;
             mIntelligentButton.Top = buttonPoint;
             mOptionButton.Top = buttonPoint;
@@ -465,9 +462,6 @@ namespace FanCtrl
             mTempPanel.Width = 261 + divide;
             mFanPanel.Width = 260 + divide;
             mControlPanel.Width = 294 + divide;
-
-            mPluginButton.Left = 257 + gapWidth;
-            mLiquidctlButton.Left = 346 + gapWidth;
             mReloadButton.Left = 435 + gapWidth;
             mHotKeyButton.Left = 524 + gapWidth;
             mOSDButton.Left = 613 + gapWidth;
@@ -613,8 +607,6 @@ namespace FanCtrl
                 mControlForm.Close();
                 mControlForm = null;
             }
-
-            PluginManager.getInstance().stop();
             HardwareManager.getInstance().stop();
 
             if (mFanIconTimer != null)
@@ -1026,17 +1018,14 @@ namespace FanCtrl
                 if (nameType == NAME_TYPE.TEMPERATURE)
                 {
                     device = HardwareManager.getInstance().TempBaseList[index];
-                    PluginManager.getInstance().setTempDeviceName(device.ID, name);
                 }
                 else if (nameType == NAME_TYPE.FAN)
                 {
                     device = HardwareManager.getInstance().FanBaseList[index];
-                    PluginManager.getInstance().setFanDeviceName(device.ID, name);
                 }
                 else
                 {
                     device = HardwareManager.getInstance().ControlBaseList[index];
-                    PluginManager.getInstance().setControlDeviceName(device.ID, name);
                 }
 
                 string originName = device.Name;
@@ -1149,17 +1138,9 @@ namespace FanCtrl
                 this.BeginInvoke(new Action(delegate ()
                 {
                     this.localizeComponent();
-                    PluginManager.getInstance().stop();
                     HardwareManager.getInstance().stop();
                     ControlManager.getInstance().reset();
                     OSDManager.getInstance().reset();
-
-                    if (OptionManager.getInstance().IsHWInfo == false)
-                    {
-                        HWInfoManager.getInstance().reset();
-                        HWInfoManager.getInstance().write();
-                    }
-
                     this.setTheme();
                     this.reload();
                 }));
@@ -1170,15 +1151,12 @@ namespace FanCtrl
             {
                 this.BeginInvoke(new Action(delegate ()
                 {
-                    PluginManager.getInstance().stop();
                     HardwareManager.getInstance().stop();
                     HardwareManager.getInstance().write();
                     ControlManager.getInstance().reset();
                     ControlManager.getInstance().write();
                     OSDManager.getInstance().reset();
                     OSDManager.getInstance().write();
-                    HWInfoManager.getInstance().reset();
-                    HWInfoManager.getInstance().write();
 
                     this.reload();
                 }));
@@ -1212,15 +1190,6 @@ namespace FanCtrl
             reload();
         }
 
-        private void onPluginButtonClick(object sender, EventArgs e)
-        {
-            var form = new PluginForm();
-            if (form.ShowDialog() == DialogResult.OK)
-            {
-                this.onReloadButtonClick(null, EventArgs.Empty);
-            }
-        }
-
         private void onOSDButtonClick(object sender, EventArgs e)
         {
             var form = new OSDForm();
@@ -1236,23 +1205,7 @@ namespace FanCtrl
             HardwareManager.getInstance().stop();
             ControlManager.getInstance().reset();
             OSDManager.getInstance().reset();
-
-            if (OptionManager.getInstance().IsHWInfo == false)
-            {
-                HWInfoManager.getInstance().reset();
-                HWInfoManager.getInstance().write();
-            }
-
             this.reload();
-        }
-
-        private void onLiquidctlButtonClick(object sender, EventArgs e)
-        {
-            var form = new LiquidctlForm();
-            if (form.ShowDialog() == DialogResult.OK)
-            {
-                this.onReloadButtonClick(null, EventArgs.Empty);
-            }
         }
 
         private string mLocationFileName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\" + "Location.json";
@@ -1513,3 +1466,10 @@ namespace FanCtrl
 
     }
 }
+
+
+
+
+
+
+

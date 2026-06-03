@@ -26,12 +26,7 @@ namespace FanCtrl
             }            
 
             mToolTip.SetToolTip(mIntervalTextBox, "100 ≤ value ≤ 5000");
-            mToolTip.SetToolTip(mStartupDelayTextBox, "0 ≤ value ≤ 59");
-
-            mIntervalTextBox.Text = OptionManager.getInstance().Interval.ToString();
-            mIntervalTextBox.KeyPress += onTextBoxKeyPress;
-            mIntervalTextBox.Leave += onTextBoxLeaves;
-
+            mToolTip.SetToolTip(mStartupDelayTextBox, "0 ≤ value ≤ 59");            mIntervalTextBox.KeyPress += onTextBoxKeyPress;
             mLHMCheckBox.CheckedChanged += (object sender, EventArgs e) =>
             {
                 mLHMCPUCheckBox.Enabled = mLHMCheckBox.Checked;
@@ -59,21 +54,6 @@ namespace FanCtrl
             }
 
             mNvApiCheckBox.Checked = OptionManager.getInstance().IsNvAPIWrapper;
-            
-            mKrakenCheckBox.Checked = OptionManager.getInstance().IsKraken;
-            mKrakenButton.Enabled = (HardwareManager.getInstance().KrakenList.Count > 0);
-
-            mCLCCheckBox.Checked = OptionManager.getInstance().IsCLC;            
-            mCLCButton.Enabled = (HardwareManager.getInstance().CLCList.Count > 0);
-
-            mRGBnFCCheckBox.Checked = OptionManager.getInstance().IsRGBnFC;
-            mRGBnFCButton.Enabled = (HardwareManager.getInstance().RGBnFCList.Count > 0);
-
-            mHWInfoCheckBox.Checked = OptionManager.getInstance().IsHWInfo;
-
-            mLiquidctlCheckBox.Checked = OptionManager.getInstance().IsLiquidctl;
-
-            mPluginCheckBox.Checked = OptionManager.getInstance().IsPlugin;
 
 
 
@@ -85,19 +65,15 @@ namespace FanCtrl
             mFahrenheitCheckBox.Checked = OptionManager.getInstance().IsFahrenheit;
             mAnimationCheckBox.Checked = OptionManager.getInstance().IsAnimation;
             mMinimizeCheckBox.Checked = OptionManager.getInstance().IsMinimized;
-
-            mStartupDelayTextBox.Text = OptionManager.getInstance().DelayTime.ToString();
             mStartupCheckBox.Checked = OptionManager.getInstance().IsStartUp;
+            mStartupDelayTextBox.Text = OptionManager.getInstance().DelayTime.ToString();
+            mIntervalTextBox.Text = OptionManager.getInstance().Interval.ToString();
         }
 
         private void localizeComponent()
         {
             this.Text = StringLib.Option;
             mIntervalGroupBox.Text = StringLib.Interval;
-            mKrakenButton.Text = StringLib.Lighting;
-            mCLCButton.Text = StringLib.Lighting;
-            mRGBnFCButton.Text = StringLib.Lighting;
-            mPluginCheckBox.Text = StringLib.Plugin;
             mAnimationCheckBox.Text = StringLib.Tray_Icon_animation;
 
             mThemeLabel.Text = StringLib.Theme;
@@ -117,27 +93,13 @@ namespace FanCtrl
             catch
             {
                 fontFamily = FontFamily.GenericSansSerif;
-            }
-
-                mKrakenButton.Font = new Font(fontFamily, 7.5f);
-                mCLCButton.Font = new Font(fontFamily, 7.5f);
-                mRGBnFCButton.Font = new Font(fontFamily, 7.5f);
-                mStartupDelayLabel.Left = mStartupDelayLabel.Left - 10;
+            }                mStartupDelayLabel.Left = mStartupDelayLabel.Left - 10;
         }
 
         private void onOKButtonClick(object sender, EventArgs e)
         {
-            int interval = int.Parse(mIntervalTextBox.Text);
-            if (interval < 100)
-            {
-                interval = 100;
-            }
-            else if (interval > 5000)
-            {
-                interval = 5000;
-            }
-
-            int delayTime = int.Parse(mStartupDelayTextBox.Text);
+            int delayTime = 0;
+            int.TryParse(mStartupDelayTextBox.Text, out delayTime);
             if (delayTime < 0)
             {
                 delayTime = 0;
@@ -145,6 +107,17 @@ namespace FanCtrl
             else if (delayTime > 59)
             {
                 delayTime = 59;
+            }
+
+            int interval = 0;
+            int.TryParse(mIntervalTextBox.Text, out interval);
+            if (interval < 100)
+            {
+                interval = 100;
+            }
+            else if (interval > 5000)
+            {
+                interval = 5000;
             }
 
             var optionManager = OptionManager.getInstance();
@@ -159,12 +132,6 @@ namespace FanCtrl
                 (mLHMCheckBox.Checked == true && optionManager.IsLHMMemory != mLHMMemoryCheckBox.Checked) ||
 
                 (optionManager.IsNvAPIWrapper != mNvApiCheckBox.Checked) ||
-                (optionManager.IsKraken != mKrakenCheckBox.Checked) ||
-                (optionManager.IsCLC != mCLCCheckBox.Checked) ||
-                (optionManager.IsRGBnFC != mRGBnFCCheckBox.Checked) ||
-                (optionManager.IsHWInfo != mHWInfoCheckBox.Checked) ||
-                (optionManager.IsLiquidctl != mLiquidctlCheckBox.Checked) ||
-                (optionManager.IsPlugin != mPluginCheckBox.Checked) ||
                 ((int)optionManager.Theme != mThemeComboBox.SelectedIndex))
             {
                 var result = DarkMessageBox.ShowInformation(StringLib.OptionChange, StringLib.Option, DarkDialogButton.OkCancel);
@@ -173,10 +140,8 @@ namespace FanCtrl
 
                 isRestart = true;
             }
-
-            optionManager.Interval = interval;
-
             optionManager.IsLHM = mLHMCheckBox.Checked;
+            optionManager.Interval = interval;
             optionManager.IsLHMCpu = mLHMCPUCheckBox.Checked;
             optionManager.IsLHMMotherboard = mLHMMBCheckBox.Checked;
             optionManager.IsLHMGpu = mLHMGPUCheckBox.Checked;
@@ -185,24 +150,11 @@ namespace FanCtrl
             optionManager.IsLHMMemory = mLHMMemoryCheckBox.Checked;
 
             optionManager.IsNvAPIWrapper = mNvApiCheckBox.Checked;
-                        
-            optionManager.IsKraken = mKrakenCheckBox.Checked;
-
-            optionManager.IsCLC = mCLCCheckBox.Checked;
-
-            optionManager.IsRGBnFC = mRGBnFCCheckBox.Checked;
-
-            optionManager.IsHWInfo = mHWInfoCheckBox.Checked;
-
-            optionManager.IsLiquidctl = mLiquidctlCheckBox.Checked;
-
-            optionManager.IsPlugin = mPluginCheckBox.Checked;
 
             optionManager.Theme = (THEME_TYPE)mThemeComboBox.SelectedIndex;
             optionManager.IsFahrenheit = mFahrenheitCheckBox.Checked;
             optionManager.IsAnimation = mAnimationCheckBox.Checked;
             optionManager.IsMinimized = mMinimizeCheckBox.Checked;
-            optionManager.DelayTime = delayTime;
             optionManager.IsStartUp = mStartupCheckBox.Checked;            
             optionManager.write();
 
@@ -239,123 +191,12 @@ namespace FanCtrl
                 e.Handled = true;
             }
         }
-
-        private void onTextBoxLeaves(object sender, EventArgs e)
-        {
-            var textBox = (TextBox)sender;
-            if (textBox == mIntervalTextBox)
-            {
-                int interval = int.Parse(mIntervalTextBox.Text);
-                if (interval < 100)
-                {
-                    interval = 100;
-                }
-                else if (interval > 5000)
-                {
-                    interval = 5000;
-                }
-                mIntervalTextBox.Text = interval.ToString();
-            }
-            else if (textBox == mStartupDelayTextBox)
-            {
-                int delay = int.Parse(mStartupDelayTextBox.Text);
-                if (delay < 0)
-                {
-                    delay = 0;
-                }
-                else if (delay > 59)
-                {
-                    delay = 59;
-                }
-                mStartupDelayTextBox.Text = delay.ToString();
-            }         
-        }
-
-        private void onKrakenButtonClick(object sender, EventArgs e)
-        {
-            var deviceList = HardwareManager.getInstance().KrakenList;
-            if (deviceList.Count == 1)
-            {
-                var form = new LightingForm(deviceList[0], 1);
-                form.ShowDialog();
-            }
-            else
-            {
-                // ✅ Современный подход:
-                var menu = new ContextMenuStrip();
-                for (int i = 0; i < deviceList.Count; i++)
-                {
-                    int index = i;
-                    var item = new ToolStripMenuItem(string.Format("{0}", i + 1));
-                    item.Click += (sender2, e2) =>
-                    {
-                        var form = new LightingForm(deviceList[index], index + 1);
-                        form.ShowDialog();
-                    };
-                    menu.Items.Add(item);  // ← Items, а не MenuItems
-                }
-
-                var point = mKrakenButton.PointToClient(Control.MousePosition);
-                menu.Show(mKrakenButton, point);
-            }
-        }
-
-        private void onCLCButtonClick(object sender, EventArgs e)
-        {
-            var deviceList = HardwareManager.getInstance().CLCList;
-            if (deviceList.Count == 1)
-            {
-                var form = new LightingForm(deviceList[0], 1);
-                form.ShowDialog();
-            }
-            else
-            {
-                // ✅ Современный подход:
-                var menu = new ContextMenuStrip();
-                for (int i = 0; i < deviceList.Count; i++)
-                {
-                    int index = i;
-                    var item = new ToolStripMenuItem(string.Format("{0}", i + 1));
-                    item.Click += (sender2, e2) =>
-                    {
-                        var form = new LightingForm(deviceList[index], index + 1);
-                        form.ShowDialog();
-                    };
-                    menu.Items.Add(item);  // ← Items, а не MenuItems
-                }
-
-                var point = mCLCButton.PointToClient(Control.MousePosition);
-                menu.Show(mCLCButton, point);
-            }
-        }
-
-        private void onRGBnFCButtonClick(object sender, EventArgs e)
-        {
-            var deviceList = HardwareManager.getInstance().RGBnFCList;
-            if (deviceList.Count == 1)
-            {
-                var form = new LightingForm(deviceList[0], 1);
-                form.ShowDialog();
-            }
-            else
-            {
-                // ✅ Современный подход:
-                var menu = new ContextMenuStrip();
-                for (int i = 0; i < deviceList.Count; i++)
-                {
-                    int index = i;
-                    var item = new ToolStripMenuItem(string.Format("{0}", i + 1));
-                    item.Click += (sender2, e2) =>
-                    {
-                        var form = new LightingForm(deviceList[index], index + 1);
-                        form.ShowDialog();
-                    };
-                    menu.Items.Add(item);  // ← Items, а не MenuItems
-                }
-
-                var point = mRGBnFCButton.PointToClient(Control.MousePosition);
-                menu.Show(mRGBnFCButton, point);
-            }
-        }
-    }
 }
+
+
+}
+
+
+
+
+

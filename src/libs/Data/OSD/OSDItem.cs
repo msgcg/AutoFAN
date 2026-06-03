@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+using System.Drawing;
 using System.Text;
 
 namespace FanCtrl
@@ -156,32 +156,7 @@ namespace FanCtrl
                 case OSDUnitType.FPS:
                     return " FPS";
 
-                case OSDUnitType.HWiNFO:
-                    {
-                        var osdMap = HardwareManager.getInstance().OSDSensorMap;
-                        if (osdMap.ContainsKey(ID) == false)
-                            return " ";
 
-                        var sensor = (HWInfoOSDSensor)osdMap[ID];
-                        string unitString = sensor.getUnitString();
-
-                        // Temperature
-                        if (unitString.Equals("°C") == true || unitString.Equals("°F") == true)
-                        {
-                            return (OptionManager.getInstance().IsFahrenheit == false) ? " 캜" : " 캟";
-                        }
-
-                        // Yes/No
-                        else if (unitString.Equals("Yes/No") == true)
-                        {
-                            return " ";
-                        }
-
-                        else
-                        {
-                            return " " + unitString;
-                        }
-                    }
 
                 default:
                     return " ";

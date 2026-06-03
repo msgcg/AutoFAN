@@ -25,6 +25,7 @@ namespace FanCtrl
 
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(IntelligentForm));
             mStartButton = new DarkUI.Controls.DarkButton();
             mStopButton = new DarkUI.Controls.DarkButton();
             mProgressBar = new System.Windows.Forms.ProgressBar();
@@ -122,6 +123,7 @@ namespace FanCtrl
             Controls.Add(mProgressBar);
             Controls.Add(mStopButton);
             Controls.Add(mStartButton);
+            Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
             Location = new System.Drawing.Point(0, 0);
             MaximizeBox = false;
             MinimizeBox = false;

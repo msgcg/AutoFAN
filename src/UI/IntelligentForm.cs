@@ -64,21 +64,45 @@ namespace FanCtrl
 
         private void SetupDataGridView()
         {
+            bool isDark = OptionManager.getInstance().getNowTheme() == THEME_TYPE.DARK;
+
             // Setup ListBox styles
-            mResultListBox.BackColor = System.Drawing.Color.FromArgb(60, 63, 65);
-            mResultListBox.ForeColor = System.Drawing.Color.Gainsboro;
+            if (isDark)
+            {
+                mResultListBox.BackColor = System.Drawing.Color.FromArgb(60, 63, 65);
+                mResultListBox.ForeColor = System.Drawing.Color.Gainsboro;
+            }
+            else
+            {
+                mResultListBox.BackColor = System.Drawing.SystemColors.Window;
+                mResultListBox.ForeColor = System.Drawing.SystemColors.WindowText;
+            }
             mResultListBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 
             // Setup DataGridView styles
-            mMappingDataGridView.BackgroundColor = System.Drawing.Color.FromArgb(60, 63, 65);
-            mMappingDataGridView.ForeColor = System.Drawing.Color.Gainsboro;
-            mMappingDataGridView.GridColor = System.Drawing.Color.FromArgb(81, 81, 81);
-            mMappingDataGridView.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(57, 60, 62);
-            mMappingDataGridView.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.Gainsboro;
+            if (isDark)
+            {
+                mMappingDataGridView.BackgroundColor = System.Drawing.Color.FromArgb(60, 63, 65);
+                mMappingDataGridView.ForeColor = System.Drawing.Color.Gainsboro;
+                mMappingDataGridView.GridColor = System.Drawing.Color.FromArgb(81, 81, 81);
+                mMappingDataGridView.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(57, 60, 62);
+                mMappingDataGridView.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.Gainsboro;
+                mMappingDataGridView.DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(60, 63, 65);
+                mMappingDataGridView.DefaultCellStyle.ForeColor = System.Drawing.Color.Gainsboro;
+                mMappingDataGridView.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(92, 92, 92);
+            }
+            else
+            {
+                mMappingDataGridView.BackgroundColor = System.Drawing.SystemColors.Window;
+                mMappingDataGridView.ForeColor = System.Drawing.SystemColors.WindowText;
+                mMappingDataGridView.GridColor = System.Drawing.SystemColors.ControlDark;
+                mMappingDataGridView.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.SystemColors.Control;
+                mMappingDataGridView.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.SystemColors.WindowText;
+                mMappingDataGridView.DefaultCellStyle.BackColor = System.Drawing.SystemColors.Window;
+                mMappingDataGridView.DefaultCellStyle.ForeColor = System.Drawing.SystemColors.WindowText;
+                mMappingDataGridView.DefaultCellStyle.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            }
             mMappingDataGridView.EnableHeadersVisualStyles = false;
-            mMappingDataGridView.DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(60, 63, 65);
-            mMappingDataGridView.DefaultCellStyle.ForeColor = System.Drawing.Color.Gainsboro;
-            mMappingDataGridView.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(92, 92, 92);
 
             mMappingDataGridView.Columns.Clear();
 

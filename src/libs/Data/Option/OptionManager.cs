@@ -23,8 +23,6 @@ namespace FanCtrl
                 write();
             }
         }
-        
-        public int Interval { get; set; }
 
         // LibreHardwareMonitor
         public bool IsLHM { get; set; }
@@ -39,22 +37,17 @@ namespace FanCtrl
         public bool IsNvAPIWrapper { get; set; }
 
         // NZXT Kraken X2, X3
-        public bool IsKraken { get; set; }
 
         // EVGA CLC
-        public bool IsCLC { get; set; }
 
         // NZXT Fan&Contoller
-        public bool IsRGBnFC { get; set; }
 
         // HWiNFO
-        public bool IsHWInfo { get; set; }
 
         // liquidctl
-        public bool IsLiquidctl { get; set; }
 
         // Plugin
-        public bool IsPlugin { get; set; }
+        public int Interval { get; set; } = 1000;
 
         // Other options
 
@@ -95,7 +88,6 @@ namespace FanCtrl
 
         public void reset()
         {
-            Interval = 1000;
 
             IsLHM = true;
             IsLHMCpu = true;
@@ -106,12 +98,6 @@ namespace FanCtrl
             IsLHMMemory = true;
 
             IsNvAPIWrapper = false;
-            IsKraken = false;
-            IsCLC = false;
-            IsRGBnFC = false;
-            IsHWInfo = false;
-            IsLiquidctl = false;
-            IsPlugin = false;
 
             Theme = 0;
             IsAnimation = true;
@@ -126,8 +112,6 @@ namespace FanCtrl
                 var jsonString = File.ReadAllText(mOptionFileName);                
                 var rootObject = JObject.Parse(jsonString);
 
-                Interval = (rootObject.ContainsKey("Interval") == true) ? rootObject.Value<int>("Interval") : 1000;
-
                 IsLHM = (rootObject.ContainsKey("IsLHM") == true) ? rootObject.Value<bool>("IsLHM") : true;
                 IsLHMCpu = (rootObject.ContainsKey("IsLHMCpu") == true) ? rootObject.Value<bool>("IsLHMCpu") : true;
                 IsLHMMotherboard = (rootObject.ContainsKey("IsLHMMotherboard") == true) ? rootObject.Value<bool>("IsLHMMotherboard") : true;
@@ -137,12 +121,6 @@ namespace FanCtrl
                 IsLHMMemory = (rootObject.ContainsKey("IsLHMMemory") == true) ? rootObject.Value<bool>("IsLHMMemory") : true;
 
                 IsNvAPIWrapper = (rootObject.ContainsKey("IsNvAPIWrapper") == true) ? rootObject.Value<bool>("IsNvAPIWrapper") : false;
-                IsKraken = (rootObject.ContainsKey("IsKraken") == true) ? rootObject.Value<bool>("IsKraken") : false;
-                IsCLC = (rootObject.ContainsKey("IsCLC") == true) ? rootObject.Value<bool>("IsCLC") : false;
-                IsRGBnFC = (rootObject.ContainsKey("IsRGBnFC") == true) ? rootObject.Value<bool>("IsRGBnFC") : false;
-                IsHWInfo = (rootObject.ContainsKey("IsHWInfo") == true) ? rootObject.Value<bool>("IsHWInfo") : false;
-                IsLiquidctl = (rootObject.ContainsKey("IsLiquidctl") == true) ? rootObject.Value<bool>("IsLiquidctl") : false;
-                IsPlugin = (rootObject.ContainsKey("IsPlugin") == true) ? rootObject.Value<bool>("IsPlugin") : false;
 
                 Theme = (rootObject.ContainsKey("Theme") == true) ? (THEME_TYPE)rootObject.Value<int>("Theme") : THEME_TYPE.SYSTEM;
                 IsAnimation = (rootObject.ContainsKey("IsAnimation") == true) ? rootObject.Value<bool>("IsAnimation") : true;
@@ -150,6 +128,7 @@ namespace FanCtrl
                 IsMinimized = (rootObject.ContainsKey("IsMinimized") == true) ? rootObject.Value<bool>("IsMinimized") : false;
 
                 DelayTime = (rootObject.ContainsKey("DelayTime") == true) ? rootObject.Value<int>("DelayTime") : 0;
+                Interval = (rootObject.ContainsKey("Interval") == true) ? rootObject.Value<int>("Interval") : 1000;
             }
             catch
             {
@@ -163,7 +142,6 @@ namespace FanCtrl
             try
             {
                 var rootObject = new JObject();
-                rootObject["Interval"] = Interval;
                 
                 rootObject["IsLHM"] = IsLHM;
                 rootObject["IsLHMCpu"] = IsLHMCpu;
@@ -173,13 +151,7 @@ namespace FanCtrl
                 rootObject["IsLHMStorage"] = IsLHMStorage;
                 rootObject["IsLHMMemory"] = IsLHMMemory;
 
-                rootObject["IsNvAPIWrapper"] = IsNvAPIWrapper;         
-                rootObject["IsKraken"] = IsKraken;
-                rootObject["IsCLC"] = IsCLC;
-                rootObject["IsRGBnFC"] = IsRGBnFC;
-                rootObject["IsHWInfo"] = IsHWInfo;
-                rootObject["IsLiquidctl"] = IsLiquidctl;
-                rootObject["IsPlugin"] = IsPlugin;
+                rootObject["IsNvAPIWrapper"] = IsNvAPIWrapper;
 
                 rootObject["Theme"] = (int)Theme;
                 rootObject["IsAnimation"] = IsAnimation;
@@ -187,6 +159,7 @@ namespace FanCtrl
                 rootObject["IsMinimized"] = IsMinimized;
 
                 rootObject["DelayTime"] = DelayTime;
+            rootObject["Interval"] = Interval;
 
                 File.WriteAllText(mOptionFileName, rootObject.ToString());
             }
@@ -212,3 +185,9 @@ namespace FanCtrl
         }
     }
 }
+
+
+
+
+
+

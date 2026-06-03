@@ -1,4 +1,4 @@
-﻿using DarkUI.Controls;
+using DarkUI.Controls;
 using System.Windows.Forms;
 
 namespace FanCtrl
@@ -41,7 +41,6 @@ namespace FanCtrl
             this.mOKButton = new DarkUI.Controls.DarkButton();
             this.mToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.mLibraryGroupBox = new DarkUI.Controls.DarkGroupBox();
-            this.mPluginCheckBox = new DarkUI.Controls.DarkCheckBox();
             this.label2 = new DarkUI.Controls.DarkLabel();
             this.mLiquidctlCheckBox = new DarkUI.Controls.DarkCheckBox();
             this.label10 = new DarkUI.Controls.DarkLabel();
@@ -77,15 +76,14 @@ namespace FanCtrl
             this.mIntervalGroupBox.SuspendLayout();
             this.mLibraryGroupBox.SuspendLayout();
             this.SuspendLayout();
-            // 
+            //            // 
             // mIntervalGroupBox
             // 
-            this.mIntervalGroupBox.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.mIntervalGroupBox.Controls.Add(this.label1);
             this.mIntervalGroupBox.Controls.Add(this.mIntervalTextBox);
             this.mIntervalGroupBox.Location = new System.Drawing.Point(12, 12);
             this.mIntervalGroupBox.Name = "mIntervalGroupBox";
-            this.mIntervalGroupBox.Size = new System.Drawing.Size(188, 58);
+            this.mIntervalGroupBox.Size = new System.Drawing.Size(188, 55);
             this.mIntervalGroupBox.TabIndex = 0;
             this.mIntervalGroupBox.TabStop = false;
             this.mIntervalGroupBox.Text = "Interval";
@@ -142,46 +140,18 @@ namespace FanCtrl
             // mLibraryGroupBox
             // 
             this.mLibraryGroupBox.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
-            this.mLibraryGroupBox.Controls.Add(this.mPluginCheckBox);
-            this.mLibraryGroupBox.Controls.Add(this.label2);
-            this.mLibraryGroupBox.Controls.Add(this.mLiquidctlCheckBox);
-            this.mLibraryGroupBox.Controls.Add(this.label10);
             this.mLibraryGroupBox.Controls.Add(this.mLHMMemoryCheckBox);
-            this.mLibraryGroupBox.Controls.Add(this.mHWInfoCheckBox);
-            this.mLibraryGroupBox.Controls.Add(this.label9);
-            this.mLibraryGroupBox.Controls.Add(this.label8);
-            this.mLibraryGroupBox.Controls.Add(this.label7);
-            this.mLibraryGroupBox.Controls.Add(this.label3);
-            this.mLibraryGroupBox.Controls.Add(this.label4);
             this.mLibraryGroupBox.Controls.Add(this.mLHMStorageCheckBox);
             this.mLibraryGroupBox.Controls.Add(this.mLHMControllerCheckBox);
             this.mLibraryGroupBox.Controls.Add(this.mLHMGPUCheckBox);
             this.mLibraryGroupBox.Controls.Add(this.mLHMMBCheckBox);
             this.mLibraryGroupBox.Controls.Add(this.mLHMCPUCheckBox);
-            this.mLibraryGroupBox.Controls.Add(this.mLHMCheckBox);
-            this.mLibraryGroupBox.Controls.Add(this.mRGBnFCButton);
-            this.mLibraryGroupBox.Controls.Add(this.mRGBnFCCheckBox);
-            this.mLibraryGroupBox.Controls.Add(this.mCLCButton);
-            this.mLibraryGroupBox.Controls.Add(this.mKrakenButton);
-            this.mLibraryGroupBox.Controls.Add(this.mCLCCheckBox);
-            this.mLibraryGroupBox.Controls.Add(this.mNvApiCheckBox);
-            this.mLibraryGroupBox.Controls.Add(this.mKrakenCheckBox);
-            this.mLibraryGroupBox.Location = new System.Drawing.Point(12, 77);
+            this.mLibraryGroupBox.Controls.Add(this.mLHMCheckBox);            this.mLibraryGroupBox.Controls.Add(this.mNvApiCheckBox);            this.mLibraryGroupBox.Location = new System.Drawing.Point(12, 77);
             this.mLibraryGroupBox.Name = "mLibraryGroupBox";
             this.mLibraryGroupBox.Size = new System.Drawing.Size(188, 445);
             this.mLibraryGroupBox.TabIndex = 5;
             this.mLibraryGroupBox.TabStop = false;
-            this.mLibraryGroupBox.Text = "Library";
-            // 
-            // mPluginCheckBox
-            // 
-            this.mPluginCheckBox.AutoSize = true;
-            this.mPluginCheckBox.Location = new System.Drawing.Point(6, 416);
-            this.mPluginCheckBox.Name = "mPluginCheckBox";
-            this.mPluginCheckBox.Size = new System.Drawing.Size(59, 16);
-            this.mPluginCheckBox.TabIndex = 18;
-            this.mPluginCheckBox.Text = "Plugin";
-            // 
+            this.mLibraryGroupBox.Text = "Library";            // 
             // label2
             // 
             this.label2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
@@ -326,16 +296,14 @@ namespace FanCtrl
             this.mRGBnFCButton.Padding = new System.Windows.Forms.Padding(1);
             this.mRGBnFCButton.Size = new System.Drawing.Size(64, 23);
             this.mRGBnFCButton.TabIndex = 15;
-            this.mRGBnFCButton.Text = "Lighting";
-            this.mRGBnFCButton.Click += new System.EventHandler(this.onRGBnFCButtonClick);
-            // 
+            this.mRGBnFCButton.Text = "Lighting";            // 
             // mRGBnFCCheckBox
             // 
             this.mRGBnFCCheckBox.Location = new System.Drawing.Point(6, 289);
             this.mRGBnFCCheckBox.Name = "mRGBnFCCheckBox";
             this.mRGBnFCCheckBox.Size = new System.Drawing.Size(104, 30);
             this.mRGBnFCCheckBox.TabIndex = 14;
-            this.mRGBnFCCheckBox.Text = "NZXT RGB＆Fan Controller";
+            this.mRGBnFCCheckBox.Text = "NZXT RGB&Fan Controller";
             // 
             // mCLCButton
             // 
@@ -344,9 +312,7 @@ namespace FanCtrl
             this.mCLCButton.Padding = new System.Windows.Forms.Padding(1);
             this.mCLCButton.Size = new System.Drawing.Size(64, 23);
             this.mCLCButton.TabIndex = 13;
-            this.mCLCButton.Text = "Lighting";
-            this.mCLCButton.Click += new System.EventHandler(this.onCLCButtonClick);
-            // 
+            this.mCLCButton.Text = "Lighting";            // 
             // mKrakenButton
             // 
             this.mKrakenButton.Location = new System.Drawing.Point(114, 214);
@@ -354,9 +320,7 @@ namespace FanCtrl
             this.mKrakenButton.Padding = new System.Windows.Forms.Padding(1);
             this.mKrakenButton.Size = new System.Drawing.Size(64, 23);
             this.mKrakenButton.TabIndex = 11;
-            this.mKrakenButton.Text = "Lighting";
-            this.mKrakenButton.Click += new System.EventHandler(this.onKrakenButtonClick);
-            // 
+            this.mKrakenButton.Text = "Lighting";            // 
             // mCLCCheckBox
             // 
             this.mCLCCheckBox.AutoSize = true;
@@ -429,16 +393,7 @@ namespace FanCtrl
             this.mResetButton.TabIndex = 36;
             this.mResetButton.Text = "Reset";
             this.mResetButton.Click += new System.EventHandler(this.onResetButtonClick);
-            // 
-            // mLanguageLabel
-            // 
-            this.mLanguageLabel.AutoSize = true;
-            this.mLanguageLabel.Location = new System.Drawing.Point(15, 535);
-            this.mLanguageLabel.Name = "mLanguageLabel";
-            this.mLanguageLabel.Size = new System.Drawing.Size(69, 12);
-            this.mLanguageLabel.TabIndex = 25;
-            this.mLanguageLabel.Text = "Language :";
-            // 
+            //            // 
             // mLanguageComboBox
             // 
             this.mLanguageComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
@@ -473,8 +428,7 @@ namespace FanCtrl
             this.ClientSize = new System.Drawing.Size(209, 769);
             this.Controls.Add(this.mThemeComboBox);
             this.Controls.Add(this.mThemeLabel);
-            this.Controls.Add(this.mLanguageComboBox);
-            this.Controls.Add(this.mLanguageLabel);
+            this.Controls.Add(this.mIntervalGroupBox);
             this.Controls.Add(this.mResetButton);
             this.Controls.Add(this.mStartupDelayTextBox);
             this.Controls.Add(this.mStartupDelayLabel);
@@ -483,19 +437,14 @@ namespace FanCtrl
             this.Controls.Add(this.mLibraryGroupBox);
             this.Controls.Add(this.mOKButton);
             this.Controls.Add(this.mStartupCheckBox);
-            this.Controls.Add(this.mMinimizeCheckBox);
-            this.Controls.Add(this.mIntervalGroupBox);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Controls.Add(this.mMinimizeCheckBox);            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Location = new System.Drawing.Point(0, 0);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "OptionForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Option";
-            this.mIntervalGroupBox.ResumeLayout(false);
-            this.mIntervalGroupBox.PerformLayout();
-            this.mLibraryGroupBox.ResumeLayout(false);
+            this.Text = "Option";            this.mLibraryGroupBox.ResumeLayout(false);
             this.mLibraryGroupBox.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -541,9 +490,13 @@ namespace FanCtrl
         private DarkLabel label10;
         private DarkLabel mLanguageLabel;
         private DarkComboBox mLanguageComboBox;
-        private DarkCheckBox mPluginCheckBox;
         private DarkLabel label2;
         private DarkComboBox mThemeComboBox;
         private DarkLabel mThemeLabel;
     }
 }
+
+
+
+
+
