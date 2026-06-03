@@ -26,7 +26,9 @@ namespace FanCtrl
             }            
 
             mToolTip.SetToolTip(mIntervalTextBox, "100 ≤ value ≤ 5000");
-            mToolTip.SetToolTip(mStartupDelayTextBox, "0 ≤ value ≤ 59");            mIntervalTextBox.KeyPress += onTextBoxKeyPress;
+            mToolTip.SetToolTip(mStartupDelayTextBox, "0 ≤ value ≤ 59");
+            mIntervalTextBox.KeyPress += onTextBoxKeyPress;
+            mStartupDelayTextBox.KeyPress += onTextBoxKeyPress;
             mLHMCheckBox.CheckedChanged += (object sender, EventArgs e) =>
             {
                 mLHMCPUCheckBox.Enabled = mLHMCheckBox.Checked;
@@ -186,7 +188,7 @@ namespace FanCtrl
 
         private void onTextBoxKeyPress(object sender, KeyPressEventArgs e)
         {
-            if (char.IsDigit(e.KeyChar) == false)
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
             {
                 e.Handled = true;
             }

@@ -351,7 +351,7 @@ namespace FanCtrl
                 };
                 btn.Click += (s, e) => {
                     if (!ControlManager.getInstance().IsEnable) {
-                        MessageBox.Show("Сначала включите автоматическое управление вентилятором в опциях (значок шестеренки) или галочкой 'Автомат. упр-е' в трее.", "AutoFAN", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Сначала включите автоматическое управление вентилятором в соотв. окне или галочкой 'Автомат. упр-е' в трее.", "AutoFAN", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
                     ControlManager.getInstance().ModeType = (MODE_TYPE)((Control)s).Tag;
