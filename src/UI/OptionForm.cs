@@ -197,6 +197,16 @@ namespace FanCtrl
 
             OptionManager.getInstance().reset();            
             OptionManager.getInstance().write();
+
+            HotkeyManager.getInstance().reset();
+            HotkeyManager.getInstance().write();
+
+            OSDManager.getInstance().reset();
+            OSDManager.getInstance().write();
+
+            ControlManager.getInstance().reset();
+            ControlManager.getInstance().write();
+
             this.DialogResult = DialogResult.No;
             this.Close();
         }        

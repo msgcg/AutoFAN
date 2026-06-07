@@ -476,5 +476,22 @@ namespace FanCtrl
                 HotkeyManager.getInstance().write();
             }
         }
+
+        private void onResetButtonClick(object sender, EventArgs e)
+        {
+            var result = DarkUI.Forms.DarkMessageBox.ShowInformation(StringLib.OptionReset, StringLib.Option, DarkUI.Forms.DarkDialogButton.OkCancel);
+            if (result == DialogResult.Cancel)
+                return;
+
+            HotkeyManager.getInstance().reset();
+            HotkeyManager.getInstance().write();
+            
+            this.setTextBoxText(mEnableFanControlTextBox, HotkeyManager.getInstance().mEnableFanControlData);
+            this.setTextBoxText(mModeNormalTextBox, HotkeyManager.getInstance().mModeNormalData);
+            this.setTextBoxText(mModeSilenceTextBox, HotkeyManager.getInstance().mModeSilenceData);
+            this.setTextBoxText(mModePerformanceTextBox, HotkeyManager.getInstance().mModePerformanceData);
+            this.setTextBoxText(mModeGameTextBox, HotkeyManager.getInstance().mModeGameData);
+            this.setTextBoxText(mEnableOSDTextBox, HotkeyManager.getInstance().mEnableOSDData);
+        }
     }
 }
