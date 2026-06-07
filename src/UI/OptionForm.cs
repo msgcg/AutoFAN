@@ -157,7 +157,22 @@ namespace FanCtrl
             optionManager.IsFahrenheit = mFahrenheitCheckBox.Checked;
             optionManager.IsAnimation = mAnimationCheckBox.Checked;
             optionManager.IsMinimized = mMinimizeCheckBox.Checked;
-            optionManager.IsStartUp = mStartupCheckBox.Checked;            
+            
+            bool isDelayTimeChanged = (optionManager.DelayTime != delayTime);
+            optionManager.DelayTime = delayTime;
+            
+            // If startup is checked, and either it was unchecked before, or the delay time changed
+            if (mStartupCheckBox.Checked && (!optionManager.IsStartUp || isDelayTimeChanged))
+            {
+                // Force recreation of the task to apply new delay time
+                optionManager.IsStartUp = false;
+                optionManager.IsStartUp = true;
+            }
+            else
+            {
+                optionManager.IsStartUp = mStartupCheckBox.Checked;
+            }
+            
             optionManager.write();
 
             if (isRestart == true)
