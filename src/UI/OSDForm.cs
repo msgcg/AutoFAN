@@ -129,7 +129,8 @@ namespace FanCtrl
                 var osdSensorMap = hardwareManager.OSDSensorMap;
 
                 var group = mGroupList[index];
-                mDigitNumericUpDown.Value = group.Digit;
+                                mDigitNumericUpDown.Value = group.Digit;
+                mItemListView.Items.Clear();
                 for (int i = 0; i < group.ItemList.Count; i++)
                 {
                     var item = group.ItemList[i];
@@ -289,7 +290,7 @@ namespace FanCtrl
             catch { }
         }
 
-                private void onGroupColorButtonClick(object sender, EventArgs e)
+                        private void onGroupColorButtonClick(object sender, EventArgs e)
         {
             if (this.isSelectedGroupListView() == false)
                 return;
@@ -553,5 +554,8 @@ namespace FanCtrl
         }
     }
 }
+
+
+
 
 

@@ -801,12 +801,10 @@ namespace FanCtrl
             var osdManager = OSDManager.getInstance();
             if (osdManager.IsEnable == true)
             {
-                
-
-                var osdString = new StringBuilder();
+                var osdElements = new System.Collections.Generic.List<FanCtrl.OSDTextElement>();
                 if (osdManager.IsTime == true)
                 {
-                    osdString.Append(DateTime.Now.ToString("HH:mm:ss") + "\n");
+                    osdElements.Add(new FanCtrl.OSDTextElement(DateTime.Now.ToString("HH:mm:ss"), System.Drawing.Color.White, 12));
                 }
 
                 int maxNameLength = 0;
@@ -819,7 +817,6 @@ namespace FanCtrl
                         maxNameLength = group.Name.Length;
                 }
 
-                var osdElements = new System.Collections.Generic.List<FanCtrl.OSDTextElement>();
                 for (int i = 0; i < osdManager.getGroupCount(); i++)
                 {
                     var group = osdManager.getGroup(i);
