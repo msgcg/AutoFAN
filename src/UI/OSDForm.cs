@@ -11,6 +11,9 @@ namespace FanCtrl
         private List<OSDItem> mComboBoxItemList = new List<OSDItem>();
 
         private List<OSDGroup> mGroupList = new List<OSDGroup>();
+        private int mLocalTimeFontSize;
+        private string mLocalTimeFontName;
+        private Color mLocalTimeColor;
 
         private ListViewItem mGroupEditItem = null;
         private ListViewItem.ListViewSubItem mGroupEditSubItem = null;
@@ -55,6 +58,9 @@ namespace FanCtrl
 
             mEnableCheckBox.Checked = OSDManager.getInstance().IsEnable;
             mSystemTimeCheckBox.Checked = OSDManager.getInstance().IsTime;
+            mLocalTimeFontSize = OSDManager.getInstance().TimeFontSize;
+            mLocalTimeFontName = OSDManager.getInstance().TimeFontName;
+            mLocalTimeColor = OSDManager.getInstance().TimeColor;
 
             mGroupList = OSDManager.getInstance().getCloneGroupList();
             for (int i = 0; i < mGroupList.Count; i++)
@@ -379,10 +385,26 @@ namespace FanCtrl
             {
                 using (var dialog = new FontDialog())
                 {
-                    dialog.Font = new Font(OSDManager.getInstance().TimeFontName, OSDManager.getInstance().TimeFontSize);
+                    dialog.Font = new Font(mLocalTimeFontName, mLocalTimeFontSize);
                     if (dialog.ShowDialog() == DialogResult.OK)
                     {
-                        OSDManager.getInstance().TimeFontSize = (int)dialog.Font.Size; OSDManager.getInstance().TimeFontName = dialog.Font.Name;
+                        mLocalTimeFontSize = (int)dialog.Font.Size; mLocalTimeFontName = dialog.Font.Name;
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private void onSystemTimeColorButtonClick(object sender, EventArgs e)
+        {
+            try
+            {
+                using (var dialog = new ColorDialog())
+                {
+                    dialog.Color = mLocalTimeColor;
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        mLocalTimeColor = dialog.Color;
                     }
                 }
             }
@@ -559,6 +581,9 @@ namespace FanCtrl
             OSDManager.getInstance().IsEnable = mEnableCheckBox.Checked;
             OSDManager.getInstance().IsTime = mSystemTimeCheckBox.Checked;            
             OSDManager.getInstance().setGroupList(mGroupList);
+            OSDManager.getInstance().TimeFontSize = mLocalTimeFontSize;
+            OSDManager.getInstance().TimeFontName = mLocalTimeFontName;
+            OSDManager.getInstance().TimeColor = mLocalTimeColor;
             OSDManager.getInstance().write();
             if (onApplyCallback != null) onApplyCallback(sender, e);
         }
@@ -570,6 +595,8 @@ namespace FanCtrl
         }
     }
 }
+
+
 
 
 

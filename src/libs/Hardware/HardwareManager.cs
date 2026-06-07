@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Security.AccessControl;
@@ -384,21 +384,21 @@ namespace FanCtrl
         {
             try
             {
-                // ? Простой конструктор для .NET 8
+                // ? РџСЂРѕСЃС‚РѕР№ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ .NET 8
                 mutex = new Mutex(false, mutexName, out _);
             }
             catch (UnauthorizedAccessException)
             {
                 try
                 {
-                    // ? OpenExisting с одним аргументом
+                    // ? OpenExisting СЃ РѕРґРЅРёРј Р°СЂРіСѓРјРµРЅС‚РѕРј
                     mutex = Mutex.OpenExisting(mutexName);
                 }
                 catch { }
             }
             catch (WaitHandleCannotBeOpenedException)
             {
-                // Мьютекс ещё не создан — это нормально при первом запуске
+                // РњСЊСЋС‚РµРєСЃ РµС‰С‘ РЅРµ СЃРѕР·РґР°РЅ вЂ” СЌС‚Рѕ РЅРѕСЂРјР°Р»СЊРЅРѕ РїСЂРё РїРµСЂРІРѕРј Р·Р°РїСѓСЃРєРµ
                 try
                 {
                     mutex = new Mutex(false, mutexName, out _);
@@ -804,7 +804,7 @@ namespace FanCtrl
                 var osdElements = new System.Collections.Generic.List<FanCtrl.OSDTextElement>();
                 if (osdManager.IsTime == true)
                 {
-                    osdElements.Add(new FanCtrl.OSDTextElement(DateTime.Now.ToString("HH:mm:ss"), System.Drawing.Color.White, osdManager.TimeFontSize, osdManager.TimeFontName));
+                    osdElements.Add(new FanCtrl.OSDTextElement(DateTime.Now.ToString("HH:mm:ss"), osdManager.TimeColor, osdManager.TimeFontSize, osdManager.TimeFontName));
                 }
 
                 int maxNameLength = 0;
@@ -1041,6 +1041,7 @@ namespace FanCtrl
         }
     }
 }
+
 
 
 

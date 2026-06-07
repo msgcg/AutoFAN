@@ -57,6 +57,7 @@ namespace FanCtrl
             this.mOKButton = new DarkButton();
             this.mSystemTimeCheckBox = new DarkCheckBox();
             this.mSystemTimeFontButton = new DarkButton();
+            this.mSystemTimeColorButton = new DarkButton();
             this.mDigitNumericUpDown = new DarkNumericUpDown();
             this.mGroupGroupBox.SuspendLayout();
             this.mItemGroupBox.SuspendLayout();
@@ -336,12 +337,21 @@ namespace FanCtrl
             // 
             // mSystemTimeFontButton
             // 
-            this.mSystemTimeFontButton.Location = new System.Drawing.Point(435, 12);
+            this.mSystemTimeFontButton.Location = new System.Drawing.Point(520, 12);
             this.mSystemTimeFontButton.Name = "mSystemTimeFontButton";
-            this.mSystemTimeFontButton.Size = new System.Drawing.Size(43, 23);
+            this.mSystemTimeFontButton.Size = new System.Drawing.Size(61, 23);
             this.mSystemTimeFontButton.TabIndex = 100;
             this.mSystemTimeFontButton.Text = "Шрифт";
             this.mSystemTimeFontButton.Click += new System.EventHandler(this.onSystemTimeFontButtonClick);
+            // 
+            // mSystemTimeColorButton
+            // 
+            this.mSystemTimeColorButton.Location = new System.Drawing.Point(585, 12);
+            this.mSystemTimeColorButton.Name = "mSystemTimeColorButton";
+            this.mSystemTimeColorButton.Size = new System.Drawing.Size(61, 23);
+            this.mSystemTimeColorButton.TabIndex = 101;
+            this.mSystemTimeColorButton.Text = "Цвет";
+            this.mSystemTimeColorButton.Click += new System.EventHandler(this.onSystemTimeColorButtonClick);
             // 
             // mDigitNumericUpDown
             // 
@@ -359,6 +369,7 @@ namespace FanCtrl
             this.Controls.Add(this.mDigitNumericUpDown);
             this.Controls.Add(this.mSystemTimeCheckBox);
             this.Controls.Add(this.mSystemTimeFontButton);
+            this.Controls.Add(this.mSystemTimeColorButton);
             this.Controls.Add(this.mOKButton);
             this.Controls.Add(this.mApplyButton);
             this.Controls.Add(this.mItemGroupBox);
@@ -407,9 +418,13 @@ namespace FanCtrl
         private DarkTextBox mGroupEditTextBox;
         private DarkCheckBox mSystemTimeCheckBox;
         private DarkButton mSystemTimeFontButton;
+        private DarkButton mSystemTimeColorButton;
         private DarkNumericUpDown mDigitNumericUpDown;
         private DarkLabel mDigitLabel;
     }
 }
+
+
+
 
 

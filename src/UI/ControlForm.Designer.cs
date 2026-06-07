@@ -1,4 +1,4 @@
-using DarkUI.Controls;
+﻿using DarkUI.Controls;
 using System.Windows.Forms;
 
 namespace FanCtrl
@@ -333,7 +333,7 @@ namespace FanCtrl
             mImportIntelligentButton.Padding = new Padding(1);
             mImportIntelligentButton.Size = new System.Drawing.Size(120, 23);
             mImportIntelligentButton.TabIndex = 11;
-            mImportIntelligentButton.Text = "Импорт Умного";
+            mImportIntelligentButton.Text = "РРјРїРѕСЂС‚ РЈРјРЅРѕРіРѕ";
             mImportIntelligentButton.Click += onImportIntelligentButtonClick;
             // 
             // mUnitComboBox

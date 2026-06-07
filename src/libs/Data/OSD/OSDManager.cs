@@ -73,6 +73,24 @@ namespace FanCtrl
 
         private int mTimeFontSize = 12;
         private string mTimeFontName = "Consolas";
+        private Color mTimeColor = Color.White;
+        public Color TimeColor
+        {
+            get
+            {
+                Monitor.Enter(mLock);
+                Color color = mTimeColor;
+                Monitor.Exit(mLock);
+                return color;
+            }
+            set
+            {
+                Monitor.Enter(mLock);
+                mTimeColor = value;
+                Monitor.Exit(mLock);
+            }
+        }
+
         public string TimeFontName
         {
             get
@@ -153,6 +171,7 @@ namespace FanCtrl
                 mIsTime = (rootObject.ContainsKey("IsTime") == true) ? rootObject.Value<bool>("IsTime") : false;
                 mTimeFontSize = (rootObject.ContainsKey("TimeFontSize") == true) ? rootObject.Value<int>("TimeFontSize") : 12;
                 mTimeFontName = (rootObject.ContainsKey("TimeFontName") == true) ? rootObject.Value<string>("TimeFontName") : "Consolas";
+                if (rootObject.ContainsKey("TimeColor")) { var cArr = rootObject.Value<JArray>("TimeColor"); mTimeColor = Color.FromArgb((int)cArr[0], (int)cArr[1], (int)cArr[2], (int)cArr[3]); }
 
                 if (rootObject.ContainsKey("Group") == true)
                 {
@@ -227,6 +246,7 @@ namespace FanCtrl
                 rootObject["IsTime"] = mIsTime;
                 rootObject["TimeFontSize"] = mTimeFontSize;
                 rootObject["TimeFontName"] = mTimeFontName;
+                rootObject["TimeColor"] = new JArray(mTimeColor.A, mTimeColor.R, mTimeColor.G, mTimeColor.B);
 
                 var groupList = new JArray();
                 for(int i = 0; i < mGroupList.Count; i++)
@@ -316,4 +336,5 @@ namespace FanCtrl
         }
     }
 }
+
 
