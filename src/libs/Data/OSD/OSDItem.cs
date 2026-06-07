@@ -19,29 +19,15 @@ namespace FanCtrl
             {
                 var osdString = new StringBuilder();
 
-                // Color prefix
-                if (IsColor == true)
-                {
-                    osdString.Append("<C=");
-
-                    var color = new byte[3];
-                    color[0] = Color.R;
-                    color[1] = Color.G;
-                    color[2] = Color.B;
-                    osdString.Append(Util.getHexString(color));
-
-                    osdString.Append(">");
-                }
-
-                // Value prefix
-                osdString.Append(string.Format("<A=-{0}>", digit));
+                // Space prefix
+                osdString.Append(" ");
 
                 // Value
                 var hardwareManager = HardwareManager.getInstance();
 
                 if (UnitType == OSDUnitType.FPS)
                 {
-                    osdString.Append("<FR>");
+                    osdString.Append("FPS");
                 }
                 else if (UnitType == OSDUnitType.Blank)
                 {
@@ -88,23 +74,8 @@ namespace FanCtrl
                     }
                 }
 
-                // Value postfix
-                osdString.Append("<A>");
-
-                // Unit prefix
-                osdString.Append("<A1><S0>");
-
                 // Unit
                 osdString.Append(this.getUnitString());
-
-                // Unit postfix
-                osdString.Append("<S><A>");
-
-                // Color postfix
-                if (IsColor == true)
-                {
-                    osdString.Append("<C>");
-                }
 
                 return osdString.ToString();
             }
@@ -127,7 +98,7 @@ namespace FanCtrl
             switch (UnitType)
             {
                 case OSDUnitType.Temperature:
-                    return (OptionManager.getInstance().IsFahrenheit == false) ? " 캜" : " 캟";
+                    return (OptionManager.getInstance().IsFahrenheit == false) ? " °C" : " °F";
 
                 case OSDUnitType.RPM:
                     return " RPM";
@@ -164,3 +135,4 @@ namespace FanCtrl
         }
     }
 }
+

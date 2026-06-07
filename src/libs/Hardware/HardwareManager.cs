@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Security.AccessControl;
@@ -384,21 +384,21 @@ namespace FanCtrl
         {
             try
             {
-                // ? Простой конструктор для .NET 8
+                // ? РџСЂРѕСЃС‚РѕР№ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ .NET 8
                 mutex = new Mutex(false, mutexName, out _);
             }
             catch (UnauthorizedAccessException)
             {
                 try
                 {
-                    // ? OpenExisting с одним аргументом
+                    // ? OpenExisting СЃ РѕРґРЅРёРј Р°СЂРіСѓРјРµРЅС‚РѕРј
                     mutex = Mutex.OpenExisting(mutexName);
                 }
                 catch { }
             }
             catch (WaitHandleCannotBeOpenedException)
             {
-                // Мьютекс ещё не создан — это нормально при первом запуске
+                // РњСЊСЋС‚РµРєСЃ РµС‰С‘ РЅРµ СЃРѕР·РґР°РЅ вЂ” СЌС‚Рѕ РЅРѕСЂРјР°Р»СЊРЅРѕ РїСЂРё РїРµСЂРІРѕРј Р·Р°РїСѓСЃРєРµ
                 try
                 {
                     mutex = new Mutex(false, mutexName, out _);
@@ -801,7 +801,7 @@ namespace FanCtrl
             var osdManager = OSDManager.getInstance();
             if (osdManager.IsEnable == true)
             {
-                var osdHeaderString = "<A0=-5><A1=5><S0=50>\r";
+                
 
                 var osdString = new StringBuilder();
                 if (osdManager.IsTime == true)
@@ -829,7 +829,7 @@ namespace FanCtrl
 
                 if (osdString.ToString().Length > 0)
                 {
-                    var sendString = osdHeaderString + osdString.ToString();
+                    var sendString = osdString.ToString();
                     OSDController.update(sendString);
                     osdManager.IsUpdate = true;
                 }
@@ -1039,6 +1039,7 @@ namespace FanCtrl
         }
     }
 }
+
 
 
 

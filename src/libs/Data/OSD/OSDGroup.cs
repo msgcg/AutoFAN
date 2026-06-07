@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 
@@ -29,20 +29,6 @@ namespace FanCtrl
         {
             var osdString = new StringBuilder();
 
-            // Color prefix
-            if (IsColor == true)
-            {
-                osdString.Append("<C=");
-
-                var color = new byte[3];
-                color[0] = Color.R;
-                color[1] = Color.G;
-                color[2] = Color.B;
-                osdString.Append(Util.getHexString(color));
-
-                osdString.Append(">");
-            }
-
             // Name
             string name = Name;
             for (int i = name.Length; i < maxNameLength; i++)
@@ -52,16 +38,15 @@ namespace FanCtrl
 
             osdString.Append(name);
 
-            // Color postfix
-            if (IsColor == true)
-            {
-                osdString.Append("<C>");
-            }
-
             // item list
             for (int i = 0; i < mItemList.Count; i++)
             {
                 var item = mItemList[i];
+                if (i > 0)
+                {
+                    osdString.Append("\n");
+                    osdString.Append(new string(' ', maxNameLength));
+                }
                 osdString.Append(item.getOSDString(Digit));                
             }
 

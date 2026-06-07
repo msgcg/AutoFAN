@@ -9,7 +9,6 @@ namespace FanCtrl
     {
         private static WinOSDForm mOverlayForm;
         private static Font mFont = new Font("Consolas", 12f, FontStyle.Bold);
-        private static Color mColor = Color.FromArgb(255, 128, 0);
 
         public static void Init()
         {
@@ -35,6 +34,37 @@ namespace FanCtrl
 
             try
             {
+                Color displayColor = Color.White; // Default to white
+                bool colorFound = false;
+
+                var osdManager = OSDManager.getInstance();
+                for (int i = 0; i < osdManager.getGroupCount(); i++)
+                {
+                    var group = osdManager.getGroup(i);
+                    if (group != null)
+                    {
+                        if (group.IsColor)
+                        {
+                            displayColor = group.Color;
+                            colorFound = true;
+                            break;
+                        }
+                        
+                        // Check items in group
+                        for (int j = 0; j < group.ItemList.Count; j++)
+                        {
+                            var item = group.ItemList[j];
+                            if (item.IsColor)
+                            {
+                                displayColor = item.Color;
+                                colorFound = true;
+                                break;
+                            }
+                        }
+                        if (colorFound) break;
+                    }
+                }
+
                 if (Application.OpenForms.Count > 0)
                 {
                     Application.OpenForms[0].BeginInvoke(new Action(() =>
@@ -47,7 +77,7 @@ namespace FanCtrl
                             }
                             else
                             {
-                                mOverlayForm.Show(osdString, new Point(50, 50), 255, mColor, mFont, 0, AnimateMode.Blend, 0);
+                                mOverlayForm.Show(osdString, new Point(50, 50), 255, displayColor, mFont, 0, AnimateMode.Blend, 0);
                             }
                         }
                     }));

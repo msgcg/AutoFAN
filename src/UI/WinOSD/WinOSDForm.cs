@@ -100,10 +100,18 @@ namespace WinOSD
             Graphics g = e.Graphics;
             if(this._gp != null)
                 this._gp.Dispose();
-            this._gp = new GraphicsPath();
-            this._gp.AddString(this._text, this._textFont.FontFamily, (int)this._textFont.Style, g.DpiY * this._textFont.SizeInPoints / 72, base.Bound, this._stringFormat);
+            
             g.SmoothingMode = SmoothingMode.HighQuality;
-            g.FillPath(this._brush, this._gp);
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            // Draw shadow
+            using (var shadowBrush = new SolidBrush(Color.Black))
+            {
+                var shadowRect = new Rectangle(base.Bound.X + 2, base.Bound.Y + 2, base.Bound.Width, base.Bound.Height);
+                g.DrawString(this._text, this._textFont, shadowBrush, shadowRect, this._stringFormat);
+            }
+
+            g.DrawString(this._text, this._textFont, this._brush, base.Bound, this._stringFormat);
         }
         #endregion 
 
