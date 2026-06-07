@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 
@@ -68,6 +68,7 @@ namespace FanCtrl
             group.IsColor = this.IsColor;
             group.Color = Color.FromArgb(this.Color.R, this.Color.G, this.Color.B);
             group.FontSize = this.FontSize;
+            group.FontName = this.FontName;
             group.Digit = this.Digit;
 
             for (int i = 0; i < mItemList.Count; i++)
@@ -77,6 +78,7 @@ namespace FanCtrl
         }
     }
 }
+
 
 
 

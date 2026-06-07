@@ -94,6 +94,7 @@ namespace FanCtrl
             item.IsColor = this.IsColor;
             item.Color = Color.FromArgb(this.Color.R, this.Color.G, this.Color.B);
             item.FontSize = this.FontSize;
+            item.FontName = this.FontName;
             return item;
         }
 
@@ -139,6 +140,7 @@ namespace FanCtrl
         }
     }
 }
+
 
 
 
