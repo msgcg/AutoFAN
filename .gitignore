@@ -4,3 +4,4 @@ bin/
 docks/
 src/models/*
 !/src/models/.gitkeep
+!/src/models/json.gbnf

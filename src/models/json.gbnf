@@ -1,0 +1,11 @@
+root ::= "[" ws mapping ("," ws mapping)* "]" ws
+
+mapping ::= "{" ws "\"SensorName\"" ws ":" ws string "," ws "\"CorrectedFanID\"" ws ":" ws string "}" ws
+
+string ::=
+  "\"" (
+    [^"\\\x00-\x1F] |
+    "\\" (["\\/bfnrt] | "u" [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F])
+  )* "\"" ws
+
+ws ::= ([ \t\n\r])*

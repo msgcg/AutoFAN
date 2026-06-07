@@ -78,6 +78,7 @@ namespace FanCtrl
             }
 
             InitializeComponent();
+            OSDController.Init();
             this.localizeComponent();
 
             HotkeyManager.getInstance().read();
@@ -619,6 +620,7 @@ namespace FanCtrl
             mTrayIcon.Visible = false;
 
             mIsExit = true;
+            OSDController.Dispose();
 
             this.stopHook();
 
