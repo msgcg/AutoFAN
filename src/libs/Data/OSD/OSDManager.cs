@@ -135,6 +135,9 @@ namespace FanCtrl
         {
             mIsEnable = false;
             mIsTime = false;
+            mTimeFontSize = 12;
+            mTimeFontName = "Consolas";
+            mTimeColor = Color.White;
             mGroupList.Clear();
         }
 
@@ -336,5 +339,3 @@ namespace FanCtrl
         }
     }
 }
-
-
