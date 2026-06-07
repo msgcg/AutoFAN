@@ -1,4 +1,4 @@
-using System.Drawing;
+﻿using System.Drawing;
 using System.Text;
 
 namespace FanCtrl
@@ -13,7 +13,9 @@ namespace FanCtrl
 
         public Color Color { get; set; } = Color.White;
 
-        public string getOSDString(int digit)
+        public int FontSize { get; set; } = 12;
+
+        public OSDTextElement getOSDElement(int digit)
         {
             try
             {
@@ -45,42 +47,42 @@ namespace FanCtrl
                         var device = tempBaseMap[ID];
                         int value = device.Value;
                         value = (OptionManager.getInstance().IsFahrenheit == true) ? Util.getFahrenheit(value) : value;
-                        osdString.Append(value.ToString());
+                        osdString.Append(device.Name + ": " + value.ToString());
                     }
 
                     else if (fanBaseMap.ContainsKey(ID) == true)
                     {
                         var device = fanBaseMap[ID];
                         int value = device.Value;
-                        osdString.Append(value.ToString());
+                        osdString.Append(device.Name + ": " + value.ToString());
                     }
 
                     else if (controlBaseMap.ContainsKey(ID) == true)
                     {
                         var device = controlBaseMap[ID];
                         int value = device.Value;
-                        osdString.Append(value.ToString());
+                        osdString.Append(device.Name + ": " + value.ToString());
                     }
 
                     else if (osdMap.ContainsKey(ID) == true)
                     {
                         var sensor = osdMap[ID];
-                        osdString.Append(sensor.getString());
+                        osdString.Append(sensor.Name + ": " + sensor.getString());
                     }
 
                     else
                     {
-                        return "";
+                        return null;
                     }
                 }
 
                 // Unit
                 osdString.Append(this.getUnitString());
 
-                return osdString.ToString();
+                return new OSDTextElement(osdString.ToString(), this.IsColor ? this.Color : Color.White, this.FontSize);
             }
             catch { }
-            return "";            
+            return null;            
         }
 
         public OSDItem clone()
@@ -90,6 +92,7 @@ namespace FanCtrl
             item.ID = this.ID;
             item.IsColor = this.IsColor;
             item.Color = Color.FromArgb(this.Color.R, this.Color.G, this.Color.B);
+            item.FontSize = this.FontSize;
             return item;
         }
 
@@ -98,7 +101,7 @@ namespace FanCtrl
             switch (UnitType)
             {
                 case OSDUnitType.Temperature:
-                    return (OptionManager.getInstance().IsFahrenheit == false) ? " °C" : " °F";
+                    return (OptionManager.getInstance().IsFahrenheit == false) ? " В°C" : " В°F";
 
                 case OSDUnitType.RPM:
                     return " RPM";
@@ -135,4 +138,6 @@ namespace FanCtrl
         }
     }
 }
+
+
 

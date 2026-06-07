@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Security.AccessControl;
@@ -819,19 +819,24 @@ namespace FanCtrl
                         maxNameLength = group.Name.Length;
                 }
 
+                var osdElements = new System.Collections.Generic.List<FanCtrl.OSDTextElement>();
                 for (int i = 0; i < osdManager.getGroupCount(); i++)
                 {
                     var group = osdManager.getGroup(i);
                     if (group == null)
                         break;
-                    osdString.Append(group.getOSDString(maxNameLength));
+                    osdElements.AddRange(group.getOSDElements(maxNameLength));
                 }
 
-                if (osdString.ToString().Length > 0)
+                if (osdElements.Count > 0)
                 {
-                    var sendString = osdString.ToString();
-                    OSDController.update(sendString);
+                    OSDController.update(osdElements);
                     osdManager.IsUpdate = true;
+                }
+                else if (osdManager.IsUpdate == true)
+                {
+                    OSDController.release();
+                    osdManager.IsUpdate = false;
                 }
             }
             else
@@ -1039,6 +1044,8 @@ namespace FanCtrl
         }
     }
 }
+
+
 
 
 

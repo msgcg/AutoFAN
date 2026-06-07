@@ -37,6 +37,7 @@ namespace FanCtrl
             this.mGroupEditTextBox = new DarkTextBox();
             this.mGroupRemoveButton = new DarkButton();
             this.mGroupColorButton = new DarkButton();
+            this.mGroupFontButton = new DarkButton();
             this.mGroupAddButton = new DarkButton();
             this.mGroupDownButton = new DarkButton();
             this.mGroupUpButton = new DarkButton();
@@ -47,6 +48,7 @@ namespace FanCtrl
             this.mItemComboBox = new DarkComboBox();
             this.mItemRemoveButton = new DarkButton();
             this.mItemColorButton = new DarkButton();
+            this.mItemFontButton = new DarkButton();
             this.mItemAddButton = new DarkButton();
             this.mItemDownButton = new DarkButton();
             this.mItemUpButton = new DarkButton();
@@ -74,6 +76,7 @@ namespace FanCtrl
             this.mGroupGroupBox.Controls.Add(this.mGroupEditTextBox);
             this.mGroupGroupBox.Controls.Add(this.mGroupRemoveButton);
             this.mGroupGroupBox.Controls.Add(this.mGroupColorButton);
+            this.mGroupGroupBox.Controls.Add(this.mGroupFontButton);
             this.mGroupGroupBox.Controls.Add(this.mGroupAddButton);
             this.mGroupGroupBox.Controls.Add(this.mGroupDownButton);
             this.mGroupGroupBox.Controls.Add(this.mGroupUpButton);
@@ -111,6 +114,15 @@ namespace FanCtrl
             this.mGroupColorButton.Text = "Color";
             this.mGroupColorButton.Click += new System.EventHandler(this.onGroupColorButtonClick);
             // 
+                        // 
+            // mGroupFontButton
+            // 
+            this.mGroupFontButton.Location = new System.Drawing.Point(270, 124);
+            this.mGroupFontButton.Name = "mGroupFontButton";
+            this.mGroupFontButton.Size = new System.Drawing.Size(61, 29);
+            this.mGroupFontButton.TabIndex = 6;
+            this.mGroupFontButton.Text = "Font";
+            this.mGroupFontButton.Click += new System.EventHandler(this.onGroupFontButtonClick);
             // mGroupAddButton
             // 
             this.mGroupAddButton.Location = new System.Drawing.Point(203, 23);
@@ -163,6 +175,7 @@ namespace FanCtrl
             this.mItemGroupBox.Controls.Add(this.mItemComboBox);
             this.mItemGroupBox.Controls.Add(this.mItemRemoveButton);
             this.mItemGroupBox.Controls.Add(this.mItemColorButton);
+            this.mItemGroupBox.Controls.Add(this.mItemFontButton);
             this.mItemGroupBox.Controls.Add(this.mItemAddButton);
             this.mItemGroupBox.Controls.Add(this.mItemDownButton);
             this.mItemGroupBox.Controls.Add(this.mItemUpButton);
@@ -211,6 +224,15 @@ namespace FanCtrl
             this.mItemColorButton.Text = "Color";
             this.mItemColorButton.Click += new System.EventHandler(this.onItemColorButtonClick);
             // 
+                        // 
+            // mItemFontButton
+            // 
+            this.mItemFontButton.Location = new System.Drawing.Point(418, 124);
+            this.mItemFontButton.Name = "mItemFontButton";
+            this.mItemFontButton.Size = new System.Drawing.Size(61, 29);
+            this.mItemFontButton.TabIndex = 6;
+            this.mItemFontButton.Text = "Font";
+            this.mItemFontButton.Click += new System.EventHandler(this.onItemFontButtonClick);
             // mItemAddButton
             // 
             this.mItemAddButton.Location = new System.Drawing.Point(351, 23);
@@ -323,12 +345,14 @@ namespace FanCtrl
         private DarkTextBox mGroupAddTextBox;
         private DarkButton mGroupRemoveButton;
         private DarkButton mGroupColorButton;
+        private DarkButton mGroupFontButton;
         private DarkButton mGroupDownButton;
         private DarkButton mGroupUpButton;
         private DarkGroupBox mItemGroupBox;
         private DarkComboBox mItemComboBox;
         private DarkButton mItemRemoveButton;
         private DarkButton mItemColorButton;
+        private DarkButton mItemFontButton;
         private DarkButton mItemAddButton;
         private DarkButton mItemDownButton;
         private DarkButton mItemUpButton;

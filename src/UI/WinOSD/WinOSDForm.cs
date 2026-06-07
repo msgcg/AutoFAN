@@ -17,7 +17,7 @@ namespace WinOSD
         
         private System.Windows.Forms.Timer _viewClock;
         private Font _textFont;
-        private string _text;
+        private System.Collections.Generic.List<FanCtrl.OSDTextElement> _elements;
         private AnimateMode _mode;
         private uint _time;
         private GraphicsPath _gp;
@@ -35,16 +35,14 @@ namespace WinOSD
         /// <param name="mode">Effect to be applied. Work only if <c>time</c> greater than 0</param>
         /// <param name="time">Time, in milliseconds, for effect playing. If this equal to 0 <c>mode</c> ignored and text showed at once</param>
         /// <param name="text">Text to display</param>
-        public void Show(string text, Point pt, byte alpha, Color textColor, Font textFont, int showTimeMSec,  AnimateMode mode, uint time)
+        public void Show(System.Collections.Generic.List<FanCtrl.OSDTextElement> elements, Point pt, byte alpha, int showTimeMSec, AnimateMode mode, uint time)
         {
             if (this._viewClock != null)
             {
                 _viewClock.Stop();
                 _viewClock.Dispose();
             }
-            this._brush = new SolidBrush(textColor);
-            this._textFont = textFont;
-            this._text = text;
+            this._elements = elements;
             this._mode = mode;
             this._time = time;
             SizeF textArea;
@@ -52,11 +50,11 @@ namespace WinOSD
             if (this._stringFormat == null)
                 _stringFormat = DefaultStringFormat;
 
-            textArea = MeasureString(text, textFont, _stringFormat);
+            textArea = MeasureElements(elements);
 
             base.Location = pt;
             base.Alpha = alpha;
-            base.Size = new Size((int)Math.Ceiling(textArea.Width), (int)Math.Ceiling(textArea.Height));
+            base.Size = new Size(Math.Max(10, (int)Math.Ceiling(textArea.Width) + 10), Math.Max(10, (int)Math.Ceiling(textArea.Height) + 10));
             if (time > 0)
                 base.ShowAnimate(mode, time);
             else
@@ -79,15 +77,24 @@ namespace WinOSD
             Trimming = StringTrimming.EllipsisWord
         };
 
-        public static SizeF MeasureString(string text, Font textFont, StringFormat stringFormat)
+        public static SizeF MeasureElements(System.Collections.Generic.List<FanCtrl.OSDTextElement> elements)
         {
-            if (stringFormat == null)
-                stringFormat = DefaultStringFormat;
-
-            SizeF textArea;
+            SizeF textArea = new SizeF(0, 0);
             using (Bitmap bm = new Bitmap(250, 50))
             using (Graphics fx = Graphics.FromImage(bm))
-                textArea = fx.MeasureString(text, textFont, ScreenRect.Width, stringFormat);
+            {
+                float currentY = 0;
+                foreach (var el in elements)
+                {
+                    using (Font f = new Font("Consolas", el.FontSize, FontStyle.Bold))
+                    {
+                        var s = fx.MeasureString(el.Text, f, ScreenRect.Width, DefaultStringFormat);
+                        if (s.Width > textArea.Width) textArea.Width = s.Width;
+                        currentY += s.Height;
+                    }
+                }
+                textArea.Height = currentY;
+            }
             return textArea;
         }
         #endregion
@@ -104,14 +111,25 @@ namespace WinOSD
             g.SmoothingMode = SmoothingMode.HighQuality;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            // Draw shadow
-            using (var shadowBrush = new SolidBrush(Color.Black))
+            float currentY = 0;
+            if (this._elements != null)
             {
-                var shadowRect = new Rectangle(base.Bound.X + 2, base.Bound.Y + 2, base.Bound.Width, base.Bound.Height);
-                g.DrawString(this._text, this._textFont, shadowBrush, shadowRect, this._stringFormat);
+                foreach (var el in this._elements)
+                {
+                    using (Font f = new Font("Consolas", el.FontSize, FontStyle.Bold))
+                    using (Brush b = new SolidBrush(el.Color))
+                    using (Brush shadowBrush = new SolidBrush(Color.Black))
+                    {
+                        var s = g.MeasureString(el.Text, f, base.Bound.Width, DefaultStringFormat);
+                        RectangleF rect = new RectangleF(0, currentY, base.Bound.Width, s.Height);
+                        RectangleF shadowRect = new RectangleF(2, currentY + 2, base.Bound.Width, s.Height);
+                        
+                        g.DrawString(el.Text, f, shadowBrush, shadowRect, DefaultStringFormat);
+                        g.DrawString(el.Text, f, b, rect, DefaultStringFormat);
+                        currentY += s.Height;
+                    }
+                }
             }
-
-            g.DrawString(this._text, this._textFont, this._brush, base.Bound, this._stringFormat);
         }
         #endregion 
 
@@ -127,4 +145,5 @@ namespace WinOSD
         #endregion
     }
 }
+
 

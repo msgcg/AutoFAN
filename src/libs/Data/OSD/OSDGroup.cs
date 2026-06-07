@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 
@@ -11,6 +11,8 @@ namespace FanCtrl
         public bool IsColor { get; set; } = false;
 
         public Color Color { get; set; } = Color.White;
+
+        public int FontSize { get; set; } = 12;
 
         public int Digit { get; set; } = 5;
 
@@ -25,9 +27,9 @@ namespace FanCtrl
 
         }
 
-        public string getOSDString(int maxNameLength)
+                public System.Collections.Generic.List<FanCtrl.OSDTextElement> getOSDElements(int maxNameLength)
         {
-            var osdString = new StringBuilder();
+            var elements = new System.Collections.Generic.List<FanCtrl.OSDTextElement>();
 
             // Name
             string name = Name;
@@ -36,22 +38,26 @@ namespace FanCtrl
                 name += " ";
             }
 
-            osdString.Append(name);
+            Color groupColor = this.IsColor ? this.Color : Color.White;
+            elements.Add(new FanCtrl.OSDTextElement(name, groupColor, this.FontSize));
 
             // item list
             for (int i = 0; i < mItemList.Count; i++)
             {
                 var item = mItemList[i];
-                if (i > 0)
+                var element = item.getOSDElement(Digit);
+                if (element != null)
                 {
-                    osdString.Append("\n");
-                    osdString.Append(new string(' ', maxNameLength));
+                    if (!item.IsColor) 
+                    {
+                        element.Color = groupColor; // Inherit group color
+                    }
+                    element.Text = new string(' ', maxNameLength) + element.Text; // Pad item
+                    elements.Add(element);
                 }
-                osdString.Append(item.getOSDString(Digit));                
             }
 
-            osdString.Append("\n");
-            return osdString.ToString();
+            return elements;
         }
 
         public OSDGroup clone()
@@ -60,6 +66,7 @@ namespace FanCtrl
             group.Name = this.Name;
             group.IsColor = this.IsColor;
             group.Color = Color.FromArgb(this.Color.R, this.Color.G, this.Color.B);
+            group.FontSize = this.FontSize;
             group.Digit = this.Digit;
 
             for (int i = 0; i < mItemList.Count; i++)
@@ -69,3 +76,5 @@ namespace FanCtrl
         }
     }
 }
+
+

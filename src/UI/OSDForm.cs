@@ -1,4 +1,4 @@
-using FanCtrl.Resources;
+﻿using FanCtrl.Resources;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -289,7 +289,7 @@ namespace FanCtrl
             catch { }
         }
 
-        private void onGroupColorButtonClick(object sender, EventArgs e)
+                private void onGroupColorButtonClick(object sender, EventArgs e)
         {
             if (this.isSelectedGroupListView() == false)
                 return;
@@ -300,15 +300,13 @@ namespace FanCtrl
                 var item = mGroupListView.SelectedItems[0];
                 var msgBox = MessageBoxEx.Show(StringLib.Change_the_color, StringLib.Color, StringLib.Default_color, StringLib.Set_color, StringLib.Cancel);
 
-                // Default color
                 if (msgBox == DialogResult.Yes)
                 {
                     item.Text = "Default";
                     item.SubItems[0].BackColor = Color.White;
                     mGroupList[index].IsColor = false;
+                    for (int i = 0; i < mGroupList[index].ItemList.Count; i++) mGroupList[index].ItemList[i].IsColor = false;
                 }
-
-                // Set color
                 else if (msgBox == DialogResult.No)
                 {
                     var dialog = new ColorDialog();
@@ -318,6 +316,56 @@ namespace FanCtrl
                         item.SubItems[0].BackColor = dialog.Color;
                         mGroupList[index].IsColor = true;
                         mGroupList[index].Color = dialog.Color;
+                        for (int i = 0; i < mGroupList[index].ItemList.Count; i++) {
+                            mGroupList[index].ItemList[i].IsColor = true;
+                            mGroupList[index].ItemList[i].Color = dialog.Color;
+                        }
+                    }
+                }
+                onGroupListViewIndexChanged(null, null);
+            }
+            catch { }
+        }
+
+        private void onGroupFontButtonClick(object sender, EventArgs e)
+        {
+            if (this.isSelectedGroupListView() == false)
+                return;
+            try
+            {
+                int index = mGroupListView.SelectedItems[0].Index;
+                var group = mGroupList[index];
+                using (var dialog = new FontDialog())
+                {
+                    dialog.Font = new Font("Consolas", group.FontSize);
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        group.FontSize = (int)dialog.Font.Size;
+                        for (int i = 0; i < group.ItemList.Count; i++)
+                        {
+                            group.ItemList[i].FontSize = group.FontSize;
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private void onItemFontButtonClick(object sender, EventArgs e)
+        {
+            if (this.isSelectedItemListView() == false || this.isSelectedGroupListView() == false)
+                return;
+            try
+            {
+                int groupIndex = mGroupListView.SelectedItems[0].Index;
+                int itemIndex = mItemListView.SelectedItems[0].Index;
+                var item = mGroupList[groupIndex].ItemList[itemIndex];
+                using (var dialog = new FontDialog())
+                {
+                    dialog.Font = new Font("Consolas", item.FontSize);
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        item.FontSize = (int)dialog.Font.Size;
                     }
                 }
             }
@@ -490,11 +538,12 @@ namespace FanCtrl
 
         private void onApplyButtonClick(object sender, EventArgs e)
         {
+            mGroupListView.Focus();
             OSDManager.getInstance().IsEnable = mEnableCheckBox.Checked;
             OSDManager.getInstance().IsTime = mSystemTimeCheckBox.Checked;            
             OSDManager.getInstance().setGroupList(mGroupList);
             OSDManager.getInstance().write();
-            onApplyCallback(sender, e);
+            if (onApplyCallback != null) onApplyCallback(sender, e);
         }
 
         private void onOKButtonClick(object sender, EventArgs e)
@@ -504,3 +553,5 @@ namespace FanCtrl
         }
     }
 }
+
+
