@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -172,7 +172,7 @@
     <value>Включить автоматическое управление вентилятором</value>
   </data>
   <data name="Enable_OSD" xml:space="preserve">
-    <value>Включить Оверлейный Экранный Дисплей (RTSS)</value>
+    <value>Включить экранный оверлей</value>
   </data>
   <data name="English" xml:space="preserve">
     <value>English</value>

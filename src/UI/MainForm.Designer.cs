@@ -1,4 +1,4 @@
-using DarkUI.Controls;
+﻿using DarkUI.Controls;
 
 namespace FanCtrl
 {
@@ -201,7 +201,7 @@ namespace FanCtrl
             // 
             this.mEnableOSDToolStripMenuItem.Name = "mEnableOSDToolStripMenuItem";
             this.mEnableOSDToolStripMenuItem.Size = new System.Drawing.Size(230, 22);
-            this.mEnableOSDToolStripMenuItem.Text = "Enable OSD (RTSS)";
+            this.mEnableOSDToolStripMenuItem.Text = "Включить Экранный оверлей";
             this.mEnableOSDToolStripMenuItem.Click += new System.EventHandler(this.onTrayManuEnableOSDClick);
             // 
             // toolStripSeparator3
@@ -283,7 +283,7 @@ namespace FanCtrl
             this.mOSDButton.Padding = new System.Windows.Forms.Padding(1);
             this.mOSDButton.Size = new System.Drawing.Size(83, 50);
             this.mOSDButton.TabIndex = 6;
-            this.mOSDButton.Text = "OSD (RTSS)";
+            this.mOSDButton.Text = "Экранный оверлей";
             this.mOSDButton.Click += new System.EventHandler(this.onOSDButtonClick);
             // 
             // mLoadingPanel
@@ -399,6 +399,7 @@ namespace FanCtrl
         private System.Windows.Forms.PictureBox mDonatePictureBox;
     }
 }
+
 
 
 

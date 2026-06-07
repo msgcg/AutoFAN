@@ -71,7 +71,7 @@ namespace FanCtrl
             this.mEnableCheckBox.Name = "mEnableCheckBox";
             this.mEnableCheckBox.Size = new System.Drawing.Size(221, 16);
             this.mEnableCheckBox.TabIndex = 0;
-            this.mEnableCheckBox.Text = "Enable On-Screen Display (RTSS)";
+            this.mEnableCheckBox.Text = "Включить Экранный оверлей";
             // 
             // mGroupGroupBox
             // 
@@ -381,7 +381,7 @@ namespace FanCtrl
             this.MinimizeBox = false;
             this.Name = "OSDForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "On-Screen Display (RTSS)";
+            this.Text = "Экранный оверлей";
             this.mGroupGroupBox.ResumeLayout(false);
             this.mGroupGroupBox.PerformLayout();
             this.mItemGroupBox.ResumeLayout(false);
@@ -423,8 +423,3 @@ namespace FanCtrl
         private DarkLabel mDigitLabel;
     }
 }
-
-
-
-
-

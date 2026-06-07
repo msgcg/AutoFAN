@@ -175,7 +175,7 @@ namespace FanCtrl
             this.mOSDGroupBox.Size = new System.Drawing.Size(514, 50);
             this.mOSDGroupBox.TabIndex = 10;
             this.mOSDGroupBox.TabStop = false;
-            this.mOSDGroupBox.Text = "OSD (RTSS)";
+            this.mOSDGroupBox.Text = "Экранный оверлей";
             // 
             // mEnableOSDTextBox
             // 
@@ -194,7 +194,7 @@ namespace FanCtrl
             this.mEnableOSDLabel.Name = "mEnableOSDLabel";
             this.mEnableOSDLabel.Size = new System.Drawing.Size(127, 12);
             this.mEnableOSDLabel.TabIndex = 0;
-            this.mEnableOSDLabel.Text = "Enable OSD (RTSS) :";
+            this.mEnableOSDLabel.Text = "Включить Экранный оверлей :";
             // 
             // HotkeyForm
             // 

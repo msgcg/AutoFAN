@@ -333,7 +333,7 @@ namespace FanCtrl
             mImportIntelligentButton.Padding = new Padding(1);
             mImportIntelligentButton.Size = new System.Drawing.Size(120, 23);
             mImportIntelligentButton.TabIndex = 11;
-            mImportIntelligentButton.Text = "РРјРїРѕСЂС‚ РЈРјРЅРѕРіРѕ";
+            mImportIntelligentButton.Text = "Импорт из Умного";
             mImportIntelligentButton.Click += onImportIntelligentButtonClick;
             // 
             // mUnitComboBox
