@@ -804,7 +804,7 @@ namespace FanCtrl
                 var osdElements = new System.Collections.Generic.List<FanCtrl.OSDTextElement>();
                 if (osdManager.IsTime == true)
                 {
-                    osdElements.Add(new FanCtrl.OSDTextElement(DateTime.Now.ToString("HH:mm:ss"), System.Drawing.Color.White, 12));
+                    osdElements.Add(new FanCtrl.OSDTextElement(DateTime.Now.ToString("HH:mm:ss"), System.Drawing.Color.White, osdManager.TimeFontSize, osdManager.TimeFontName));
                 }
 
                 int maxNameLength = 0;

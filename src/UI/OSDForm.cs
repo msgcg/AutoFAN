@@ -338,13 +338,13 @@ namespace FanCtrl
                 var group = mGroupList[index];
                 using (var dialog = new FontDialog())
                 {
-                    dialog.Font = new Font("Consolas", group.FontSize);
+                    dialog.Font = new Font(group.FontName, group.FontSize);
                     if (dialog.ShowDialog() == DialogResult.OK)
                     {
-                        group.FontSize = (int)dialog.Font.Size;
+                        group.FontSize = (int)dialog.Font.Size; group.FontName = dialog.Font.Name;
                         for (int i = 0; i < group.ItemList.Count; i++)
                         {
-                            group.ItemList[i].FontSize = group.FontSize;
+                            group.ItemList[i].FontSize = group.FontSize; group.ItemList[i].FontName = group.FontName;
                         }
                     }
                 }
@@ -363,10 +363,26 @@ namespace FanCtrl
                 var item = mGroupList[groupIndex].ItemList[itemIndex];
                 using (var dialog = new FontDialog())
                 {
-                    dialog.Font = new Font("Consolas", item.FontSize);
+                    dialog.Font = new Font(item.FontName, item.FontSize);
                     if (dialog.ShowDialog() == DialogResult.OK)
                     {
-                        item.FontSize = (int)dialog.Font.Size;
+                        item.FontSize = (int)dialog.Font.Size; item.FontName = dialog.Font.Name;
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private void onSystemTimeFontButtonClick(object sender, EventArgs e)
+        {
+            try
+            {
+                using (var dialog = new FontDialog())
+                {
+                    dialog.Font = new Font(OSDManager.getInstance().TimeFontName, OSDManager.getInstance().TimeFontSize);
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        OSDManager.getInstance().TimeFontSize = (int)dialog.Font.Size; OSDManager.getInstance().TimeFontName = dialog.Font.Name;
                     }
                 }
             }
@@ -554,6 +570,7 @@ namespace FanCtrl
         }
     }
 }
+
 
 
 

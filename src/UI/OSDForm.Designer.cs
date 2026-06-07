@@ -56,6 +56,7 @@ namespace FanCtrl
             this.mApplyButton = new DarkButton();
             this.mOKButton = new DarkButton();
             this.mSystemTimeCheckBox = new DarkCheckBox();
+            this.mSystemTimeFontButton = new DarkButton();
             this.mDigitNumericUpDown = new DarkNumericUpDown();
             this.mGroupGroupBox.SuspendLayout();
             this.mItemGroupBox.SuspendLayout();
@@ -111,17 +112,51 @@ namespace FanCtrl
             this.mGroupColorButton.Name = "mGroupColorButton";
             this.mGroupColorButton.Size = new System.Drawing.Size(61, 29);
             this.mGroupColorButton.TabIndex = 5;
+            this.mGroupGroupBox.Controls.Add(this.mGroupFontButton);
+            this.mGroupGroupBox.Controls.Add(this.mGroupAddButton);
+            this.mGroupGroupBox.Controls.Add(this.mGroupDownButton);
+            this.mGroupGroupBox.Controls.Add(this.mGroupUpButton);
+            this.mGroupGroupBox.Controls.Add(this.mGroupListView);
+            this.mGroupGroupBox.Controls.Add(this.mGroupAddTextBox);
+            this.mGroupGroupBox.Location = new System.Drawing.Point(13, 49);
+            this.mGroupGroupBox.Name = "mGroupGroupBox";
+            this.mGroupGroupBox.Size = new System.Drawing.Size(270, 279);
+            this.mGroupGroupBox.TabIndex = 1;
+            this.mGroupGroupBox.TabStop = false;
+            this.mGroupGroupBox.Text = "Groups";
+            // 
+            // mGroupEditTextBox
+            // 
+            this.mGroupEditTextBox.Location = new System.Drawing.Point(51, 168);
+            this.mGroupEditTextBox.Name = "mGroupEditTextBox";
+            this.mGroupEditTextBox.Size = new System.Drawing.Size(100, 21);
+            this.mGroupEditTextBox.TabIndex = 7;
+            // 
+            // mGroupRemoveButton
+            // 
+            this.mGroupRemoveButton.Location = new System.Drawing.Point(203, 156);
+            this.mGroupRemoveButton.Name = "mGroupRemoveButton";
+            this.mGroupRemoveButton.Size = new System.Drawing.Size(61, 29);
+            this.mGroupRemoveButton.TabIndex = 6;
+            this.mGroupRemoveButton.Text = "Remove";
+            this.mGroupRemoveButton.Click += new System.EventHandler(this.onGroupRemoveButtonClick);
+            // 
+            // mGroupColorButton
+            // 
+            this.mGroupColorButton.Location = new System.Drawing.Point(203, 124);
+            this.mGroupColorButton.Name = "mGroupColorButton";
+            this.mGroupColorButton.Size = new System.Drawing.Size(61, 29);
+            this.mGroupColorButton.TabIndex = 5;
             this.mGroupColorButton.Text = "Color";
             this.mGroupColorButton.Click += new System.EventHandler(this.onGroupColorButtonClick);
             // 
-                        // 
             // mGroupFontButton
             // 
-            this.mGroupFontButton.Location = new System.Drawing.Point(270, 124);
+            this.mGroupFontButton.Location = new System.Drawing.Point(203, 189);
             this.mGroupFontButton.Name = "mGroupFontButton";
             this.mGroupFontButton.Size = new System.Drawing.Size(61, 29);
             this.mGroupFontButton.TabIndex = 6;
-            this.mGroupFontButton.Text = "Font";
+            this.mGroupFontButton.Text = "Шрифт";
             this.mGroupFontButton.Click += new System.EventHandler(this.onGroupFontButtonClick);
             // mGroupAddButton
             // 
@@ -227,11 +262,11 @@ namespace FanCtrl
                         // 
             // mItemFontButton
             // 
-            this.mItemFontButton.Location = new System.Drawing.Point(418, 124);
+            this.mItemFontButton.Location = new System.Drawing.Point(351, 189);
             this.mItemFontButton.Name = "mItemFontButton";
             this.mItemFontButton.Size = new System.Drawing.Size(61, 29);
             this.mItemFontButton.TabIndex = 6;
-            this.mItemFontButton.Text = "Font";
+            this.mItemFontButton.Text = "Шрифт";
             this.mItemFontButton.Click += new System.EventHandler(this.onItemFontButtonClick);
             // mItemAddButton
             // 
@@ -299,6 +334,15 @@ namespace FanCtrl
             this.mSystemTimeCheckBox.TabIndex = 0;
             this.mSystemTimeCheckBox.Text = "Show system time";
             // 
+            // mSystemTimeFontButton
+            // 
+            this.mSystemTimeFontButton.Location = new System.Drawing.Point(435, 12);
+            this.mSystemTimeFontButton.Name = "mSystemTimeFontButton";
+            this.mSystemTimeFontButton.Size = new System.Drawing.Size(43, 23);
+            this.mSystemTimeFontButton.TabIndex = 100;
+            this.mSystemTimeFontButton.Text = "Шрифт";
+            this.mSystemTimeFontButton.Click += new System.EventHandler(this.onSystemTimeFontButtonClick);
+            // 
             // mDigitNumericUpDown
             // 
             this.mDigitNumericUpDown.Location = new System.Drawing.Point(640, 46);
@@ -314,6 +358,7 @@ namespace FanCtrl
             this.ClientSize = new System.Drawing.Size(719, 377);
             this.Controls.Add(this.mDigitNumericUpDown);
             this.Controls.Add(this.mSystemTimeCheckBox);
+            this.Controls.Add(this.mSystemTimeFontButton);
             this.Controls.Add(this.mOKButton);
             this.Controls.Add(this.mApplyButton);
             this.Controls.Add(this.mItemGroupBox);
@@ -361,7 +406,10 @@ namespace FanCtrl
         private DarkButton mOKButton;
         private DarkTextBox mGroupEditTextBox;
         private DarkCheckBox mSystemTimeCheckBox;
+        private DarkButton mSystemTimeFontButton;
         private DarkNumericUpDown mDigitNumericUpDown;
         private DarkLabel mDigitLabel;
     }
 }
+
+

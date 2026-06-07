@@ -71,6 +71,41 @@ namespace FanCtrl
             }
         }
 
+        private int mTimeFontSize = 12;
+        private string mTimeFontName = "Consolas";
+        public string TimeFontName
+        {
+            get
+            {
+                Monitor.Enter(mLock);
+                string name = mTimeFontName;
+                Monitor.Exit(mLock);
+                return name;
+            }
+            set
+            {
+                Monitor.Enter(mLock);
+                mTimeFontName = value;
+                Monitor.Exit(mLock);
+            }
+        }
+        public int TimeFontSize
+        {
+            get
+            {
+                Monitor.Enter(mLock);
+                int size = mTimeFontSize;
+                Monitor.Exit(mLock);
+                return size;
+            }
+            set
+            {
+                Monitor.Enter(mLock);
+                mTimeFontSize = value;
+                Monitor.Exit(mLock);
+            }
+        }
+
         private List<OSDGroup> mGroupList = new List<OSDGroup>();
 
         private OSDManager()
@@ -116,6 +151,8 @@ namespace FanCtrl
 
                 mIsEnable = (rootObject.ContainsKey("IsEnable") == true) ? rootObject.Value<bool>("IsEnable") : false;
                 mIsTime = (rootObject.ContainsKey("IsTime") == true) ? rootObject.Value<bool>("IsTime") : false;
+                mTimeFontSize = (rootObject.ContainsKey("TimeFontSize") == true) ? rootObject.Value<int>("TimeFontSize") : 12;
+                mTimeFontName = (rootObject.ContainsKey("TimeFontName") == true) ? rootObject.Value<string>("TimeFontName") : "Consolas";
 
                 if (rootObject.ContainsKey("Group") == true)
                 {
@@ -188,6 +225,8 @@ namespace FanCtrl
                 var rootObject = new JObject();
                 rootObject["IsEnable"] = mIsEnable;
                 rootObject["IsTime"] = mIsTime;
+                rootObject["TimeFontSize"] = mTimeFontSize;
+                rootObject["TimeFontName"] = mTimeFontName;
 
                 var groupList = new JArray();
                 for(int i = 0; i < mGroupList.Count; i++)
@@ -277,3 +316,4 @@ namespace FanCtrl
         }
     }
 }
+

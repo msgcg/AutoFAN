@@ -14,6 +14,7 @@ namespace FanCtrl
         public Color Color { get; set; } = Color.White;
 
         public int FontSize { get; set; } = 12;
+        public string FontName { get; set; } = "Consolas";
 
         public OSDTextElement getOSDElement(int digit)
         {
@@ -79,7 +80,7 @@ namespace FanCtrl
                 // Unit
                 osdString.Append(this.getUnitString());
 
-                return new OSDTextElement(osdString.ToString(), this.IsColor ? this.Color : Color.White, this.FontSize);
+                return new OSDTextElement(osdString.ToString(), this.IsColor ? this.Color : Color.White, this.FontSize, this.FontName);
             }
             catch { }
             return null;            
@@ -101,7 +102,7 @@ namespace FanCtrl
             switch (UnitType)
             {
                 case OSDUnitType.Temperature:
-                    return (OptionManager.getInstance().IsFahrenheit == false) ? " В°C" : " В°F";
+                    return (OptionManager.getInstance().IsFahrenheit == false) ? " °C" : " °F";
 
                 case OSDUnitType.RPM:
                     return " RPM";
@@ -138,6 +139,7 @@ namespace FanCtrl
         }
     }
 }
+
 
 
 

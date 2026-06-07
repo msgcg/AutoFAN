@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 
@@ -13,6 +13,7 @@ namespace FanCtrl
         public Color Color { get; set; } = Color.White;
 
         public int FontSize { get; set; } = 12;
+        public string FontName { get; set; } = "Consolas";
 
         public int Digit { get; set; } = 5;
 
@@ -39,7 +40,7 @@ namespace FanCtrl
             }
 
             Color groupColor = this.IsColor ? this.Color : Color.White;
-            elements.Add(new FanCtrl.OSDTextElement(name, groupColor, this.FontSize));
+            elements.Add(new FanCtrl.OSDTextElement(name, groupColor, this.FontSize, this.FontName));
 
             // item list
             for (int i = 0; i < mItemList.Count; i++)
@@ -76,5 +77,6 @@ namespace FanCtrl
         }
     }
 }
+
 
 

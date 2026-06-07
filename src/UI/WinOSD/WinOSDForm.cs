@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Reflection;
@@ -86,7 +86,7 @@ namespace WinOSD
                 float currentY = 0;
                 foreach (var el in elements)
                 {
-                    using (Font f = new Font("Consolas", el.FontSize, FontStyle.Bold))
+                    using (Font f = new Font(el.FontName, el.FontSize, FontStyle.Bold))
                     {
                         var s = fx.MeasureString(el.Text, f, ScreenRect.Width, DefaultStringFormat);
                         if (s.Width > textArea.Width) textArea.Width = s.Width;
@@ -116,7 +116,7 @@ namespace WinOSD
             {
                 foreach (var el in this._elements)
                 {
-                    using (Font f = new Font("Consolas", el.FontSize, FontStyle.Bold))
+                    using (Font f = new Font(el.FontName, el.FontSize, FontStyle.Bold))
                     using (Brush b = new SolidBrush(el.Color))
                     using (Brush shadowBrush = new SolidBrush(Color.Black))
                     {
@@ -145,5 +145,6 @@ namespace WinOSD
         #endregion
     }
 }
+
 
 
