@@ -147,6 +147,9 @@
 			<Generator>PublicResXFileCodeGenerator</Generator>
 			<LastGenOutput>StringLib.Designer.cs</LastGenOutput>
 		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\PawnIO_setup.exe">
+			<LogicalName>FanCtrl.Resources.PawnIO_setup.exe</LogicalName>
+		</EmbeddedResource>
 	</ItemGroup>
 
 	<!-- ===== СОБЫТИЯ СБОРКИ ===== -->

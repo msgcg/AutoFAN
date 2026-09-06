@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace FanCtrl
 {
@@ -165,25 +166,77 @@ namespace FanCtrl
 
         public static void InstallPawnIO()
         {
-            string path = ExtractPawnIO();
-            if (!string.IsNullOrEmpty(path))
+            try
             {
-                var process = Process.Start(new ProcessStartInfo(path, "-install"));
-                process?.WaitForExit();
-                File.Delete(path);
+                string path = ExtractPawnIO();
+                if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                {
+                    try
+                    {
+                        var startInfo = new ProcessStartInfo(path, "-install")
+                        {
+                            UseShellExecute = true
+                        };
+                        var process = Process.Start(startInfo);
+                        process?.WaitForExit();
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            if (File.Exists(path))
+                                File.Delete(path);
+                        }
+                        catch { }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Не удалось извлечь или найти установщик PawnIO (PawnIO_setup.exe).", "AutoFAN", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при установке PawnIO: {ex.Message}", "AutoFAN", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         public static string ExtractPawnIO()
         {
-            string destination = Path.Combine(Directory.GetCurrentDirectory(), "PawnIO_setup.exe");
+            string destination = Path.Combine(Path.GetTempPath(), "PawnIO_setup.exe");
             try
             {
                 Stream resourceStream = typeof(MainForm).Assembly.GetManifestResourceStream("FanCtrl.Resources.PawnIO_setup.exe");
-                FileStream fileStream = new FileStream(destination, FileMode.Create, FileAccess.Write);
-                resourceStream.CopyTo(fileStream);
-                fileStream.Close();
-                return destination;
+                if (resourceStream != null)
+                {
+                    using (resourceStream)
+                    using (FileStream fileStream = new FileStream(destination, FileMode.Create, FileAccess.Write))
+                    {
+                        resourceStream.CopyTo(fileStream);
+                    }
+                    return destination;
+                }
+
+                // Fallback: search on disk if not embedded
+                string appDir = AppDomain.CurrentDomain.BaseDirectory;
+                string[] possiblePaths = new[]
+                {
+                    Path.Combine(appDir, "Resources", "PawnIO_setup.exe"),
+                    Path.Combine(appDir, "PawnIO_setup.exe"),
+                    Path.Combine(Directory.GetCurrentDirectory(), "Resources", "PawnIO_setup.exe"),
+                    Path.Combine(Directory.GetCurrentDirectory(), "PawnIO_setup.exe")
+                };
+
+                foreach (string candidate in possiblePaths)
+                {
+                    if (File.Exists(candidate))
+                    {
+                        File.Copy(candidate, destination, true);
+                        return destination;
+                    }
+                }
+
+                return null;
             }
             catch
             {
