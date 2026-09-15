@@ -1,123 +1,313 @@
-# FanCtrl
+# AutoFAN — Интеллектуальная система мониторинга и управления охлаждением ПК
 
-FanCtrl is a software that allows you to automatically control the fan speed on your PC.<br>
+[![.NET 8.0](https://img.shields.io/badge/.NET-8.0--windows-purple.svg)](https://dotnet.microsoft.com/download/dotnet/8.0)
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011%20(x64)-blue.svg)](https://www.microsoft.com/windows)
+[![C#](https://img.shields.io/badge/Language-C%23%2012-green.svg)](https://docs.microsoft.com/dotnet/csharp/)
+[![AI Backend](https://img.shields.io/badge/AI-LLamaSharp%20(Phi--3.5--mini)-orange.svg)](https://github.com/SciSharp/LLamaSharp)
+[![Hardware Driver](https://img.shields.io/badge/Driver-PawnIO%20Kernel%20Driver-red.svg)](https://github.com/lich426)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-## Requires
-- .NET framework 4.7.2
-- [Visual redistributable 2019(x64)][15]<br>
-- The OSD feature must have the [Rivatuner Statistics Server][16] installed and running.<br>
+**AutoFAN** — современное многофункциональное Windows-приложение на базе **.NET 8.0**, предназначенное для комплексного мониторинга аппаратного обеспечения, автоматического термодинамического картирования компонентов и высокоточного управления скоростью вентиляторов и помп СЖО.
 
-## Support
-- Motherboard<br>
-- NZXT Kraken is support<br>
-- EVGA CLC is support<br>
-- NZXT RGB & Fan Controller is support<br>
-- liquidctl is support<br>
+Главная инновация проекта — **встроенный локальный искусственный интеллект** на базе квантованной языковой модели **Phi-3.5-mini**, работающий в связке с автоматическим стресс-тестированием охлаждения. Программа решает фундаментальную проблему современных ПК: пользователю больше не нужно вручную выяснять, к какому разъему материнской платы (`SYS_FAN1`, `CHA_FAN`, `AUX` и т.д.) подключен конкретный вентилятор корпуса, видеокарты или процессорного кулера.
 
-## Main
-<img width="1049" height="635" alt="image" src="https://github.com/user-attachments/assets/3ef35376-9118-46f4-a321-d901b511be37" /><br>
-- Show temperature, fan speed and fan control.<br>
-- The percentage of the fan control can be changed to simply control the pwm.(not saved) <br>
-- You can rename each item.<br>
+---
 
-## Option
-<img width="211" height="801" alt="image" src="https://github.com/user-attachments/assets/2f4a8024-5e12-4ac6-97f7-2f53035c5894" /><br>
-- LibreHardwareMonitor : You can choose whether to use the library or not, and you can choose which devices are required for control.<br>
-- NvAPIWrapper : Allows you to add the NVIDIA graphics card control library.<br>
-- NZXT Kraken : NZXT Kraken support<br>
-- EVGA CLC : EVGA CLC support<br>
-- NZXT RGB & Fan Controller : NZXT RGB & Fan controller support<br>
-- HWiNFO : Communicated with [HWiNFO][17] to get sensor temperature and fan rpm ([Link][18]) <br>
-- liquidctl : [liquidctl][19] support<br>
-- Language : English, Korean, Japanese, French, Spanish, Russian, Chinese<br>
-- Tray icon animation : tray icon animation starts when checked for automatic fan control activation.<br>
-- Fahrenheit : set the temperature to Fahrenheit.<br>
-- Start minimized : starts with minimal when the program runs.<br>
-- Start with Windows : Auto-Run at windows start.<br>
-- Delay(sec) : Delay time before auto-run at windows start.<br>
-- Reset : Initialize all settings and libraries.<br>
+## Содержание
 
-## Auto Fan Control
-![control](https://user-images.githubusercontent.com/26077884/109592420-99097280-7b52-11eb-88d8-55483dd935ad.png)<br>
-- Check to enable automatic fan control, select the temperature sensor to target, add the fan to control, and select from the list to display the graph, but adjust the graph accordingly.<br>
-- Mode : only four names are divided, but must be set separately.<br>
-- Preset : Allows you to save or load the current graph's setup state.<br>
-- Unit : You can change the unit of temperature and pwm percentage.(1, 5, 10) <br>
-- Hysteresis : If the pwm changes when the temperature drops, the pwm changes only after the hysteresis temperature drops further.<br>
-- Step : determines whether the graph setting is step or linear.<br>
-- Auto : The fan control operates in the bios default state up to the set temperature. (LHM, OHM, Gigabyte, NvAPIWrapper only, see [link][18])<br>
-- When you click Apply and OK, it is saved as a file and works with the settings you set.<br>
-- Automatically reads from a file to act on the next program run.<br>
+1. [Ключевые особенности](#ключевые-особенности)
+2. [Архитектура проекта](#архитектура-проекта)
+3. [Интеллектуальный режим и локальный ИИ (AI Mapping)](#интеллектуальный-режим-и-локальный-ии-ai-mapping)
+4. [Автоматическое управление вентиляторами (Auto Fan Control)](#автоматическое-управление-вентиляторами-auto-fan-control)
+5. [Встроенный экранный оверлей (Native Desktop OSD)](#встроенный-экранный-оверлей-native-desktop-osd)
+6. [Низкоуровневое взаимодействие и драйвер PawnIO](#низкоуровневое-взаимодействие-и-драйвер-pawnio)
+7. [Поддерживаемое оборудование](#поддерживаемое-оборудование)
+8. [Горячие клавиши и управление](#горячие-клавиши-и-управление)
+9. [Конфигурационные файлы](#конфигурационные-файлы)
+10. [Системные требования и зависимости](#системные-требования-и-зависимости)
+11. [Сборка и развертывание](#сборка-и-развертывание)
+12. [Решение проблем (Troubleshooting)](#решение-проблем-troubleshooting)
+13. [Лицензия и благодарности](#лицензия-и-благодарности)
 
-## On Screen Display (RTSS)
-![osd](https://user-images.githubusercontent.com/26077884/109592729-1503ba80-7b53-11eb-9db2-6977f613c59d.png)<br>
-![osd2](https://user-images.githubusercontent.com/26077884/109592732-16cd7e00-7b53-11eb-92bd-eb6b7321593f.png)<br>
-- Requires [Rivatuner statistics server][16]<br>
-- GROUP stands for one line, and ITEM is the data to display.<br>
+---
 
-## Lighting
-You can see the lighting packet on the link.<Br>
-NZXT Kraken X2 : [X2.txt][11]<br>
-NZXT Kraken X3 : [X3.txt][12]<br>
-EVGA CLC : [clc.txt][13]<br>
-NZXT RGB & Fan Controller : [RGBnFC.txt][14]<br>
-<br>
- Example X2<br>
- ![lighting1](https://user-images.githubusercontent.com/26077884/109592758-22b94000-7b53-11eb-9036-b0d69db31c51.png)<br>
-Logo : Spectrum wave<br>
-Ring : Spectrum wave<br>
-<br>
-![lighting2](https://user-images.githubusercontent.com/26077884/109592769-2947b780-7b53-11eb-868a-d17813774b12.png)<br>
-Logo : Fading<br>
-Ring : Pulse<br>
+## Ключевые особенности
 
-## liquidctl
-How to use : [Link][20]
+- 🧠 **Автоматическое термодинамическое сопоставление (Intelligent Mapping):**
+  Поочередное тестирование вентиляторов на 100% мощности, измерение изменения температурной дельты ($\Delta T$) на узлах ПК и расчет коэффициента уверенности связи сенсор-кулер.
+- ⚡ **AI-коррекция топологии (Local LLM):**
+  Интеграция с локальной компактной нейросетью **Phi-3.5-mini-instruct (GGUF Q4_K_M)** через библиотеку **LLamaSharp** с аппаратным ускорением **CUDA 12** и **Vulkan API** (с автоматическим фоллбеком на CPU). Использование формальной **GBNF-грамматики** гарантирует строго детерминированный структурированный JSON-вывод без галлюцинаций.
+- 🎛 **Гибкие кривые охлаждения:**
+  Интерактивный графический редактор зависимостей RPM/PWM от температуры с поддержкой ступенчатых и плавных линейных кривых, 4 профилей работы (Normal, Silence, Performance, Game), настраиваемого гистерезиса для предотвращения скачков оборотов и автоматического возврата под управление BIOS.
+- 🖥 **Автономный экранный оверлей (Native Desktop OSD):**
+  Встроенный прозрачный layered-рендерер на базе Windows API и GDI+. **Полностью исключена зависимость от стороннего RivaTuner Statistics Server (RTSS)**. Поддерживает тонкую настройку шрифтов, размеров, цветов для групп датчиков и встроенных часов.
+- 🛡 **Современный драйвер PawnIO:**
+  Безопасный доступ к датчикам Super I/O и контроллерам через сертифицированный драйвер ядра PawnIO с автоматической распаковкой из сборки и установкой в один клик.
+- ⌨️ **Глобальные горячие клавиши (Hotkeys):**
+  Мгновенное переключение профилей и включение/выключение оверлея по сочетаниям клавиш из любого приложения через низкоуровневые хуки WinAPI.
+- 🌓 **Темная тема DarkUI:**
+  Гармоничный темный интерфейс в стиле современных сред разработки, информативная панель мониторинга и анимированная иконка в системном трее.
+- 🇷🇺 **Полная русская локализация:**
+  Интерфейс и системные сообщения адаптированы на русский язык.
 
-## Plugins
-How to use : [Link][21]
+---
 
-## Using external Libraries
-Sensor and Fan Control : [LibreHardwareMonitorLib][0]<br>
-Nvidia Graphic card Sensor and Fan Control : [NvAPIWrapper][3]<br>
-NZXT Kraken USB Communication : [HIDSharp][4]<br>
-EVGA CLC USB Communication : [SiUSBXp][5] or [libusb-1.0][6]<br>
-Json : [Newtonsoft Json][7]<br>
-Graph : [ZedGraph][8]<br>
-liquidctl plugin : [liquidctl][19]<br>
+## Архитектура проекта
 
-## License
-[GNU General Public License v3.0][9]
+```
+AutoFAN/
+├── dll/                                # Внешние нативные и托管 сборки
+│   ├── DarkUI.dll                      # Набор контролов темной темы
+│   ├── NvAPIWrapper.dll                # Взаимодействие с видеокартами NVIDIA
+│   └── ZedGraph.dll                    # Интерактивные графики кривых вентиляторов
+├── Properties/                         # Манифест UAC (Admin) и ресурсы проекта
+│   ├── app.manifest                    # Запрос повышенных привилегий Administrator
+│   └── Resources.resx                  # Иконки, графика и вспомогательные ресурсы
+├── Resources/                          # Локализация и встроенные бинарные файлы
+│   ├── PawnIO_setup.exe                # Встроенный инсталлятор драйвера ядра (Embedded)
+│   └── StringLib.resx                  # Таблица локализации строк (русский язык)
+├── src/
+│   ├── Program.cs                      # Точка входа, проверка прав Admin, мьютекс
+│   ├── models/                         # Локальные модели и грамматики ИИ
+│   │   ├── json.gbnf                   # GBNF-грамматика для структурированного вывода JSON
+│   │   └── phi-3.5-mini-instruct-q4.gguf # Квантованная модель Phi-3.5 (Q4_K_M)
+│   ├── UI/                             # Пользовательский интерфейс (Windows Forms)
+│   │   ├── MainForm.cs                 # Главное окно мониторинга, трей, меню
+│   │   ├── ControlForm.cs              # Окно настройки кривых и профилей вентиляторов
+│   │   ├── IntelligentForm.cs          # Окно интеллектуального картирования и вызова ИИ
+│   │   ├── OSDForm.cs                  # Настройка групп, шрифтов и цветов экранного оверлея
+│   │   ├── HotkeyForm.cs               # Настройка глобальных горячих клавиш
+│   │   ├── OptionForm.cs               # Общие параметры, библиотеки, автозапуск, сброс
+│   │   └── WinOSD/                     # Нативный движок прозрачного оверлея
+│   │       ├── OSDBase.cs              # Низкоуровневая работа с layered window (WS_EX_LAYERED)
+│   │       └── WinOSDForm.cs           # Отрисовка текста, форматирование, расчет геометрии
+│   └── libs/                           # Ядро логики и взаимодействия с железом
+│       ├── Controller/                 # Логика периодического обновления и мониторинга
+│       ├── Data/                       # Модели данных и синглтоны менеджеров
+│       │   ├── Control/                # Сохранение и загрузка кривых (ControlManager)
+│       │   ├── Hotkey/                 # Сохранение и парсинг хоткеев (HotkeyManager)
+│       │   ├── Option/                 # Менеджер общих опций (OptionManager)
+│       │   └── OSD/                    # Менеджер параметров оверлея (OSDManager)
+│       ├── Hardware/                   # Адаптеры оборудования
+│       │   ├── HardwareManager.cs      # Центральный хаб сенсоров и вентиляторов
+│       │   ├── LHM.cs                  # Интеграция с LibreHardwareMonitorLib
+│       │   └── Sensor/ & Control/      # Базовые абстракции сенсоров и органов управления
+│       ├── Intelligent/                # Логика автоматического сопоставления
+│       │   └── IntelligentManager.cs   # Асинхронный пайплайн стресс-теста и расчета дельт
+│       └── Util/                       # Утилиты, распаковка PawnIO, форматирование
+└── FanCtrl.csproj                      # Файл проекта MSBuild (.NET 8.0-windows)
+```
 
-## Precautions
- - FanCtrl is free software with a GNU GPLv3 license.<br>
- - You can malfunction while other fan control programs are on at the same time.<br>
- - I am not responsible for hardware that has failed or is not working using this software.<br>
- - Not all types of hardware are supported.<br>
+---
 
-## Donate
-<a href="https://paypal.me/lich426" target="_blank"><img src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/pp-acceptance-large.png"/></a></td></tr></table><!-- PayPal Logo --></a><br><br>
- Bitcoin(BTC) : bc1p36n3atpv7d477tpgxcn4rztvx7cst68lqn8qa6uhvxe803fu7akq3c9j0x<br>
- Ethereum(ETH) : 0xE431Af19a04926d461B97cD190e10F817155ABcC<br>
+## Интеллектуальный режим и локальный ИИ (AI Mapping)
 
-[0]: https://github.com/LibreHardwareMonitor/LibreHardwareMonitor
-[1]: https://github.com/openhardwaremonitor/openhardwaremonitor
-[2]: https://www.gigabyte.com/Support/Utility/Motherboard
-[3]: https://github.com/falahati/NvAPIWrapper
-[4]: https://www.zer7.com/software/hidsharp
-[5]: https://www.silabs.com/products/development-tools/software/direct-access-drivers
-[6]: https://libusb.info
-[7]: https://www.newtonsoft.com/json
-[8]: http://zedgraph.sourceforge.net/samples.html
-[9]: https://github.com/lich426/FanCtrl/blob/master/LICENSE
-[11]: https://github.com/lich426/FanCtrl/blob/master/Packet/X2.txt
-[12]: https://github.com/lich426/FanCtrl/blob/master/Packet/X3.txt
-[13]: https://github.com/lich426/FanCtrl/blob/master/Packet/clc.txt
-[14]: https://github.com/lich426/FanCtrl/blob/master/Packet/RGBnFC.txt
-[15]: https://support.microsoft.com/ko-kr/help/2977003/the-latest-supported-visual-c-downloads
-[16]: https://www.guru3d.com/files-details/rtss-rivatuner-statistics-server-download.html
-[17]: https://www.hwinfo.com
-[18]: https://github.com/lich426/FanCtrl/releases/tag/v1.3.5
-[19]: https://github.com/liquidctl/liquidctl
-[20]: https://github.com/lich426/FanCtrl/releases/tag/v1.5.1
-[21]: https://github.com/lich426/FanCtrl/blob/master/Plugin.md
+### Принцип работы термодинамического картирования
+
+1. **Снятие базового состояния (Baseline):**
+   Приложение фиксирует исходную температуру всех датчиков (процессор, ядра, видеокарта, хотспот, чипсет, накопители NVMe/SSD) и скорость вращения вентиляторов.
+2. **Изолированный стресс-тест вентиляторов:**
+   Поочередно для каждого обнаруженного вентилятора/помпы устанавливается 100% PWM. Система выдерживает период стабилизации воздушного потока (30 секунд) и производит замеры температуры (10 итераций с интервалом 1 секунда).
+3. **Расчет температурной дельты и уверенности:**
+   Вычисляется падение температуры:
+   $$\Delta T = T_{\text{baseline}} - T_{\text{test}}$$
+   Вентилятор с максимальной корреляцией и наибольшим $\Delta T$ первично связывается с соответствующим температурным узлом. Вычисляется процент достоверности (`Confidence %`).
+
+### AI-оптимизация и семантическая верификация (Phi-3.5-mini)
+
+В реальных сборках ПК возможны эвристические ошибки: например, массивный поток кулера процессора может попутно обдувать датчик системного накопителя, либо кабели кулеров CPU и Корпуса подключены к перепутанным разъемам на плате.
+
+Для устранения таких коллизий применяется локальная языковая модель:
+- **Движок инференса:** `LLamaSharp` v0.27.0 с поддержкой бэкендов `CUDA 12`, `Vulkan` и `CPU`.
+- **Модель:** `Phi-3.5-mini-instruct` в 4-битном квантовании GGUF (~2.3 ГБ), расположенная в `src/models/phi-3.5-mini-instruct-q4.gguf`.
+- **Семантический анализ:** ИИ сопоставляет эвристические результаты стресс-теста со списком доступных вентиляторов, анализирует семантику имен (`GPU Fan`, `Chassis Fan`, `CPU_OPT`, `Pump`, `Package`, `Core`) и исправляет неверные назначения.
+- **GBNF-грамматика (`src/models/json.gbnf`):**
+  Ограничивает генерацию токенов модели строгой схемой:
+  ```json
+  [
+    {
+      "SensorName": "GPU Core",
+      "CorrectedFanID": "LHM/Control/gpu-nvidia/0/control/0"
+    }
+  ]
+  ```
+  Это на 100% исключает невалидный синтаксис или произвольный текст в ответе.
+
+---
+
+## Автоматическое управление вентиляторами (Auto Fan Control)
+
+Окно **Автоматический контроль** (`ControlForm`) предоставляет полный контроль над профилями охлаждения:
+
+- **Графический редактор зависимостей:**
+  Позволяет визуально задавать ключевые точки соотношения температуры (°C) и скорости вентилятора (0–100% PWM).
+- **Режимы работы (Modes):**
+  - **Normal (Обычный):** Баланс между умеренным шумом и эффективным охлаждением.
+  - **Silence (Тихий):** Заниженные обороты при средних нагрузках для комфортной офисной работы и просмотра медиа.
+  - **Performance (Производительный):** Агрессивное нарастание оборотов при первых признаках роста температуры.
+  - **Game (Игровой):** Превентивное охлаждение GPU и корпуса при запуске ресурсоемких 3D-приложений.
+- **Гистерезис (Hysteresis):**
+  Задает порог остывания (°C), при котором разрешено снижать скорость кулера. Предотвращает циклические разгоны и торможения при колебаниях температуры вокруг точки графика.
+- **Тип кривой (Step):**
+  - *Включен:* Ступенчатое переключение скоростей по фиксированным плато.
+  - *Выключен:* Плавная линейная интерполяция между точками.
+- **Режим Auto:**
+  До достижения минимальной заданной температуры вентилятор функционирует в заводском режиме BIOS.
+- **Пресеты (Presets):**
+  Быстрый экспорт и импорт настроенных графиков в отдельные конфигурационные файлы.
+
+---
+
+## Встроенный экранный оверлей (Native Desktop OSD)
+
+В отличие от ранних версий утилиты, в AutoFAN реализован **полностью собственный графический оверлей**:
+
+- **Отказ от RTSS:** Больше не требуется устанавливать и запускать сторонний RivaTuner Statistics Server.
+- **Технология рендеринга:**
+  - Окно оверлея создается как прозрачное нативное layered-окно Windows (`WS_EX_LAYERED`, `WS_EX_TRANSPARENT`, `WS_EX_TOOLWINDOW`).
+  - Отрисовка производится напрямую через GDI+ (`UpdateLayeredWindow`) с поддержкой альфа-канала (32-bit ARGB).
+  - Оверлей не перехватывает клики мыши и не мешает работе с другими приложениями.
+- **Кастомизация внешнего вида (`OSDForm`):**
+  - Группировка показателей в отдельные строки.
+  - Персональный выбор **семейства шрифта** (например, *Consolas*, *Segoe UI*, *Arial*) и **размера кегля** для каждой группы и датчика.
+  - Индивидуальная настройка цвета текста (палитра RGB).
+  - Встроенный блок **системных часов** с независимой настройкой цвета и шрифта.
+  - Произвольное позиционирование на экране путем перетаскивания.
+
+---
+
+## Низкоуровневое взаимодействие и драйвер PawnIO
+
+Для чтения аппаратных сенсоров материнской платы и управления ШИМ-контроллерами вентиляторов требуется доступ к портам ввода-вывода (I/O) и системной шине из пространства ядра.
+
+AutoFAN использует современный и безопасный драйвер ядра **PawnIO**:
+- **Автоматическая установка:**
+  Инсталлятор `PawnIO_setup.exe` встроен непосредственно в сборку приложения (`EmbeddedResource`). Если драйвер отсутствует или устарел, AutoFAN при запуске предлагает установку, автоматически распаковывает инсталлятор во временный каталог системы (`%TEMP%`) и запускает установку с ключом `-install`.
+- **Безопасность:**
+  Временный файл установщика гарантированно удаляется после завершения процесса. Программа не полагается на устаревшие уязвимые драйверы вроде WinRing0.
+
+---
+
+## Поддерживаемое оборудование
+
+1. **Процессоры (CPU):**
+   - Intel Core (от 6-го до современных поколений), Core Ultra.
+   - AMD Ryzen (серии 1000–9000, Threadripper).
+2. **Видеокарты (GPU):**
+   - NVIDIA GeForce (GTX/RTX) через нативную интеграцию с **NvAPIWrapper**.
+   - AMD Radeon и Intel Arc через датчики LibreHardwareMonitor.
+3. **Материнские платы и чипы Super I/O:**
+   - Микроконтроллеры мониторинга Nuvoton (NCT677x, NCT679x и др.), ITE (IT86xx, IT87xx и др.), Fintek, Winbond.
+4. **СЖО и аппаратные контроллеры:**
+   - NZXT Kraken (поколения X2, X3, Z3 и совместимые).
+   - EVGA CLC (контроллеры помп и вентиляторов).
+   - NZXT RGB & Fan Controller.
+   - Поддержка внешних устройств через **liquidctl**.
+5. **Накопители:**
+   - NVMe и SATA SSD/HDD (температурные датчики S.M.A.R.T.).
+
+---
+
+## Горячие клавиши и управление
+
+Окно **Горячие клавиши** (`HotkeyForm`) позволяет назначить глобальные комбинации клавиш (любая клавиша в сочетании с `Ctrl`, `Alt`, `Shift`):
+
+- Включение/выключение автоматического управления вентиляторами.
+- Переключение в режим **Normal**.
+- Переключение в режим **Silence**.
+- Переключение в режим **Performance**.
+- Переключение в режим **Game**.
+- Включение/выключение **Экранного оверлея**.
+
+**Особенности управления:**
+- Для сброса конкретной горячей клавиши достаточно установить на нее фокус и нажать клавишу `Esc`.
+- Кнопка **Сброс** в окне горячих клавиш очищает все назначенные комбинации разом.
+- В окне **Настройки** доступна кнопка глобального сброса (**Factory Reset**), которая полностью обнуляет конфигурации всех менеджеров: кривые вентиляторов, хоткеи, параметры оверлея и глобальные опции программы.
+
+---
+
+## Конфигурационные файлы
+
+Все параметры работы сохраняются в формате JSON в рабочей директории приложения:
+
+| Файл | Назначение |
+|---|---|
+| `Control.json` | Привязки вентиляторов, параметры кривых температур/оборотов, активный профиль и гистерезис |
+| `Option.json` | Общие параметры: автозапуск с Windows, задержка старта, тема оформления, флаги активных библиотек |
+| `OSD.json` | Структура оверлея: группы, привязанные сенсоры, цвета, размеры и названия шрифтов, часы |
+| `Hotkey.json` | Коды виртуальных клавиш и флаги модификаторов для глобальных хоткеев |
+
+---
+
+## Системные требования и зависимости
+
+### Минимальные системные требования
+- **Операционная система:** Windows 10 x64 или Windows 11 x64.
+- **Привилегии:** Права Администратора (требуются для обращения к драйверам оборудования и низкоуровневым портам Super I/O).
+- **Среда выполнения:** [.NET Desktop Runtime 8.0 (x64)](https://dotnet.microsoft.com/download/dotnet/8.0).
+- **Распространяемый пакет:** Visual C++ Redistributable 2015–2022 (x64).
+
+### Аппаратные требования для функций ИИ
+- **Режим GPU (рекомендуется):** Видеокарта NVIDIA с поддержкой CUDA 12 (семейства Pascal, Turing, Ampere, Ada Lovelace, Blackwell) либо видеокарта с поддержкой Vulkan 1.2+.
+- **Режим CPU (фоллбек):** Любой многоядерный процессор с поддержкой инструкций AVX2.
+- **Оперативная память:** Не менее 8 ГБ RAM (для загрузки модели Phi-3.5 в память требуется ~2.5 ГБ свободной памяти).
+
+---
+
+## Сборка и развертывание
+
+### Сборка через Visual Studio 2022
+
+1. Установите **Visual Studio 2022** (версия 17.8 или новее) с рабочей нагрузкой:
+   - *Разработка классических приложений .NET* (.NET Desktop Development).
+2. Клонируйте репозиторий проекта:
+   ```bash
+   git clone https://github.com/msgcg/AutoFAN.git
+   ```
+3. Откройте решение `FanCtrl.sln`.
+4. Выберите конфигурацию `Debug` или `Release` и целевую платформу `x64`.
+5. Выполните восстановление NuGet-пакетов и сборку решения (`Ctrl + Shift + B`).
+
+### Сборка через .NET CLI
+
+```powershell
+# Восстановление пакетов
+dotnet restore FanCtrl.csproj
+
+# Сборка проекта в конфигурации Release
+dotnet build FanCtrl.csproj -c Release -r win-x64 --no-self-contained
+```
+
+### Структура каталога сборки
+
+Для корректной работы приложения в выходном каталоге (`bin/Release/net8.0-windows/` или каталоге публикации) должны находиться:
+- Исполняемый файл `FanCtrl.exe` и библиотека `FanCtrl.dll`.
+- Зависимости DLL: `DarkUI.dll`, `NvAPIWrapper.dll`, `ZedGraph.dll`, `LLamaSharp.dll`, нативные рантаймы `runtimes/win-x64/native/` (LLamaSharp CUDA/Vulkan).
+- Подкаталог моделей: `src/models/` с файлами `phi-3.5-mini-instruct-q4.gguf` и `json.gbnf` (копируются автоматически при сборке).
+
+---
+
+## Решение проблем (Troubleshooting)
+
+| Проблема | Причина | Решение |
+|---|---|---|
+| **Приложение завершается сразу при старте с ошибкой прав** | Приложению необходим доступ к драйверам оборудования | Запускайте `FanCtrl.exe` от имени Администратора (в `app.manifest` жестко прописан уровень `requireAdministrator`) |
+| **Ошибка `PawnIO not found` или сбой извлечения** | Драйвер ядра не установлен в системе | Согласитесь на установку PawnIO при запросе приложения. Убедитесь, что антивирус не блокирует распаковку инсталлятора в папку `%TEMP%` |
+| **Оверлей не отображается поверх игры** | Игра запущена в режиме Exclusive Fullscreen | Переведите игру в режим *Безрамочный оконный* (Borderless Windowed). Наш нативный оверлей работает как layered-окно рабочего стола и не внедряет DirectX/Vulkan хуки в процесс игры |
+| **Сообщение: "Файл модели не найден" в ИИ-режиме** | Отсутствует GGUF-файл весов нейросети | Убедитесь, что файл `src/models/phi-3.5-mini-instruct-q4.gguf` присутствует в папке с программой |
+| **Предупреждение: "CUDA/Vulkan не загружен, используется CPU"** | Отсутствуют библиотеки ускорения или драйвер видеокарты | Обновите драйверы видеокарты NVIDIA. При отсутствии видеокарты NVIDIA будет автоматически задействован Vulkan или CPU |
+| **Кулеры периодически резко набирают обороты и сразу стихают** | Маленький гистерезис при пульсирующей нагрузке | Увеличьте параметр **Гистерезис (Hysteresis)** в окне кривых вентиляторов до 3–5°C |
+
+---
+
+## Лицензия и благодарности
+
+- **Лицензия:** Проект распространяется под свободной лицензией **GNU General Public License v3.0 (GPLv3)**. Подробности см. в файле [LICENSE](LICENSE).
+- **Базовый проект:** Основано на наработках проекта [FanCtrl](https://github.com/lich426/FanCtrl) от разработчика *lich426*.
+- **Используемые сторонние библиотеки:**
+  - [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) — низкоуровневый опрос системных сенсоров.
+  - [LLamaSharp](https://github.com/SciSharp/LLamaSharp) — C# привязка к llama.cpp для локального выполнения моделей GGUF.
+  - [NvAPIWrapper](https://github.com/falahati/NvAPIWrapper) — управление параметрами и кулерами видеокарт NVIDIA.
+  - [DarkUI](https://github.com/RobinPerris/DarkUI) — компоненты графического интерфейса в темной теме.
+  - [ZedGraph](https://github.com/ZedGraph/ZedGraph) — графический движок построения кривых вентиляторов.
+  - [Newtonsoft.Json](https://www.newtonsoft.com/json) & [System.Text.Json](https://docs.microsoft.com/dotnet/api/system.text.json) — сериализация и работа с данными.
