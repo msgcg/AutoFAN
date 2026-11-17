@@ -57,64 +57,72 @@ namespace FanCtrl
             // 
             // mProgressBar
             // 
-            mProgressBar.Location = new System.Drawing.Point(240, 16);
+            mProgressBar.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            mProgressBar.Location = new System.Drawing.Point(236, 16);
             mProgressBar.Name = "mProgressBar";
-            mProgressBar.Size = new System.Drawing.Size(328, 30);
+            mProgressBar.Size = new System.Drawing.Size(608, 30);
             mProgressBar.TabIndex = 2;
             // 
             // mResultListBox
             // 
+            mResultListBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             mResultListBox.BackColor = System.Drawing.SystemColors.ControlDark;
+            mResultListBox.HorizontalScrollbar = true;
             mResultListBox.ItemHeight = 15;
-            mResultListBox.Location = new System.Drawing.Point(16, 64);
+            mResultListBox.Location = new System.Drawing.Point(16, 58);
             mResultListBox.Name = "mResultListBox";
-            mResultListBox.Size = new System.Drawing.Size(552, 139);
+            mResultListBox.Size = new System.Drawing.Size(828, 140);
             mResultListBox.TabIndex = 3;
             // 
             // mMappingDataGridView
             // 
             mMappingDataGridView.AllowUserToAddRows = false;
             mMappingDataGridView.AllowUserToDeleteRows = false;
+            mMappingDataGridView.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             mMappingDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            mMappingDataGridView.Location = new System.Drawing.Point(16, 220);
+            mMappingDataGridView.Location = new System.Drawing.Point(16, 210);
             mMappingDataGridView.Name = "mMappingDataGridView";
             mMappingDataGridView.RowHeadersVisible = false;
-            mMappingDataGridView.Size = new System.Drawing.Size(552, 150);
+            mMappingDataGridView.Size = new System.Drawing.Size(828, 288);
             mMappingDataGridView.TabIndex = 4;
             // 
             // mAcceptButton
             // 
+            mAcceptButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
             mAcceptButton.Enabled = false;
-            mAcceptButton.Location = new System.Drawing.Point(16, 400);
+            mAcceptButton.Location = new System.Drawing.Point(16, 512);
             mAcceptButton.Name = "mAcceptButton";
             mAcceptButton.Padding = new System.Windows.Forms.Padding(1);
-            mAcceptButton.Size = new System.Drawing.Size(100, 30);
+            mAcceptButton.Size = new System.Drawing.Size(110, 32);
             mAcceptButton.TabIndex = 5;
             mAcceptButton.Text = "Accept";
             // 
             // mOptimizeAIButton
             // 
+            mOptimizeAIButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
             mOptimizeAIButton.Enabled = false;
-            mOptimizeAIButton.Location = new System.Drawing.Point(290, 400);
+            mOptimizeAIButton.Location = new System.Drawing.Point(544, 512);
             mOptimizeAIButton.Name = "mOptimizeAIButton";
             mOptimizeAIButton.Padding = new System.Windows.Forms.Padding(1);
-            mOptimizeAIButton.Size = new System.Drawing.Size(150, 30);
+            mOptimizeAIButton.Size = new System.Drawing.Size(160, 32);
             mOptimizeAIButton.TabIndex = 8;
             mOptimizeAIButton.Text = "AI Optimize";
             // 
             // mCancelButton
             // 
-            mCancelButton.Location = new System.Drawing.Point(468, 400);
+            mCancelButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            mCancelButton.Location = new System.Drawing.Point(714, 512);
             mCancelButton.Name = "mCancelButton";
             mCancelButton.Padding = new System.Windows.Forms.Padding(1);
-            mCancelButton.Size = new System.Drawing.Size(100, 30);
+            mCancelButton.Size = new System.Drawing.Size(130, 32);
             mCancelButton.TabIndex = 7;
             mCancelButton.Text = "Cancel";
             // 
             // IntelligentForm
             // 
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            ClientSize = new System.Drawing.Size(580, 440);
+            ClientSize = new System.Drawing.Size(860, 560);
+            MinimumSize = new System.Drawing.Size(760, 480);
             Controls.Add(mCancelButton);
             Controls.Add(mOptimizeAIButton);
             Controls.Add(mAcceptButton);
@@ -125,7 +133,7 @@ namespace FanCtrl
             Controls.Add(mStartButton);
             Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
             Location = new System.Drawing.Point(0, 0);
-            MaximizeBox = false;
+            MaximizeBox = true;
             MinimizeBox = false;
             Name = "IntelligentForm";
             StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

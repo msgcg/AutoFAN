@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using FanCtrl.Resources;
 using System.Windows.Forms;
@@ -12,7 +13,22 @@ namespace FanCtrl
 {
     public partial class IntelligentForm : ThemeForm
     {
+        public class FanComboItem
+        {
+            public string ID { get; set; }
+            public string DisplayName { get; set; }
+
+            public FanComboItem(string id, string displayName)
+            {
+                ID = id;
+                DisplayName = displayName;
+            }
+
+            public override string ToString() => DisplayName;
+        }
+
         private List<MappingResult> mCurrentResults = new List<MappingResult>();
+        private BindingList<FanComboItem> mFanComboList = new BindingList<FanComboItem>();
 
         private static readonly object sNativeLock = new object();
         private static bool sNativeConfigured = false;
@@ -78,6 +94,31 @@ namespace FanCtrl
             this.mCancelButton.Text = "Отмена";
         }
 
+        private string GetControlDisplayName(BaseControl control)
+        {
+            if (control == null) return "";
+            var hw = HardwareManager.getInstance();
+            string parentDevice = null;
+            foreach (var hwTypeGroup in hw.ControlList)
+            {
+                foreach (var hwDevice in hwTypeGroup)
+                {
+                    if (hwDevice.DeviceList.Contains(control))
+                    {
+                        parentDevice = hwDevice.Name;
+                        break;
+                    }
+                }
+                if (parentDevice != null) break;
+            }
+
+            if (!string.IsNullOrEmpty(parentDevice) && !string.Equals(parentDevice, control.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                return $"{control.Name} ({parentDevice})";
+            }
+            return control.Name ?? control.ID ?? "";
+        }
+
         private void SetupDataGridView()
         {
             bool isDark = OptionManager.getInstance().getNowTheme() == THEME_TYPE.DARK;
@@ -120,69 +161,86 @@ namespace FanCtrl
             }
             mMappingDataGridView.EnableHeadersVisualStyles = false;
 
+            // Populate fan combo items
+            mFanComboList.Clear();
+            var hw = HardwareManager.getInstance();
+            foreach (var control in hw.ControlBaseList)
+            {
+                mFanComboList.Add(new FanComboItem(control.ID, GetControlDisplayName(control)));
+            }
+
             mMappingDataGridView.Columns.Clear();
 
             // Sensor Name
             var colSensor = new DataGridViewTextBoxColumn();
             colSensor.Name = "SensorName";
             colSensor.HeaderText = "Датчик температуры";
-            colSensor.Width = 150;
             colSensor.ReadOnly = true;
+            colSensor.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            colSensor.FillWeight = 50;
+            colSensor.MinimumWidth = 200;
             mMappingDataGridView.Columns.Add(colSensor);
 
             // Base Temp
             var colBase = new DataGridViewTextBoxColumn();
             colBase.Name = "BaseTemp";
             colBase.HeaderText = "База °C";
-            colBase.Width = 60;
+            colBase.Width = 65;
             colBase.ReadOnly = true;
+            colBase.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
             mMappingDataGridView.Columns.Add(colBase);
 
             // Test Temp
             var colTest = new DataGridViewTextBoxColumn();
             colTest.Name = "TestTemp";
             colTest.HeaderText = "Тест °C";
-            colTest.Width = 60;
+            colTest.Width = 65;
             colTest.ReadOnly = true;
+            colTest.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
             mMappingDataGridView.Columns.Add(colTest);
 
             // Delta
             var colDelta = new DataGridViewTextBoxColumn();
             colDelta.Name = "Delta";
             colDelta.HeaderText = "Дельта °C";
-            colDelta.Width = 60;
+            colDelta.Width = 70;
             colDelta.ReadOnly = true;
+            colDelta.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
             mMappingDataGridView.Columns.Add(colDelta);
 
             // RPM
             var colRPM = new DataGridViewTextBoxColumn();
             colRPM.Name = "RPM";
             colRPM.HeaderText = "Макс. RPM";
-            colRPM.Width = 70;
+            colRPM.Width = 75;
             colRPM.ReadOnly = true;
+            colRPM.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
             mMappingDataGridView.Columns.Add(colRPM);
 
             // Detected Control
             var colDetectedControl = new DataGridViewComboBoxColumn();
             colDetectedControl.Name = "DetectedControl";
             colDetectedControl.HeaderText = "Вентилятор";
-            colDetectedControl.Width = 150;
-            var hw = HardwareManager.getInstance();
-            foreach (var control in hw.ControlBaseList)
-            {
-                colDetectedControl.Items.Add(control.ID);
-            }
+            colDetectedControl.DataSource = mFanComboList;
+            colDetectedControl.ValueMember = "ID";
+            colDetectedControl.DisplayMember = "DisplayName";
+            colDetectedControl.DropDownWidth = 380;
+            colDetectedControl.FlatStyle = FlatStyle.Flat;
+            colDetectedControl.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            colDetectedControl.FillWeight = 50;
+            colDetectedControl.MinimumWidth = 220;
             mMappingDataGridView.Columns.Add(colDetectedControl);
 
             // Confidence
             var colConfidence = new DataGridViewTextBoxColumn();
             colConfidence.Name = "Confidence";
             colConfidence.HeaderText = "Уверенность %";
-            colConfidence.Width = 100;
+            colConfidence.Width = 95;
             colConfidence.ReadOnly = true;
+            colConfidence.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
             mMappingDataGridView.Columns.Add(colConfidence);
 
-            mMappingDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            mMappingDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
             mMappingDataGridView.DataError += (s, e) => { e.Cancel = true; };
         }
 
@@ -223,6 +281,7 @@ namespace FanCtrl
             if (IntelligentManager.getInstance().IsRunning) return;
 
             mResultListBox.Items.Clear();
+            mResultListBox.HorizontalExtent = 0;
             mMappingDataGridView.Rows.Clear();
             mCurrentResults.Clear();
             mProgressBar.Value = 0;
@@ -248,6 +307,19 @@ namespace FanCtrl
             }
             mResultListBox.Items.Add(msg);
             mResultListBox.TopIndex = mResultListBox.Items.Count - 1;
+
+            try
+            {
+                using (var g = mResultListBox.CreateGraphics())
+                {
+                    int textWidth = (int)g.MeasureString(msg, mResultListBox.Font).Width + 30;
+                    if (textWidth > mResultListBox.HorizontalExtent)
+                    {
+                        mResultListBox.HorizontalExtent = textWidth;
+                    }
+                }
+            }
+            catch { }
         }
 
         private void ShowResults(List<MappingResult> list)
@@ -261,13 +333,15 @@ namespace FanCtrl
             mCurrentResults = new List<MappingResult>(list ?? new List<MappingResult>());
             mMappingDataGridView.Rows.Clear();
 
-            var comboCol = mMappingDataGridView.Columns["DetectedControl"] as DataGridViewComboBoxColumn;
+            var hw = HardwareManager.getInstance();
 
             foreach (var r in mCurrentResults)
             {
-                if (comboCol != null && !string.IsNullOrEmpty(r.ControlID) && !comboCol.Items.Contains(r.ControlID))
+                if (!string.IsNullOrEmpty(r.ControlID) && !mFanComboList.Any(item => item.ID == r.ControlID))
                 {
-                    comboCol.Items.Add(r.ControlID);
+                    var matching = hw.ControlBaseList.FirstOrDefault(c => c.ID == r.ControlID);
+                    string disp = matching != null ? GetControlDisplayName(matching) : (r.ControlName ?? r.ControlID);
+                    mFanComboList.Add(new FanComboItem(r.ControlID, disp));
                 }
 
                 int rowIndex = mMappingDataGridView.Rows.Add();
@@ -277,7 +351,7 @@ namespace FanCtrl
                 row.Cells["TestTemp"].Value = $"{r.TestTemp:F1}";
                 row.Cells["Delta"].Value = $"{r.Delta:F1}";
                 row.Cells["RPM"].Value = r.RPM;
-                row.Cells["DetectedControl"].Value = r.ControlID;
+                row.Cells["DetectedControl"].Value = !string.IsNullOrEmpty(r.ControlID) ? r.ControlID : null;
                 row.Cells["Confidence"].Value = $"{r.Confidence:F0}%";
             }
 
