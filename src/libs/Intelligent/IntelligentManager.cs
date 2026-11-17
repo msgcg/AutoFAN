@@ -48,14 +48,23 @@ namespace FanCtrl
         // Start mapping asynchronously
         public async Task StartMappingAsync()
         {
-            if (IsRunning) return;
-            IsRunning = true;
+            lock (this)
+            {
+                if (IsRunning)
+                {
+                    onLog?.Invoke("Тест уже выполняется.");
+                    return;
+                }
+                IsRunning = true;
+            }
+
             mCts = new CancellationTokenSource();
             var token = mCts.Token;
 
             var results = new List<MappingResult>();
             var activeControlsToRestore = new List<BaseControl>();
             Action<BaseControl> restoreOriginalState = null;
+            List<MappingResult> grouped = new List<MappingResult>();
 
             await Task.Run(() =>
             {
@@ -303,9 +312,19 @@ namespace FanCtrl
                         }
                     }
 
-                    var grouped = AggregateResults(results);
-                    onLog?.Invoke($"Маппинг завершен. Найдено {grouped.Count} связей.");
-                    onFinished?.Invoke(grouped);
+                    if (!token.IsCancellationRequested && results.Count > 0)
+                    {
+                        grouped = AggregateResults(results);
+                        onLog?.Invoke($"Маппинг завершен. Найдено {grouped.Count} связей.");
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    onLog?.Invoke("Тест остановлен пользователем.");
+                }
+                catch (Exception ex)
+                {
+                    onLog?.Invoke($"Ошибка во время выполнения теста: {ex.Message}");
                 }
                 finally
                 {
@@ -323,7 +342,12 @@ namespace FanCtrl
                     }
                     catch { }
 
-                    IsRunning = false;
+                    lock (this)
+                    {
+                        IsRunning = false;
+                    }
+
+                    onFinished?.Invoke(grouped);
                 }
             }, token);
         }
@@ -458,7 +482,6 @@ namespace FanCtrl
         {
             if (!IsRunning) return;
             mCts?.Cancel();
-            IsRunning = false;
         }
     }
 }
